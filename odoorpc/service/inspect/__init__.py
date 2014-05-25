@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -20,12 +20,12 @@
 ##############################################################################
 """Provide the :class:`Inspect` class which can output useful server data.
 
-oerplib.service.inspect.Inspect
+odoorpc.service.inspect.Inspect
 '''''''''''''''''''''''''''''''
 """
 from functools import wraps
 
-from oerplib import error
+from odoorpc import error
 
 
 class Inspect(object):
@@ -34,18 +34,18 @@ class Inspect(object):
     The `Inspect` class provides methods to output useful server data.
 
     .. note::
-        This service have to be used through the :attr:`oerplib.OERP.inspect`
+        This service have to be used through the :attr:`odoorpc.OERP.inspect`
         property.
 
-    >>> import oerplib
-    >>> oerp = oerplib.OERP('localhost')
+    >>> import odoorpc
+    >>> oerp = odoorpc.OERP('localhost')
     >>> user = oerp.login('admin', 'passwd', 'database')
     >>> oerp.inspect
-    <oerplib.service.inspect.Inspect object at 0xb42fa84f>
+    <odoorpc.service.inspect.Inspect object at 0xb42fa84f>
 
     .. automethod:: relations(models, maxdepth=1, whitelist=['*'], blacklist=[], attrs_whitelist=[], attrs_blacklist=[], config={})
 
-        Return a :class:`Relations <oerplib.service.inspect.relations.Relations>`
+        Return a :class:`Relations <odoorpc.service.inspect.relations.Relations>`
         object containing relations between data models, starting from `models`
         (depth = 0) and iterate recursively until reaching the `maxdepth` limit.
 
@@ -99,7 +99,7 @@ class Inspect(object):
 
     .. automethod:: dependencies(modules=[], models=[], models_blacklist=[], restrict=False, config={})
 
-        Return a :class:`Dependencies <oerplib.service.inspect.dependencies.Dependencies>`
+        Return a :class:`Dependencies <odoorpc.service.inspect.dependencies.Dependencies>`
         object describing dependencies between modules. The `modules` defines
         a list of root nodes to reach among all dependencies (modules not
         related to them are not displayed). The default behaviour is to compute
@@ -180,7 +180,7 @@ class Inspect(object):
 
     def relations(self, models, maxdepth=1, whitelist=None, blacklist=None,
                   attrs_whitelist=None, attrs_blacklist=None, config=None):
-        from oerplib.service.inspect.relations import Relations
+        from odoorpc.service.inspect.relations import Relations
         return Relations(
             self._oerp, models, maxdepth, whitelist, blacklist,
             attrs_whitelist, attrs_blacklist, config)
@@ -221,12 +221,12 @@ class Inspect(object):
                 ...
              }}
         """
-        from oerplib.service.inspect.on_change import scan_on_change
+        from odoorpc.service.inspect.on_change import scan_on_change
         return scan_on_change(self._oerp, models)
 
     def dependencies(self, modules=None, models=None, models_blacklist=None,
                      restrict=False, config=None):
-        from oerplib.service.inspect.dependencies import Dependencies
+        from odoorpc.service.inspect.dependencies import Dependencies
         return Dependencies(
             self._oerp, modules, models, models_blacklist, restrict, config)
 

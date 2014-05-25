@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
 #
 ##############################################################################
 """This module provides the BrowseRecord class."""
-from oerplib import error
+from odoorpc import error
 
 
 class BrowseRecord(object):
@@ -29,10 +29,10 @@ class BrowseRecord(object):
     to not be conflicted with the fields defined in the model class on
     the server.
 
-    A reference to the :class:`OERP <oerplib.OERP>` object used to instanciate
+    A reference to the :class:`OERP <odoorpc.OERP>` object used to instanciate
     a ``browse_record`` is available through the ``__oerp__`` attribute::
 
-        >>> oerp = oerplib.OERP('localhost')
+        >>> oerp = odoorpc.OERP('localhost')
         >>> user = oerp.login('admin', 'admin', 'db_name')
         >>> user.__oerp__ == oerp
         True
@@ -55,9 +55,9 @@ class BrowseRecord(object):
     obtained via the ``__osv__`` attribute::
 
         >>> user.__osv__
-        {'columns': {'action_id': <oerplib.service.osv.fields.Many2OneField object at 0xb75786ec>,
-                     'active': <oerplib.service.osv.fields.ValueField object at 0xb7598b6c>,
-                     'company_id': <oerplib.service.osv.fields.Many2OneField object at 0xb757868c>,
+        {'columns': {'action_id': <odoorpc.service.osv.fields.Many2OneField object at 0xb75786ec>,
+                     'active': <odoorpc.service.osv.fields.ValueField object at 0xb7598b6c>,
+                     'company_id': <odoorpc.service.osv.fields.Many2OneField object at 0xb757868c>,
                      ...},
          'name': 'res.users'}
 
@@ -141,7 +141,7 @@ class BrowseRecordIterator(object):
         res = []
         if updated_values.get(self.parent_field.name):
             res = updated_values[self.parent_field.name][:]  # Copy
-        from oerplib.service.osv import fields
+        from odoorpc.service.osv import fields
         for id_ in fields.records2ids(records):
             if (3, id_) in res:
                 res.remove((3, id_))
@@ -160,7 +160,7 @@ class BrowseRecordIterator(object):
         res = []
         if updated_values.get(self.parent_field.name):
             res = updated_values[self.parent_field.name][:]  # Copy
-        from oerplib.service.osv import fields
+        from odoorpc.service.osv import fields
         for id_ in fields.records2ids(records):
             if (4, id_) in res:
                 res.remove((4, id_))

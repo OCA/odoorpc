@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -24,8 +24,8 @@ its related attribute.
 """
 import datetime
 
-from oerplib import error
-from oerplib.service.osv import browse
+from odoorpc import error
+from odoorpc.service.osv import browse
 
 
 def is_int(value):

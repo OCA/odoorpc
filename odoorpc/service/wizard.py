@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,7 @@
 """Provide the :class:`Wizard` class in order to access the old-style wizards.
 """
 
-from oerplib import rpc, error
+from odoorpc import rpc, error
 
 
 class Wizard(object):
@@ -31,18 +31,18 @@ class Wizard(object):
     lets you access to the old-style wizards.
 
     .. note::
-        This service have to be used through the :attr:`oerplib.OERP.wizard`
+        This service have to be used through the :attr:`odoorpc.OERP.wizard`
         property.
 
-    >>> import oerplib
-    >>> oerp = oerplib.OERP('localhost')
+    >>> import odoorpc
+    >>> oerp = odoorpc.OERP('localhost')
     >>> user = oerp.login('admin', 'passwd', 'database')
     >>> oerp.wizard
-    <oerplib.service.wizard.Wizard object at 0xb76266ac>
+    <odoorpc.service.wizard.Wizard object at 0xb76266ac>
 
     .. warning::
 
-        All methods documented below are not strictly implemented in `OERPLib`
+        All methods documented below are not strictly implemented in `OdooRPC`
 
         Method calls are purely dynamic, and the following documentation can be
         wrong if the API of `OpenERP` is changed between versions. Anyway, if

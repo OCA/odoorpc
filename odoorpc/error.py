@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module contains all exceptions raised by `OERPLib` when an error
+"""This module contains all exceptions raised by `OdooRPC` when an error
 occurred.
 """
 

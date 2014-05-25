@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -30,8 +30,8 @@ On the other hand, `JSON-RPC` provides a completely different interface, with
 services provided by Web modules like ``web/session``,
 ``web/dataset`` and so on.
 """
-from oerplib.rpc import error, service, jsonrpclib
-from oerplib.tools import v
+from odoorpc.rpc import error, service, jsonrpclib
+from odoorpc.tools import v
 
 # XML-RPC available URL
 # '/xmlrpc'             => 5.0, 6.0, 6.1, 7.0, 8.0 (legacy path)
@@ -70,7 +70,7 @@ class Connector(object):
 class ConnectorXMLRPC(Connector):
     """Connector class using the `XML-RPC` protocol.
 
-    >>> from oerplib import rpc
+    >>> from odoorpc import rpc
     >>> cnt = rpc.ConnectorXMLRPC('localhost', port=8069)
 
     Login and retrieve ID of the user connected:
@@ -164,7 +164,7 @@ class ConnectorNetRPC(Connector):
 class ConnectorJSONRPC(Connector):
     """Connector class using the `JSON-RPC` protocol.
 
-    >>> from oerplib import rpc
+    >>> from odoorpc import rpc
     >>> cnt = rpc.ConnectorJSONRPC('localhost', port=8069)
 
     Open a user session:
@@ -199,7 +199,7 @@ class ConnectorJSONRPC(Connector):
         self._proxy = self._get_proxy(ssl=False)
 
     def _get_proxy(self, ssl=False):
-        """Returns a :class:`Proxy <oerplib.rpc.jsonrpclib.Proxy>` instance
+        """Returns a :class:`Proxy <odoorpc.rpc.jsonrpclib.Proxy>` instance
         corresponding to the server version used.
         """
         # Detect the server version
@@ -237,7 +237,7 @@ class ConnectorJSONRPC(Connector):
 class ConnectorJSONRPCSSL(ConnectorJSONRPC):
     """Connector class using the `JSON-RPC` protocol over `SSL`.
 
-    >>> from oerplib import rpc
+    >>> from odoorpc import rpc
     >>> cnt = rpc.ConnectorJSONRPCSSL('localhost', port=8069)
     """
     def __init__(self, server, port=8069, timeout=120, version=None,
@@ -274,7 +274,7 @@ def get_connector(server, port=8069, protocol='xmlrpc',
     API to use with the corresponding string version
     (e.g.: ``'6.0', '6.1', '7.0', '8.0', ...``):
 
-        >>> from oerplib import rpc
+        >>> from odoorpc import rpc
         >>> cnt = rpc.get_connector('localhost', 8069, 'xmlrpc', version='7.0')
     """
     if protocol not in PROTOCOLS:

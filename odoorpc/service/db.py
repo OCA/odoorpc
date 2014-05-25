@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,7 @@
 
 import time
 
-from oerplib import rpc, error
+from odoorpc import rpc, error
 
 
 class DB(object):
@@ -33,19 +33,19 @@ class DB(object):
     and restore databases.
 
     .. note::
-        This service have to be used through the :attr:`oerplib.OERP.db`
+        This service have to be used through the :attr:`odoorpc.OERP.db`
         property.
 
-    >>> import oerplib
-    >>> oerp = oerplib.OERP('localhost')
+    >>> import odoorpc
+    >>> oerp = odoorpc.OERP('localhost')
     >>> oerp.db
-    <oerplib.service.db.DB object at 0xb75fb04c>
+    <odoorpc.service.db.DB object at 0xb75fb04c>
 
     .. warning::
 
-        All methods documented below are not strictly implemented in `OERPLib`
+        All methods documented below are not strictly implemented in `OdooRPC`
         (except the
-        :func:`create_and_wait <oerplib.service.db.DB.create_and_wait>` method).
+        :func:`create_and_wait <odoorpc.service.db.DB.create_and_wait>` method).
 
         Method calls are purely dynamic, and the following documentation can be
         wrong if the API of the server is changed between versions. Anyway, if
@@ -238,7 +238,7 @@ class DB(object):
         required to perform this action.
 
         :return: a list of user accounts created
-        :raise: :class:`oerplib.error.RPCError`
+        :raise: :class:`odoorpc.error.RPCError`
 
         """
         try:

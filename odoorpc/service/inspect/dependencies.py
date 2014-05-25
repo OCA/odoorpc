@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -23,8 +23,8 @@ between server modules.
 """
 import copy
 
-from oerplib import error
-from oerplib.tools import v
+from odoorpc import error
+from odoorpc.tools import v
 
 TPL_MODULE = """<
 <table cellborder="0" cellpadding="0" cellspacing="0"

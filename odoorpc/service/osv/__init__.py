@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from oerplib.service.osv.browse import BrowseRecord
-from oerplib.service.osv.osv import Model
+from odoorpc.service.osv.browse import BrowseRecord
+from odoorpc.service.osv.osv import Model
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

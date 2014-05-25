@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -24,9 +24,9 @@ methods proposed by a data model."""
 import sys  # to check Python version at runtime
 import collections
 
-from oerplib.tools import v
-from oerplib import error
-from oerplib.service.osv import fields, browse
+from odoorpc.tools import v
+from odoorpc import error
+from odoorpc.service.osv import fields, browse
 
 
 class Model(object):
@@ -35,15 +35,15 @@ class Model(object):
     Represent a data model.
 
     .. note::
-        This class have to be used through the :func:`oerplib.OERP.get`
+        This class have to be used through the :func:`odoorpc.OERP.get`
         method.
 
-    >>> import oerplib
-    >>> oerp = oerplib.OERP('localhost')
+    >>> import odoorpc
+    >>> oerp = odoorpc.OERP('localhost')
     >>> user = oerp.login('admin', 'passwd', 'database')
     >>> user_obj = oerp.get('res.users')
     >>> user_obj
-    <oerplib.service.osv.osv.Model object at 0xb75ba4ac>
+    <odoorpc.service.osv.osv.Model object at 0xb75ba4ac>
     >>> user_obj.name_get(user.id) # Use any methods from the model instance
     [[1, 'Administrator']]
 
@@ -80,7 +80,7 @@ class Model(object):
 
         :return: a ``browse_record`` instance
         :return: a generator to iterate on ``browse_record`` instances
-        :raise: :class:`oerplib.error.RPCError`
+        :raise: :class:`odoorpc.error.RPCError`
 
         """
         if isinstance(ids, list):

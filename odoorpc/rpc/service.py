@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,7 @@
 
 import xmlrpclib
 
-from oerplib.rpc import netrpclib, xmlrpclib_custom, error
+from odoorpc.rpc import netrpclib, xmlrpclib_custom, error
 
 
 class ServiceXMLRPC(object):

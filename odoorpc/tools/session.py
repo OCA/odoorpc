@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -19,20 +19,20 @@
 #
 ##############################################################################
 """This module contains some helper functions used to save and load sessions
-in `OERPLib`.
+in `OdooRPC`.
 """
 import os
 import stat
 from ConfigParser import SafeConfigParser
 
-from oerplib import error
+from odoorpc import error
 
 
-def get_all(rc_file='~/.oerplibrc'):
+def get_all(rc_file='~/.odoorpcrc'):
     """Return all session configurations from the `rc_file` file.
     
-    >>> import oerplib
-    >>> oerplib.tools.session.get_all()
+    >>> import odoorpc
+    >>> odoorpc.tools.session.get_all()
     {'foo': {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'OERP', 'port': 8069, 'server': 'localhost'}}
     """
     conf = SafeConfigParser()
@@ -52,15 +52,15 @@ def get_all(rc_file='~/.oerplibrc'):
     return sessions
 
 
-def get(name, rc_file='~/.oerplibrc'):
+def get(name, rc_file='~/.odoorpcrc'):
     """Return the session configuration identified by `name`
     from the `rc_file` file.
 
-    >>> import oerplib
-    >>> oerplib.tools.session.get('foo')
+    >>> import odoorpc
+    >>> odoorpc.tools.session.get('foo')
     {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'OERP', 'port': 8069, 'server': 'localhost'}
 
-    :raise: :class:`oerplib.error.Error`
+    :raise: :class:`odoorpc.error.Error`
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -79,7 +79,7 @@ def get(name, rc_file='~/.oerplibrc'):
     }
 
 
-#def list(rc_file='~/.oerplibrc'):
+#def list(rc_file='~/.odoorpcrc'):
 #    """Return a list of all sessions available in the
 #    `rc_file` file.
 #    """
@@ -89,12 +89,12 @@ def get(name, rc_file='~/.oerplibrc'):
 #    return conf.sections()
 
 
-def save(name, data, rc_file='~/.oerplibrc'):
+def save(name, data, rc_file='~/.odoorpcrc'):
     """Save the `data` session configuration under the name `name`
     in the `rc_file` file.
 
-    >>> import oerplib
-    >>> oerplib.tools.session.save('foo', {'type': 'OERP', 'server': 'localhost', 'protocol': 'xmlrpc', 'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin', 'database': 'db_name'})
+    >>> import odoorpc
+    >>> odoorpc.tools.session.save('foo', {'type': 'OERP', 'server': 'localhost', 'protocol': 'xmlrpc', 'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin', 'database': 'db_name'})
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -107,14 +107,14 @@ def save(name, data, rc_file='~/.oerplibrc'):
         conf.write(file_)
 
 
-def remove(name, rc_file='~/.oerplibrc'):
+def remove(name, rc_file='~/.odoorpcrc'):
     """Remove the session configuration identified by `name`
     from the `rc_file` file.
 
-    >>> import oerplib
-    >>> oerplib.tools.session.remove('foo')
+    >>> import odoorpc
+    >>> odoorpc.tools.session.remove('foo')
 
-    :raise: :class:`oerplib.error.Error`
+    :raise: :class:`odoorpc.error.Error`
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])

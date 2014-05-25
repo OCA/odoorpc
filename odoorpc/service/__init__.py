@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ##############################################################################
 #
-#    OERPLib
-#    Copyright (C) 2011-2013 Sébastien Alix.
+#    OdooRPC
+#    Copyright (C) 2014 Sébastien Alix.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
 #
 ##############################################################################
 """The `service` package provides classes to request services offers by
-the `OpenERP/Odoo` server, such as:
+the `Odoo` server, such as:
     - '/common' (service.common),
     - '/db' (service.db)
     - '/wizard' (service.wizard)
