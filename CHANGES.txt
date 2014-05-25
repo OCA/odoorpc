@@ -1,0 +1,162 @@
+v0.8.2, 2014-06-??:
+    - Integrating the new brand 'Odoo' in addition to 'OpenERP' in the
+      documentation.
+    Bug fixes:
+    - On 'browse_record' objects, unknown field types are now interpreted
+      as 'char' (bug #1289781).
+
+v0.8.1, 2014-03-04:
+    Minor improvements:
+    - 'OERP.inspect.relations()' method: display root models in red by default,
+    - 'OERP.inspect.relations()' method: add a 's' flag on fields.function
+      which are searchable (#1272660),
+    - 'OERP.inspect.dependencies()' method: display module names in
+      lowercase.
+    Bug fixes:
+    - 'OERP.inspect.dependencies()' method: unable to find an indirect
+      dependency (bug #1265860),
+    - 'OERP.inspect.relations()' method: relationships of starting models
+      are not all displayed (bug #1287833),
+    - Error when using the NetRPC protocol without specifing the 'version'
+      parameter (bug #1267188),
+    - On 'browse_record' objects, error when using += and -= operators on
+      empty one2many and many2many fields (bug #1284768 ).
+
+v0.8.0, 2013-11-05:
+    - New service 'inspect' ('OERP.inspect') able to draw models relationship
+      and modules dependencies graphs (output in any Graphviz supported formats)
+      and to detect 'on_change' methods of data models,
+    - Able to save and load connection information ('~/.oerplibrc' by default),
+    - Experimental JSON-RPC connector added in 'oerplib.rpc' (the 'OERP' class
+      does not support it),
+    - one2many and many2many fields on browse records improved
+      (able to set easily IDs or records with '='/'+='/'-=' operators),
+    - Support for the OpenERP 'fields.integer_big' added,
+    - Add XML-RPC support for OpenERP 8.0 (new available '/xmlrpc/2' URL),
+    - Documentation updated.
+    Bug fixes:
+    - Fix the 'xmlrpc+ssl' (XML-RPCS) protocol (Bug #1221146)
+
+v0.7.3, 2013-11-05:
+    Bug fixes:
+    - There is no way to create report for multiple objects (Bug #1248314)
+
+v0.7.2, 2013-04-15:
+    Bug fixes:
+    - Unable to make any request if the 'base_crypt' module is installed
+      (Bug #1168977)
+
+v0.7.1, 2013-04-12:
+    Bug fixes:
+    - Dictionary interface of OSV/Model class conflicts with OSV methods
+      (Bug #1167796)
+    - Fixed the documentation (formatting error about the 'common' service)
+
+v0.7.0, 2013-02-18:
+    - User context is sent automatically (OpenERP >= 6.1),
+    - Able to use named parameters with OSV methods (OpenERP >= 6.1),
+    - Auto-detect the OpenERP server version (enable or disable some features
+      according to the version),
+    - Add support for 'html' type fields,
+    - [REGRESSION] one2many and many2many descriptor attributes now return a
+      generator to iterate on 'browse_record' instead of a list,
+    - [REGRESSION] 'osv_name' parameter of some functions has been renamed
+      to 'model',
+    - 'OERP.timeout' property deprecated (use 'OERP.config["timeout"]' instead),
+    - 'OERP.get_osv_name()' method deprecated (use 'record.__osv__["name"]'
+      instead),
+    - Documentation updated.
+
+    Bug fixes:
+    - Internal RPC method requests like 'read' should send a list of IDs
+      (Bug #1064087).
+    - Use the context when browsing relation fields of a 'browse_record'
+      (Bug #1066554 and #1066565),
+
+v0.6.0, 2012-09-09:
+    - Dynamic access to the '/common' RPC service ('OERP.common' attribute),
+    - Dynamic access to the '/wizard' RPC service ('OERP.wizard' attribute),
+    - Able to set a value to one2many and many2many fields for 'browse_record',
+    - Support for the OpenERP 'fields.reference' added,
+    - Support for XML-RPC over SSL added,
+    - Timeout configuration for RPC requests,
+    - Documentation updated.
+
+v0.5.3, 2012-06-17:
+    Bug fixes:
+    - For 'browse_record' objects, able to get/set a value to a many2one field
+      which the model relation has no 'name' field (Bug #1012593).
+    - Able to set the 'False' value to a many2one field for 'browse_record'
+      objects (Bug #1012597).
+    - Able to set the 'False' value to a selection field for 'browse_record'
+      objects (Bug #1014252).
+
+v0.5.2, 2012-06-04:
+    Bug fixes:
+    - Able to get the 'False' value from a field of type 'date' or 'datetime'
+      for a browse record.
+
+v0.5.1, 2012-05-09:
+    Bug fixes:
+    - Able to assign the 'False' value to a field of type 'char' for
+      a browse record.
+
+v0.5.0, 2012-04-03:
+    - Access to all methods proposed by an OSV class (even ``browse``) with an
+      API similar to that can be found in OpenERP server,
+    - Access to several browse records improved (no need to wait the
+      instanciation of all records to iterate on them),
+    - Documentation updated.
+
+v0.4.0, 2012-03-23:
+    - Net-RPC protocol support added
+    - Database management (via the 'OERP.db' attribute)
+    - Browse records are no longer stored in OERPLib, each call to the 'browse',
+      method will generate a new instance
+    - Methods which need a user connected raise an exception
+      if it is not the case
+    - Browse records now store their own original data and fields updated in
+      the '__data__' attribute
+    - Browse record classes now store their metadata (OSV class name and
+      columns) in the '__osv__' attribute
+    - Dictionary interface of the 'OERP' class dropped,
+    - 'write' and 'unlink' methods don't handle browse records anymore,
+      'write_record' and 'unlink_record' added for this purpose
+    - Unit tests added
+    - A new design for the documentation
+
+    Bug fixes:
+    - 'name' attribute of a browse record fixed (does not rely on the 'name_get'
+      OSV method anymore)
+    - 'OERP.report' method (previously called 'OERP.exec_report') works well,
+    - 'None' values can now be sent via the XML-RPC protocol
+
+    Other:
+    - Project migrated from Bitbucket to Launchpad
+
+v0.3.0, 2011-10-11:
+    - ID field of browsable objects is readonly
+    - Unable to perform refresh/reset/write and unlink operations on locally
+      deprecated browsable objects
+    - String representation of browsable objects is of the form
+      "browse_record('sale.order', 42)" (like OpenERP Server)
+    - Implicit management of the 'name_get' method for browsable objects
+    - 'join' parameter of the 'OERP.browse' method has been deleted
+    - 'refresh' option of the 'OERP.browse' method is set to True by default
+    - Update operation on One2Many field is no longer planned (setter property
+      deleted)
+
+v0.2.0, 2011-09-30:
+    - Updated tutorials in the documentation
+    - Fix some exceptions raised then update data through browsable objects
+
+v0.1.2, 2011-09-29:
+    - Fix setup.py
+
+v0.1.1, 2011-09-29:
+    - Update documentation and README.txt
+    - Fix setup.py script about Sphinx and download URL.
+
+v0.1.0, 2011-09-16:
+    - Initial release.
+

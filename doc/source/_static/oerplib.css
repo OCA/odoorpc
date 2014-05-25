@@ -1,0 +1,113 @@
+/*
+ * nature.css_t
+ * ~~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- custom styles for the nature theme.
+ *
+ * :copyright: Copyright 2011-2012 by Sebastien Alix, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
+@import url("nature.css");
+
+/* -- page layout ----------------------------------------------------------- */
+
+p.logo {
+    text-align: center;
+}
+ 
+div.body {
+    background-color: #ffffff;      /*BACKUP: #ffffff;*/
+    color: #3E4349;
+    padding: 0 30px 30px 30px;
+    font-size: 0.9em;
+    border-left: 1px solid #AFAFB6; /*ADDED*/
+}
+
+div.related {
+    background-color: #3E3C3C;      /*BACKUP: #6BA81E;*/
+}
+
+div.related a {
+    color: white;                   /*BACKUP: #E2F3CC;*/
+}
+
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+    font-family: Arial, sans-serif;
+    color: white;                   /*BACKUP: #222;*/
+    font-size: 1.2em;
+    font-weight: normal;
+    margin: 0;
+    padding: 5px 10px;
+    background-color: #7C7BAD;      /*BACKUP: #ddd;*/
+    text-shadow: 1px 1px 0 black;   /*BACKUP: white;*/
+}
+
+div.sphinxsidebar h3 a {
+    color: white;                   /*BACKUP: #444;*/
+}
+
+/* -- body styles ----------------------------------------------------------- */
+
+a {
+    color: #424077;                 /*BACKUP: #005B81;*/
+}
+a:hover {
+    color: #272658;                 /*BACKUP: #E32E00;*/
+    text-decoration: underline;
+}
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    background-color: #454545;      /*BACKUP: #BED4EB;*/
+    color: white;                   /*BACKUP: #212224;*/
+    padding: 2px 0 2px 10px;        /*BACKUP: 5px 0 5px 10px;*/
+    text-shadow: 0px 1px 0 black    /*BACKUP: 0px 1px 0 white*/
+}
+
+div.body h1 { border-top: 20px solid white; margin-top: 0; font-size: 200%;
+              background-color: #64629C;}
+div.body h2 { font-size: 150%; background-color: #8684BE; /*BACKUP: #C8D5E3;*/ }
+div.body h3 { font-size: 120%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
+div.body h4 { font-size: 110%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
+div.body h5 { font-size: 100%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
+div.body h6 { font-size: 100%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
+
+a.headerlink {
+    color: white; /*BACKUP: #c60f0f;*/
+}
+
+a.headerlink:hover {
+    background-color: #7C7BAD; /*BACKUP: #c60f0f;*/
+    color: white;
+}
+
+pre {
+    padding: 10px;
+    background-color: #EDEDF6;
+    color: #222;
+    line-height: 1.2em;
+    border: 1px solid #C6C9CB;
+    font-size: 1.1em;
+    margin: 1.5em 0 1.5em 0;
+    -webkit-box-shadow: 1px 1px 1px #d8d8d8;
+    -moz-box-shadow: 1px 1px 1px #d8d8d8;
+}
+
+li.toctree-l1 {
+    font-weight: bold;
+}
+
+li.toctree-l2 {
+    font-weight: normal;
+}
+
+li.toctree-l3 a.reference {
+    color: #3E3C3C;
+}
