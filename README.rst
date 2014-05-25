@@ -1,70 +1,65 @@
-
 =======
-OERPLib
+OdooRPC
 =======
 
-**OERPLib** is a Python module providing an easy way to
-pilot your **OpenERP** and **Odoo** servers through `RPC`.
+**OdooRPC** is a Python module providing an easy way to
+pilot your **Odoo** servers through `RPC`.
 
 Features supported:
-    - `XML-RPC` and (legacy) `Net-RPC` protocols,
+    - `XML-RPC` and `JSON-RPC` protocols,
     - access to all methods proposed by a model class
       (even ``browse``) with an API similar to the server-side API,
-    - ability to use named parameters with such methods (server >= `6.1`),
-    - user context automatically sent (server >= `6.1`) providing support
-      for internationalization,
+    - use named parameters with model methods,
+    - user context automatically sent providing support for
+      internationalization,
     - browse records,
     - execute workflows,
     - manage databases,
-    - reports downloading,
-    - inspection capabilities (graphical output of relations between models and
-      dependencies between modules, list ``on_change`` methods from model
-      views, ...).
+    - reports downloading.
 
 How does it work? See below::
 
-    import oerplib
+    import odoorpc
 
     # Prepare the connection to the server
-    oerp = oerplib.OERP('localhost', protocol='xmlrpc', port=8069)
+    odoo = odoorpc.XMLRPC('localhost', port=8069)   # JSONRPC available too
 
     # Check available databases
-    print(oerp.db.list())
+    print(odoo.db.list())
 
     # Login (the object returned is a browsable record)
-    user = oerp.login('user', 'passwd', 'db_name')
+    user = odoo.login('user', 'passwd', 'db_name')
     print(user.name)            # name of the user connected
     print(user.company_id.name) # the name of its company
 
     # Simple 'raw' query
-    user_data = oerp.execute('res.users', 'read', [user.id])
+    user_data = odoo.execute('res.users', 'read', [user.id])
     print(user_data)
 
-    # Use all methods of an OSV class
-    order_obj = oerp.get('sale.order')
-    order_ids = order_obj.search([])
-    for order in order_obj.browse(order_ids):
+    # Use all methods of a model
+    order_model = odoo.registry['sale.order']
+    order_ids = order_model.search([])
+    for order in order_model.browse(order_ids):
         print(order.name)
         products = [line.product_id.name for line in order.order_line]
         print(products)
 
     # Update data through a browsable record
     user.name = "Brian Jones"
-    oerp.write_record(user)
+    odoo.save()
 
 See the documentation for more details and features.
 
-Supported OpenERP/Odoo server versions
---------------------------------------
+Supported Odoo server versions
+------------------------------
 
-`OERPLib` has been tested on `OpenERP` server v5.0, v6.0, v6.1, v7.0 and
-Odoo v8.0.
+`OdooRPC` has been tested on `Odoo` server v8.0.
 It should work on next versions if `Odoo` keeps a stable API.
 
 Supported Python versions
 -------------------------
 
-`OERPLib` support Python versions 2.6, 2.7.
+`OdooRPC` support Python versions 2.7, 3.2, 3.3 and 3.4
 
 License
 -------
@@ -89,10 +84,9 @@ Bugs or suggestions
 -------------------
 
 Please, feel free to report bugs or suggestions in the `Bug Tracker
-<https://bugs.launchpad.net/oerplib>`_!
+<TODO>`_!
 
 Changes in this version
 -----------------------
 
-Consult the ``CHANGES.txt`` file.
-
+Consult the ``CHANGELOG`` file.

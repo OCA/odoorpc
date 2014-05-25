@@ -3,16 +3,17 @@
 import os
 from distutils.core import setup
 
-name = 'OERPLib'
-version = '0.8.1'
-description = ("OERPLib is a Python module providing an easy way to "
-               "pilot your OpenERP and Odoo servers through RPC.")
-keywords = ("openerp odoo server client xml-rpc xmlrpc net-rpc netrpc "
-            "oerplib communication lib library python service web webservice")
+name = 'OdooRPC'
+version = '1.0'
+description = ("OdooRPC is a Python module providing an easy way to "
+               "pilot your Odoo servers through RPC.")
+keywords = ("openerp odoo server rpc client xml-rpc xmlrpc jsonrpc json-rpc "
+            "odoorpc oerplib communication lib library python "
+            "service web webservice")
 author = "ABF Osiell - Sebastien Alix"
 author_email = 'sebastien.alix@osiell.com'
-url = 'http://pythonhosted.org/OERPLib/'
-download_url = 'http://pypi.python.org/packages/source/O/OERPLib/OERPLib-%s.tar.gz' % version
+url = 'http://pythonhosted.org/OdooRPC/'
+download_url = 'http://pypi.python.org/packages/source/O/OdoORPC/OdooRPC-%s.tar.gz' % version
 license = 'LGPL v3'
 doc_build_dir = 'doc/build'
 doc_source_dir = 'doc/source'
@@ -41,18 +42,18 @@ except Exception:
 setup(name=name,
       version=version,
       description=description,
-      long_description=open('README.txt').read(),
+      long_description=open('README.rst').read(),
       keywords=keywords,
       author=author,
       author_email=author_email,
       url=url,
       download_url=download_url,
-      packages=['oerplib',
-                'oerplib.rpc',
-                'oerplib.service',
-                'oerplib.service.osv',
-                'oerplib.service.inspect',
-                'oerplib.tools'],
+      packages=['odoorpc',
+                'odoorpc.rpc',
+                'odoorpc.service',
+                'odoorpc.service.osv',
+                'odoorpc.service.inspect',
+                'odoorpc.tools'],
       license=license,
       cmdclass=cmdclass,
       command_options=command_options,
