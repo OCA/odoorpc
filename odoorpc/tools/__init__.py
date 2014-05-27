@@ -85,38 +85,6 @@ def clean_version(version):
     return version
 
 
-def detect_version(server, protocol, port, timeout=120):
-    """
-    .. deprecated:: 0.8
-
-    Try to detect the server version.
-
-        >>> from odoorpc.tools import detect_version
-        >>> detect_version('localhost', 'xmlrpc', 8069)
-        '7.0'
-
-    :return: the version as string
-    """
-    from odoorpc import rpc
-    # Try to request the server with the last API supported
-    try:
-        con = rpc.PROTOCOLS[protocol](
-            server, port, protocol, timeout, version=None)
-        version = con.db.server_version()
-    except:
-        # Try with the API of server < 6.1
-        try:
-            con = rpc.PROTOCOLS[protocol](
-                server, port, protocol, timeout, version='6.0')
-            version = con.db.server_version()
-        except:
-            # No version detected? Use the magic number in order to ensure the
-            # use of the last API supported
-            version = '42'
-    finally:
-        return clean_version(version)
-
-
 def v(version):
     """Convert a version string to a tuple. The tuple can be use to compare
     versions between them.

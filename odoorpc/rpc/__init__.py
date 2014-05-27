@@ -18,26 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module provides `RPC` connectors which use the `XML-RPC`, `Net-RPC`
-or `JSON-RPC` protocol to communicate with an `OpenERP/Odoo` server.
+"""This module provides `RPC` connectors which use the `XML-RPC` or `JSON-RPC`
+protocol to communicate with an `Odoo` server.
 
 Afterwards, `RPC` services and their associated methods can be accessed
 dynamically from the connector returned.
 
-`XML-RPC` and `Net-RPC` provide the same interface, such as services like
-``db``, ``common`` or ``object``.
+`XML-RPC` provides an interface to services like ``/xmlrpc2/db``,
+``/xmlrpc2/common`` or ``/xmlrpc2/object``.
 On the other hand, `JSON-RPC` provides a completely different interface, with
-services provided by Web modules like ``web/session``,
-``web/dataset`` and so on.
+services provided by Web modules like ``/web/session``,
+``/web/dataset`` and so on.
 """
 from odoorpc.rpc import error, service, jsonrpclib
 from odoorpc.tools import v
 
-# XML-RPC available URL
-# '/xmlrpc'             => 5.0, 6.0, 6.1, 7.0, 8.0 (legacy path)
-# '/openerp/xmlrpc/1'   => 6.1, 7.0
-# '/xmlrpc/2'           => 8.0
-XML_RPC_PATHS = ['/xmlrpc', '/openerp/xmlrpc/1', '/xmlrpc/2']
+XML_RPC_PATHS = [
+    '/xmlrpc/2',
+]
 
 
 class Connector(object):
@@ -88,19 +86,11 @@ class ConnectorXMLRPC(Connector):
     def __init__(self, server, port=8069, timeout=120, version=None):
         super(ConnectorXMLRPC, self).__init__(server, port, timeout, version)
         if self.version:
-            # Server < 6.1
-            if v(self.version) < v('6.1'):
-                self._url = 'http://{server}:{port}/xmlrpc'.format(
-                    server=self.server, port=self.port)
-            # Server >= 6.1 and < 8.0
-            elif v(self.version) < v('8.0'):
-                self._url = 'http://{server}:{port}/openerp/xmlrpc/1'.format(
-                    server=self.server, port=self.port)
             # Server >= 8.0
-            elif v(self.version) >= v('8.0'):
+            if v(self.version) >= v('8.0'):
                 self._url = 'http://{server}:{port}/xmlrpc/2'.format(
                     server=self.server, port=self.port)
-        # Detect the XML-RPC path to use
+        # Detect the version
         if self._url is None:
             # We begin with the last known XML-RPC path to give the priority to
             # the last server version supported
@@ -133,32 +123,6 @@ class ConnectorXMLRPCSSL(ConnectorXMLRPC):
         super(ConnectorXMLRPCSSL, self).__init__(
             server, port, timeout, version)
         self._url = self._url.replace('http', 'https')
-
-
-class ConnectorNetRPC(Connector):
-    """
-    .. note::
-        No longer available since `OpenERP 7.0`.
-
-    Connector class using the `Net-RPC` protocol.
-    """
-    def __init__(self, server, port=8070, timeout=120, version=None):
-        super(ConnectorNetRPC, self).__init__(
-            server, port, timeout, version)
-        if self.version is None:
-            try:
-                db = service.ServiceNetRPC(self, 'db', self.server, self.port)
-                version = db.server_version()
-            except error.ConnectorError:
-                pass
-            else:
-                self.version = version
-
-    def __getattr__(self, service_name):
-        srv = service.ServiceNetRPC(
-            self, service_name, self.server, self.port)
-        setattr(self, service_name, srv)
-        return srv
 
 
 class ConnectorJSONRPC(Connector):
@@ -214,11 +178,6 @@ class ConnectorJSONRPC(Connector):
             # Server >= 7.0
             elif 'server_version' in result:
                 self.version = result['server_version']
-        # Select the legacy proxy for OpenERP 6.1 and 7.0
-        if v(self.version)[:2] <= v('7.0'):
-            proxy = jsonrpclib.ProxyLegacy(
-                self.server, self.port, self._timeout,
-                ssl=ssl, deserialize=self.deserialize)
         return proxy
 
     @property
@@ -252,36 +211,6 @@ PROTOCOLS = {
     'xmlrpc+ssl': ConnectorXMLRPCSSL,
     #'jsonrpc': ConnectorJSONRPC,
     #'jsonrpc+ssl': ConnectorJSONRPCSSL,
-    'netrpc': ConnectorNetRPC,
 }
-
-
-def get_connector(server, port=8069, protocol='xmlrpc',
-                  timeout=120, version=None):
-    """
-    .. deprecated:: 0.8
-    
-    Return a `RPC` connector to interact with an `OpenERP/Odoo` server.
-    Supported protocols are:
-
-        - ``xmlrpc``: Standard `XML-RPC` protocol (default),
-        - ``xmlrpc+ssl``: `XML-RPC` protocol over `SSL`,
-        - ``netrpc``: `Net-RPC` protocol (no longer available
-          since `OpenERP 7.0`).
-
-    If the `version` parameter is set to `None`, the last API supported will
-    be used to send requests to the server. Otherwise, you can force the
-    API to use with the corresponding string version
-    (e.g.: ``'6.0', '6.1', '7.0', '8.0', ...``):
-
-        >>> from odoorpc import rpc
-        >>> cnt = rpc.get_connector('localhost', 8069, 'xmlrpc', version='7.0')
-    """
-    if protocol not in PROTOCOLS:
-        txt = ("The protocol '{0}' is not supported. "
-               "Please choose a protocol among these ones: {1}")
-        txt = txt.format(protocol, PROTOCOLS.keys())
-        raise error.ConnectorError(txt)
-    return PROTOCOLS[protocol](server, port, timeout, version)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

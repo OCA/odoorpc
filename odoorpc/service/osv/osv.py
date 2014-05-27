@@ -19,20 +19,17 @@
 #
 ##############################################################################
 """Provide the :class:`Model` class which allow to access dynamically to all
-methods proposed by a data model."""
+methods proposed by a data model.
+"""
 
 import sys  # to check Python version at runtime
-import collections
 
-from odoorpc.tools import v
 from odoorpc import error
 from odoorpc.service.osv import fields, browse
 
 
 class Model(object):
-    """.. versionadded:: 0.5
-
-    Represent a data model.
+    """Represent a data model.
 
     .. note::
         This class have to be used through the :func:`odoorpc.OERP.get`
@@ -141,10 +138,7 @@ class Model(object):
                 else:
                     vals[field_name] = field_value
         try:
-            if v(self._oerp.version) < v('6.1'):
-                res = self.write([obj.id], vals, context)
-            else:
-                res = self.write([obj.id], vals, context=context)
+            res = self.write([obj.id], vals, context=context)
         except error.Error as exc:
             raise exc
         else:
@@ -171,30 +165,19 @@ class Model(object):
                 obj_data['raw_data'][field_name] = None
         # Fill fields with values of the record
         if obj.id:
-            if v(self._oerp.version) < v('6.1'):
-                data = self.read([obj.id], basic_fields, context)
-                if data:
-                    obj_data['raw_data'].update(data[0])
-                else:
-                    obj_data['raw_data'] = False
+            data = self.read([obj.id], basic_fields, context=context)
+            if data:
+                obj_data['raw_data'].update(data[0])
             else:
-                data = self.read([obj.id], basic_fields, context=context)
-                if data:
-                    obj_data['raw_data'].update(data[0])
-                else:
-                    obj_data['raw_data'] = False
+                obj_data['raw_data'] = False
             if obj_data['raw_data'] is False:
                 raise error.RPCError(
                     "There is no '{model}' record with ID {obj_id}.".format(
                         model=obj.__class__.__osv__['name'], obj_id=obj.id))
         # No ID: fields filled with default values
         else:
-            if v(self._oerp.version) < v('6.1'):
-                default_get = self.default_get(
-                    obj.__osv__['columns'].keys(), context)
-            else:
-                default_get = self.default_get(
-                    obj.__osv__['columns'].keys(), context=context)
+            default_get = self.default_get(
+                obj.__osv__['columns'].keys(), context=context)
             obj_data['raw_data'] = {}
             for field_name in obj.__osv__['columns']:
                 obj_data['raw_data'][field_name] = False
@@ -218,28 +201,17 @@ class Model(object):
 
     def _unlink_record(self, obj, context=None):
         """Delete the object from the server."""
-        if v(self._oerp.version) < v('6.1'):
-            return self.unlink([obj.id], context)
-        else:
-            return self.unlink([obj.id], context=context)
+        return self.unlink([obj.id], context=context)
 
     def __getattr__(self, method):
         """Provide a dynamic access to a RPC method."""
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
-            if v(self._oerp.version) < v('6.1'):
-                if kwargs:
-                    raise error.RPCError(
-                        "Named parameters are not supported by the version "
-                        "of this server.")
-                result = self._oerp.execute(
-                    self._browse_class.__osv__['name'], method, *args)
-            else:
-                if self._oerp.config['auto_context'] \
-                        and 'context' not in kwargs:
-                    kwargs['context'] = self._oerp.context
-                result = self._oerp.execute_kw(
-                    self._browse_class.__osv__['name'], method, args, kwargs)
+            if self._oerp.config['auto_context'] \
+                    and 'context' not in kwargs:
+                kwargs['context'] = self._oerp.context
+            result = self._oerp.execute_kw(
+                self._browse_class.__osv__['name'], method, args, kwargs)
             return result
         return rpc_method
 

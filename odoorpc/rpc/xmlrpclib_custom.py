@@ -26,7 +26,7 @@ import sys
 from urlparse import urlparse
 
 # Defined later following the version of Python used
-TimeoutTransport = None  
+TimeoutTransport = None
 TimeoutSafeTransport = None
 
 
@@ -43,56 +43,7 @@ class TimeoutServerProxy(xmlrpclib.ServerProxy):
         xmlrpclib.ServerProxy.__init__(self, *args, **kwargs)
 
 
-if sys.version_info <= (2, 7):
-    # Python 2.5 and 2.6
-
-    # -- xmlrpclib.Transport with timeout support --
-
-    class TimeoutHTTPPy26(httplib.HTTP):
-        def __init__(self, host='', port=None, strict=None,
-                     timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
-            if port == 0:
-                port = None
-            self._setup(self._connection_class(host, port, strict, timeout))
-
-    class TimeoutTransportPy26(xmlrpclib.Transport):
-        def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
-                     *args, **kwargs):
-            xmlrpclib.Transport.__init__(self, *args, **kwargs)
-            self.timeout = timeout
-
-        def make_connection(self, host):
-            host, extra_headers, x509 = self.get_host_info(host)
-            conn = TimeoutHTTPPy26(host, timeout=self.timeout)
-            return conn
-
-    # -- xmlrpclib.SafeTransport with timeout support --
-
-    class TimeoutHTTPSPy26(httplib.HTTPS):
-        def __init__(self, host='', port=None, key_file=None, cert_file=None,
-                     strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
-            if port == 0:
-                port = None
-            self._setup(self._connection_class(
-                host, port, key_file, cert_file, strict, timeout))
-            self.key_file = key_file
-            self.cert_file = cert_file
-
-    class TimeoutSafeTransportPy26(xmlrpclib.SafeTransport):
-        def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
-                     *args, **kwargs):
-            xmlrpclib.Transport.__init__(self, *args, **kwargs)
-            self.timeout = timeout
-
-        def make_connection(self, host):
-            host, extra_headers, x509 = self.get_host_info(host)
-            conn = TimeoutHTTPSPy26(host, timeout=self.timeout)
-            return conn
-
-    # Define the TimeTransport and TimeSafeTransport class version to use
-    TimeoutTransport = TimeoutTransportPy26
-    TimeoutSafeTransport = TimeoutSafeTransportPy26
-else:
+if sys.version_info > (2, 7):
     # Python 2.7 and 3.X
 
     # -- xmlrpclib.Transport with timeout support --

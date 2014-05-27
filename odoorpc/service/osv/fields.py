@@ -177,8 +177,9 @@ class Many2ManyField(BaseField):
             ids = instance.__data__['values'][self.name][:]
         # None value => get the value on the fly
         if ids is None:
-            orig_ids = instance.__oerp__.read(
+            orig_ids = instance.__oerp__.execute(
                 instance.__osv__['name'],
+                'read',
                 [instance.id], [self.name])[0][self.name]
             instance.__data__['values'][self.name] = orig_ids
             ids = orig_ids and orig_ids[:] or []
@@ -236,22 +237,24 @@ class Many2OneField(BaseField):
             # FIXME if id_ is a browse_record
         # None value => get the value on the fly
         if id_ is None:
-            id_ = instance.__oerp__.read(
+            id_ = instance.__oerp__.execute(
                 instance.__osv__['name'],
+                'read',
                 [instance.id], [self.name])[0][self.name]
             instance.__data__['values'][self.name] = id_
         if id_:
             context = instance.__data__['context'].copy()
             context.update(self.context)
-            return instance.__class__.__oerp__.browse(
-                self.relation, id_[0], context)
+            rel_obj = instance.__class__.__oerp__.get(self.relation)
+            return rel_obj.browse(id_[0], context=context)
         return False
 
     def __set__(self, instance, value):
         if isinstance(value, browse.BrowseRecord):
             o_rel = value
         elif is_int(value):
-            o_rel = instance.__class__.__oerp__.browse(self.relation, value)
+            rel_obj = instance.__class__.__oerp__.get(self.relation)
+            o_rel = rel_obj.browse(value)
         elif value in [None, False]:
             o_rel = False
         else:
@@ -288,8 +291,9 @@ class One2ManyField(BaseField):
             ids = instance.__data__['values'][self.name][:]
         # None value => get the value on the fly
         if ids is None:
-            orig_ids = instance.__oerp__.read(
+            orig_ids = instance.__oerp__.execute(
                 instance.__osv__['name'],
+                'read',
                 [instance.id], [self.name])[0][self.name]
             instance.__data__['values'][self.name] = orig_ids
             ids = orig_ids and orig_ids[:] or []
@@ -333,9 +337,7 @@ class One2ManyField(BaseField):
 
 
 class ReferenceField(BaseField):
-    """.. versionadded:: 0.6
-    Represent the OpenObject 'fields.reference'.
-    """
+    """Represent the OpenObject 'fields.reference'."""
     def __init__(self, osv, name, data):
         super(ReferenceField, self).__init__(osv, name, data)
         self.context = 'context' in data and data['context'] or {}
@@ -348,8 +350,9 @@ class ReferenceField(BaseField):
             value = instance.__data__['updated_values'][self.name]
         # None value => get the value on the fly
         if value is None:
-            value = instance.__oerp__.read(
+            value = instance.__oerp__.execute(
                 instance.__osv__['name'],
+                'read',
                 [instance.id], [self.name])[0][self.name]
             instance.__data__['values'][self.name] = value
         if value:
@@ -359,8 +362,8 @@ class ReferenceField(BaseField):
             if relation and o_id:
                 context = instance.__data__['context'].copy()
                 context.update(self.context)
-                return instance.__class__.__oerp__.browse(
-                    relation, o_id, context)
+                rel_obj = instance.__class__.__oerp__.get(relation)
+                return rel_obj.browse(o_id, context=context)
         return False
 
     def __set__(self, instance, value):
@@ -505,8 +508,7 @@ class ValueField(BaseField):
 
 def generate_field(osv, name, data):
     """Generate a well-typed field according to the data dictionary supplied
-    (obtained via 'fields_get' XML-RPC/NET-RPC method).
-
+    (obtained via the 'fields_get' method of any models).
     """
     assert 'type' in data
     field = None

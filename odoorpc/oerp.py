@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module contains the ``OERP`` class which is the entry point to manage 
+"""This module contains the ``OERP`` class which is the entry point to manage
 an `Odoo` server.
 """
 import os
@@ -29,7 +29,7 @@ import time
 
 from odoorpc import rpc, error, tools
 from odoorpc.tools import session
-from odoorpc.service import common, db, wizard, osv, inspect
+from odoorpc.service import common, db, osv
 
 
 class OERP(object):
@@ -39,17 +39,17 @@ class OERP(object):
     If no `database` is set, the `database` parameter of the
     :func:`login <odoorpc.OERP.login>` method will be mandatory.
 
-    `XML-RPC` and `Net-RPC` protocols are supported. Respective values for the
-    `protocol` parameter are ``xmlrpc``, ``xmlrpc+ssl`` and ``netrpc``.
+    `XML-RPC` protocol are supported. Respective values for the `protocol`
+    parameter are ``xmlrpc`` and ``xmlrpc+ssl``.
 
         >>> import odoorpc
         >>> oerp = odoorpc.OERP('localhost', protocol='xmlrpc', port=8069)
 
-    Since the version `0.7`, `OdooRPC` will try by default to detect the
-    server version in order to adapt its requests. However, it is
-    possible to force the version to use with the `version` parameter:
+    `OdooRPC` will try by default to detect the server version in order to
+    adapt its requests. However, it is possible to force the version to use
+    with the `version` parameter:
 
-        >>> oerp = odoorpc.OERP('localhost', version='6.0')
+        >>> oerp = odoorpc.OERP('localhost', version='8.0')
 
     :raise: :class:`odoorpc.error.InternalError`,
         :class:`odoorpc.error.RPCError`
@@ -57,10 +57,10 @@ class OERP(object):
 
     def __init__(self, server='localhost', database=None, protocol='xmlrpc',
                  port=8069, timeout=120, version=None):
-        if protocol not in ['xmlrpc', 'xmlrpc+ssl', 'netrpc']:
+        if protocol not in ['xmlrpc', 'xmlrpc+ssl']:
             txt = ("The protocol '{0}' is not supported by the OERP class. "
                    "Please choose a protocol among these ones: {1}")
-            txt = txt.format(protocol, ['xmlrpc', 'xmlrpc+ssl', 'netrpc'])
+            txt = txt.format(protocol, ['xmlrpc', 'xmlrpc+ssl'])
             raise error.InternalError(txt)
         self._server = server
         self._port = port
@@ -71,8 +71,6 @@ class OERP(object):
         self._user = None
         self._common = common.Common(self)
         self._db = db.DB(self)
-        self._wizard = wizard.Wizard(self)
-        self._inspect = inspect.Inspect(self)
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
@@ -96,12 +94,6 @@ class OERP(object):
           automatically to every call of a
           :class:`model <odoorpc.service.osv.Model>` method (default: `True`):
 
-            .. versionadded:: 0.7
-
-            .. note::
-
-                This option only works on servers in version `6.1` and above.
-
             >>> product_osv = oerp.get('product.product')
             >>> product_osv.name_get([3]) # Context sent by default ('lang': 'fr_FR' here)
             [[3, '[PC1] PC Basic']]
@@ -111,8 +103,6 @@ class OERP(object):
 
         - ``timeout``: set the maximum timeout in seconds for a RPC request
           (default: `120`):
-
-            .. versionadded:: 0.6
 
             >>> oerp.config['timeout'] = 300
 
@@ -148,7 +138,7 @@ class OERP(object):
         """The version of the server.
 
         >>> oerp.version
-        '7.0-20131014-231047'
+        '8.0'
         """
         return self._connector.version
 
@@ -162,27 +152,11 @@ class OERP(object):
     database = property(lambda self: self._database,
                         doc="The database currently used.")
     common = property(lambda self: self._common,
-                      doc=(""".. versionadded:: 0.6
-
-                       The common service (``/common`` RPC service).
+                      doc=("""The common service (``/common`` RPC service).
                        See the :class:`odoorpc.service.common.Common` class."""))
     db = property(lambda self: self._db,
-                  doc=(""".. versionadded:: 0.4
-
-                       The database management service (``/db`` RPC service).
+                  doc=("""The database management service (``/db`` RPC service).
                        See the :class:`odoorpc.service.db.DB` class."""))
-    wizard = property(lambda self: self._wizard,
-                      doc=(""".. versionadded:: 0.6
-
-                       The wizard service (``/wizard`` RPC service).
-                       See the :class:`odoorpc.service.wizard.Wizard` class."""))
-
-    inspect = property(lambda self: self._inspect,
-                       doc=(""".. versionadded:: 0.8
-
-                       The inspect service (custom service).
-                       See the :class:`odoorpc.service.inspect.Inspect`
-                       class."""))
 
     #NOTE: in the past this function was implemented as a decorator for other
     # methods needed to be checked, but Sphinx documentation generator is not
@@ -219,7 +193,8 @@ class OERP(object):
                 self._uid = user_id
                 self._password = passwd
                 self._context = self.execute('res.users', 'context_get')
-                self._user = self.browse('res.users', user_id, self._context)
+                user_obj = self.get('res.users')
+                self._user = user_obj.browse(user_id, context=self._context)
                 return self._user
             else:
                 #FIXME: Raise an error?
@@ -257,10 +232,6 @@ class OERP(object):
 
         >>> oerp.execute_kw('res.partner', 'read', [[1, 2]], {'fields': ['name']})
         [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
-
-        .. warning::
-
-            This method only works on servers in version `6.1` and above.
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
@@ -376,108 +347,12 @@ class OERP(object):
             os.close(file_no)
             return file_path
 
-    # ------------------------- #
-    # -- High Level methods  -- #
-    # ------------------------- #
-
-    def browse(self, model, ids, context=None):
-        """Browse one or several records (if `ids` is a list of IDs)
-        from `model`. The fields and values for such objects are generated
-        dynamically.
-
-        >>> oerp.browse('res.partner', 1)
-        browse_record(res.partner, 1)
-
-        >>> [partner.name for partner in oerp.browse('res.partner', [1, 2])]
-        [u'Your Company', u'ASUStek']
-
-        A list of data types used by ``browse_record`` fields are
-        available :ref:`here <fields>`.
-
-        :return: a ``browse_record`` instance
-        :return: a generator to iterate on ``browse_record`` instances
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        return self.get(model).browse(ids, context)
-
-    def search(self, model, args=None, offset=0, limit=None, order=None,
-               context=None, count=False):
-        """Return a list of IDs of records matching the given criteria in
-        `args` parameter. `args` must be of the form
-        ``[('name', '=', 'John'), (...)]``
-
-        >>> oerp.search('res.partner', [('name', 'like', 'Agrolait')])
-        [3]
-
-        :return: a list of IDs
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        if args is None:
-            args = []
-        return self.execute(model, 'search', args, offset, limit, order,
-                            context, count)
-
-    def create(self, model, vals, context=None):
-        """Create a new `model` record with values contained in the `vals`
-        dictionary.
-
-        >>> partner_id = oerp.create('res.partner', {'name': 'Jacky Bob', 'lang': 'fr_FR'})
-
-        :return: the ID of the new record.
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        return self.execute(model, 'create', vals, context)
-
-    def read(self, model, ids, fields=None, context=None):
-        """Return `fields` values for each `model` record identified by `ids`.
-        If `fields` is not specified, all fields values will be retrieved.
-
-        >>> oerp.read('res.partner', [1, 2], ['name'])
-        [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
-
-        :return: list of dictionaries
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        if fields is None:
-            fields = []
-        return self.execute(model, 'read', ids, fields, context)
-
-    def write(self, model, ids, vals=None, context=None):
-        """Update `model` records identified by `ids` with the given values
-        contained in the `vals` dictionary.
-
-        >>> oerp.write('res.users', [1], {'name': "Administrator"})
-        True
-
-        :return: `True`
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        #if ids is None:
-        #    ids = []
-        if vals is None:
-            vals = {}
-        return self.execute(model, 'write', ids, vals, context)
-
-    def unlink(self, model, ids, context=None):
-        """Delete `model` records identified by `ids`.
-
-        >>> oerp.unlink('res.partner', [1])
-
-        :return: `True`
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        #if ids is None:
-        #    ids = []
-        return self.execute(model, 'unlink', ids, context)
-
     # ---------------------- #
     # -- Special methods  -- #
     # ---------------------- #
 
     def write_record(self, browse_record, context=None):
-        """.. versionadded:: 0.4
-
-        Update the record corresponding to `browse_record` by sending its values
+        """Update the record corresponding to `browse_record` by sending its values
         to the server (only field values which have been changed).
 
         >>> partner = oerp.browse('res.partner', 1)
@@ -493,9 +368,7 @@ class OERP(object):
             browse_record, context)
 
     def unlink_record(self, browse_record, context=None):
-        """.. versionadded:: 0.4
-
-        Delete the record corresponding to `browse_record` from the server.
+        """Delete the record corresponding to `browse_record` from the server.
 
         >>> partner = oerp.browse('res.partner', 1)
         >>> oerp.unlink_record(partner)  # unlink('res.partner', [1])
@@ -526,27 +399,8 @@ class OERP(object):
         return osv.Model(self, browse_record.__osv__['name'])._reset(
             browse_record)
 
-    @staticmethod
-    def get_osv_name(browse_record):
-        """
-        .. deprecated:: 0.7 use the ``__osv__`` attribute instead
-           (see :class:`BrowseRecord <odoorpc.service.osv.BrowseRecord>`).
-
-        >>> partner = oerp.browse('res.partner', 1)
-        >>> oerp.get_osv_name(partner)
-        'res.partner'
-
-        :return: the model name of the browsable record
-
-        """
-        if not isinstance(browse_record, osv.BrowseRecord):
-            raise ValueError("Value is not a browse_record.")
-        return browse_record.__osv__['name']
-
     def get(self, model):
-        """.. versionadded:: 0.5
-
-        Return a proxy of the `model` built from the
+        """Return a proxy of the `model` built from the
         server (see :class:`odoorpc.service.osv.Model`).
 
         :return: an instance of :class:`odoorpc.service.osv.Model`
@@ -554,9 +408,7 @@ class OERP(object):
         return osv.Model(self, model)
 
     def save(self, name, rc_file='~/.odoorpcrc'):
-        """.. versionadded:: 0.8
-
-        Save the session configuration under the name `name`.
+        """Save the session configuration under the name `name`.
         These informations are stored in the ``~/.odoorpcrc`` file by default.
 
             >>> import odoorpc
@@ -583,9 +435,7 @@ class OERP(object):
 
     @classmethod
     def load(cls, name, rc_file='~/.odoorpcrc'):
-        """.. versionadded:: 0.8
-
-        Return a :class:`OERP` session pre-configured and connected
+        """Return a :class:`OERP` session pre-configured and connected
         with informations identified by `name`:
 
             >>> import odoorpc
@@ -612,9 +462,7 @@ class OERP(object):
 
     @classmethod
     def list(cls, rc_file='~/.odoorpcrc'):
-        """.. versionadded:: 0.8
-
-        Return a list of all sessions available in the
+        """Return a list of all sessions available in the
         `rc_file` file:
 
             >>> import odoorpc
@@ -632,9 +480,7 @@ class OERP(object):
 
     @classmethod
     def remove(cls, name, rc_file='~/.odoorpcrc'):
-        """.. versionadded:: 0.8
-
-        Remove the session identified by `name` from the `rc_file` file:
+        """Remove the session identified by `name` from the `rc_file` file:
 
             >>> import odoorpc
             >>> odoorpc.OERP.remove('foo')

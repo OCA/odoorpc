@@ -2,7 +2,7 @@
 """A sample script to demonstrate some of functionalities of OERPLib."""
 import oerplib
 
-# XMLRPC server configuration (NETRPC is also supported)
+# XMLRPC server configuration
 SERVER = 'localhost'
 PROTOCOL = 'xmlrpc'
 PORT = 8069

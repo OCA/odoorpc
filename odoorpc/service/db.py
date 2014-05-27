@@ -26,9 +26,7 @@ from odoorpc import rpc, error
 
 
 class DB(object):
-    """.. versionadded:: 0.4
-
-    The `DB` class represents the database management service.
+    """The `DB` class represents the database management service.
     It provides functionalities such as list, create, drop, dump
     and restore databases.
 
@@ -151,8 +149,6 @@ class DB(object):
 
     .. method:: DB.create_database(super_admin_passwd, database, demo_data=False, lang='en_US', admin_passwd='admin')
 
-        `Available since OpenERP 6.1`
-
         Similar to :func:`create <DB.create>` but blocking.
 
         >>> oerp.db.create_database('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
@@ -164,8 +160,6 @@ class DB(object):
         :return: `True`
 
     .. method:: DB.duplicate_database(super_admin_passwd, original_database, database)
-
-        `Available since OpenERP 7.0`
 
         Duplicate `original_database' as `database`.
 
@@ -213,57 +207,6 @@ class DB(object):
     """
     def __init__(self, oerp):
         self._oerp = oerp
-
-    def create_and_wait(self, super_admin_passwd, database, demo_data=False,
-                        lang='en_US', admin_passwd='admin'):
-        """
-        .. note::
-
-            This method is not part of the official API. It's just
-            a wrapper around the :func:`create <DB.create>` and
-            :func:`get_progress <DB.get_progress>` methods. For server
-            in version `6.1` or above, please prefer the use of the
-            standard :func:`create_database <DB.create_database>` method.
-
-        Like the :func:`create <DB.create>` method, but waits the end of
-        the creating process by executing the
-        :func:`get_progress <DB.get_progress>` method regularly to check its
-        state.
-
-        >>> oerp.db.create_and_wait('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
-        [{'login': 'admin', 'password': 'my_admin_passwd', 'name': 'Administrateur'},
-         {'login': 'demo', 'password': 'demo', 'name': 'Demo User'}]
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: a list of user accounts created
-        :raise: :class:`odoorpc.error.RPCError`
-
-        """
-        try:
-            db_id = self._oerp._connector.db.create(
-                super_admin_passwd, database, demo_data, lang, admin_passwd)
-            progress = 0.0
-            attempt = 0
-            while progress < 1.0:
-                result = self._oerp._connector.db.get_progress(
-                    super_admin_passwd, db_id)
-                progress = result[0]
-                if progress < 1.0:
-                    time.sleep(1)
-                    attempt += 1
-                if attempt > 300:
-                    raise error.RPCError(
-                        "Too many attempts, the operation"
-                        " has been canceled.")
-            return result[1]
-
-        except rpc.error.ConnectorError as exc:
-            #FIXME handle the exception with the UnicodeEncodeError for
-            # the error 'the database already exists'.
-            #print dir(exc)
-            raise error.RPCError(exc.message, exc.oerp_traceback)
 
     def __getattr__(self, method):
         """Provide a dynamic access to a RPC method."""

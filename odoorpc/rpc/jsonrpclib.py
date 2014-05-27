@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""Provides the :class:`Proxy` and :class:`ProxyLegacy` classes."""
+"""Provides the :class:`Proxy` class for JSON-RPC requests."""
 import urllib2
 import cookielib
 import json
@@ -61,32 +61,9 @@ class Proxy(object):
         return json.load(response)
 
 
-class ProxyLegacy(Proxy):
-    """The :class:`ProxyLegacy` class fixes the request handling for
-    OpenERP 6.1 and 7.0 by adding automatically the ``session_id`` parameter
-    once the user is authenticated.
-    """
-    def __init__(self, host, port, timeout=120, ssl=False, deserialize=True):
-        super(ProxyLegacy, self).__init__(host, port, timeout, ssl, deserialize)
-        self._session_id = None
-
-    def __call__(self, url, params):
-        """Overloads the :func:`Proxy.__call__` method to add the 'session_id'
-        parameter if necessary.
-        """
-        if url == 'web/session/authenticate':
-            response = super(ProxyLegacy, self).__call__(url, params)
-            result = self._deserialize and response or json.load(response)
-            self._session_id = result and result['result']['session_id']
-            return response
-        elif self._session_id and 'session_id' not in params:
-            params['session_id'] = self._session_id
-        return super(ProxyLegacy, self).__call__(url, params)
-
-
 class URLBuilder(object):
     """Auto-builds an URL while getting its attributes.
-    Used by :class:`Proxy` and :class:`ProxyLegacy` classes.
+    Used by the :class:`Proxy` class.
     """
     def __init__(self, rpc, url=None):
         self._rpc = rpc
@@ -108,4 +85,5 @@ class URLBuilder(object):
 
     def __str__(self):
         return self._url
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

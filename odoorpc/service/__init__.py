@@ -18,12 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""The `service` package provides classes to request services offers by
-the `Odoo` server, such as:
-    - '/common' (service.common),
-    - '/db' (service.db)
-    - '/wizard' (service.wizard)
-    - Model, through '/object' (service.osv),
+"""The `service` package provides modules to request services offers by
+the `Odoo` server (authentication, server information, database management,
+data access...).
 """
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
