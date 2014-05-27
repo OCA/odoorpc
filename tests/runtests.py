@@ -20,9 +20,8 @@ from test_browse import TestBrowse
 from test_osv import TestOSV
 from test_timeout import TestTimeout
 from test_session import TestSession
-from test_inspect import TestInspect
 
-from oerplib.tools import v
+from odoorpc.tools import v
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
@@ -31,7 +30,7 @@ if __name__ == '__main__':
     #- First Tests -
     #---------------
 
-    # 1) Test oerplib.tools
+    # 1) Test odoorpc.tools
     loader = unittest.TestLoader().loadTestsFromTestCase(TestTools)
     suite.addTest(loader)
 
@@ -78,10 +77,6 @@ if __name__ == '__main__':
     loader = unittest.TestLoader().loadTestsFromTestCase(TestSession)
     suite.addTest(loader)
 
-    # Test inspect service
-    loader = unittest.TestLoader().loadTestsFromTestCase(TestInspect)
-    suite.addTest(loader)
-
     #---------------
     #- Final Tests -
     #---------------
@@ -99,13 +94,8 @@ if __name__ == '__main__':
         ARGS.protocol = 'xmlrpc'
         ARGS.port = int(ARGS.xmlrpc_port)
         unittest.TextTestRunner(verbosity=ARGS.verbosity).run(suite)
-    if ARGS.test_netrpc:
-        print("-- RUN (NETRPC) --")
-        ARGS.protocol = 'netrpc'
-        ARGS.port = int(ARGS.netrpc_port)
-        unittest.TextTestRunner(verbosity=ARGS.verbosity).run(suite)
-    if not ARGS.test_xmlrpc and not ARGS.test_netrpc:
+    if not ARGS.test_xmlrpc:
         print("-- NO TEST --")
-        print("Please use '--test_xmlrpc' and/or '--test_netrpc' option.")
+        print("Please use '--test_xmlrpc' option.")
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

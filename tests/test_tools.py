@@ -7,7 +7,7 @@ except:
 
 from args import ARGS
 
-from oerplib import tools
+from odoorpc import tools
 
 
 class TestTools(unittest.TestCase):
@@ -19,11 +19,6 @@ class TestTools(unittest.TestCase):
     def test_clean_version_alphanumeric(self):
         version = tools.clean_version('7.0alpha-20121206-000102')
         self.assertEqual(version, '7.0')
-
-    def test_detect_version(self):
-        version = tools.detect_version(
-            ARGS.server, ARGS.protocol, ARGS.port)
-        self.assertIsInstance(version, str)
 
     def test_v_numeric(self):
         self.assertEqual(tools.v('7.0'), [7, 0])
