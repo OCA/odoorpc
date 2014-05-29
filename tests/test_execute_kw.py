@@ -23,7 +23,7 @@ class TestExecuteKw(unittest.TestCase):
             raise unittest.SkipTest(
                 "The targetted OpenERP server does not support the "
                 "'execute_kw()' method.")
-        self.user = self.odoo.login(ARGS.user, ARGS.passwd, ARGS.database)
+        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
 
     # ------
     # Search

@@ -18,7 +18,7 @@ class TestSession(unittest.TestCase):
         self.odoo = odoorpc.ODOO(
             ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
             version=ARGS.version)
-        self.user = self.odoo.login(ARGS.user, ARGS.passwd, ARGS.database)
+        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
         self.session_name = ARGS.database
         self.file_path = tempfile.mkstemp(suffix='.cfg', prefix='odoorpc_')[1]
 
@@ -44,7 +44,7 @@ class TestSession(unittest.TestCase):
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertEqual(self.odoo.server, odoo.server)
         self.assertEqual(self.odoo.port, odoo.port)
-        self.assertEqual(self.odoo.database, odoo.database)
+        self.assertEqual(self.odoo.db, odoo.db)
         self.assertEqual(self.odoo.protocol, odoo.protocol)
         self.assertEqual(self.odoo.user, odoo.user)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
@@ -59,7 +59,7 @@ class TestSession(unittest.TestCase):
             'timeout': self.odoo.config['timeout'],
             'user': self.odoo.user.login,
             'passwd': self.odoo._password,
-            'database': self.odoo.database,
+            'database': self.odoo.db,
         }
         result = odoorpc.tools.session.get(
             self.session_name, rc_file=self.file_path)
@@ -77,7 +77,7 @@ class TestSession(unittest.TestCase):
                 'timeout': self.odoo.config['timeout'],
                 'user': self.odoo.user.login,
                 'passwd': self.odoo._password,
-                'database': self.odoo.database,
+                'database': self.odoo.db,
             }
         }
         result = odoorpc.tools.session.get_all(rc_file=self.file_path)

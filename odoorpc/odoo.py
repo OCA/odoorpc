@@ -21,15 +21,9 @@
 """This module contains the ``ODOO`` class which is the entry point to manage
 an `Odoo` server.
 """
-import os
-import base64
-import zlib
-import tempfile
-import time
-
 from odoorpc import rpc, error, tools
 from odoorpc.tools import session
-from odoorpc.service import db, osv
+from odoorpc.service import osv
 
 
 class ODOO(object):
@@ -60,10 +54,11 @@ class ODOO(object):
         self._server = server
         self._port = port
         self._protocol = protocol
-        self._database = None
+        self._db = None
         self._uid = None
         self._password = None
         self._user = None
+        self._context = None
         #self._db = db.DB(self)
         # Instanciate the server connector
         try:
@@ -108,7 +103,7 @@ class ODOO(object):
     def user(self):
         """The browsable record of the user connected.
 
-        >>> odoo.login('admin', 'admin', 'db_name') == odoo.user
+        >>> odoo.login('db_name', 'admin', 'admin') == odoo.user
         True
 
         """
@@ -118,7 +113,7 @@ class ODOO(object):
     def context(self):
         """The context of the user connected.
 
-        >>> odoo.login('admin', 'admin', 'db_name')
+        >>> odoo.login('db_name', 'admin', 'admin')
         browse_record('res.users', 1)
         >>> odoo.context
         {'lang': 'fr_FR', 'tz': False}
@@ -142,8 +137,7 @@ class ODOO(object):
                     doc="The port used.")
     protocol = property(lambda self: self._protocol,
                         doc="The protocol used.")
-    database = property(lambda self: self._database,
-                        doc="The database currently used.")
+    db = property(lambda self: self._db, doc="The database currently used.")
     #db = property(lambda self: self._db,
     #              doc=("""The database management service (``/web/database``
     #                   RPC service).  See the :class:`odoorpc.service.db.DB`
@@ -204,13 +198,12 @@ class ODOO(object):
         if not self._uid or not self._password:
             raise error.LoginError(u"User login required.")
 
-    def login(self, user='admin', passwd='admin', database=None):
+    def login(self, db, login='admin', password='admin'):
         """Log in as the given `user` with the password `passwd` on the
-        database `database` and return the corresponding user as a browsable
+        database `db` and return the corresponding user as a browsable
         record (from the ``res.users`` model).
-        If `database` is not specified, the default one will be used instead.
 
-        >>> user = odoo.login('admin', 'admin', database='db_name')
+        >>> user = odoo.login('db_name', 'admin', 'admin')
         >>> user.name
         u'Administrator'
 
@@ -221,18 +214,35 @@ class ODOO(object):
         # Get the user's ID and generate the corresponding user record
         data = self.rpc(
             '/web/session/authenticate',
-            {'db': database, 'login': user, 'password': passwd})
+            {'db': db, 'login': login, 'password': password})
         user_id = data['result']['uid']
         if user_id:
-            self._database = database
+            self._db = db
             self._uid = user_id
-            self._password = passwd
+            self._password = password
             self._context = data['result']['user_context']
             user_obj = self.get('res.users')
             self._user = user_obj.browse(user_id, context=self._context)
             return self._user
         else:
             raise error.LoginError("Wrong login ID or password")
+
+    def logout(self):
+        """Log out the user.
+
+        >>> odoo.logout()
+        True
+
+        :return: `True` if the operation succeed, `False` if no user was logged
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
+        """
+        if not self._uid:
+            return False
+        self.rpc('/web/session/destroy', {})
+        self._db = self._uid = self._password = self._context = None
+        self._user = None
+        return True
 
     # ------------------------- #
     # -- Raw XML-RPC methods -- #
@@ -443,7 +453,7 @@ class ODOO(object):
 
             >>> import odoorpc
             >>> odoo = odoorpc.ODOO('localhost', port=8069)
-            >>> odoo.login('admin', 'admin', 'db_name')
+            >>> odoo.login('db_name', 'admin', 'admin')
             >>> odoo.save('foo')
 
         Such informations can be loaded with the :func:`odoorpc.load` function
@@ -459,7 +469,7 @@ class ODOO(object):
             'timeout': self.config['timeout'],
             'user': self.user.login,
             'passwd': self._password,
-            'database': self.database,
+            'database': self.db,
         }
         session.save(name, data, rc_file)
 
@@ -486,8 +496,7 @@ class ODOO(object):
             timeout=data['timeout'],
         )
         odoo.login(
-            user=data['user'], passwd=data['passwd'],
-            database=data['database'])
+            db=data['database'], login=data['user'], password=data['passwd'])
         return odoo
 
     @classmethod

@@ -18,7 +18,7 @@ class TestExecute(unittest.TestCase):
         self.odoo = odoorpc.ODOO(
             ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
             version=ARGS.version)
-        self.user = self.odoo.login(ARGS.user, ARGS.passwd, ARGS.database)
+        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
 
     # ------
     # Search
