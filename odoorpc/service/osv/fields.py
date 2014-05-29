@@ -39,33 +39,33 @@ def is_int(value):
         return False
 
 
-def oerp_tuple_in(iterable):
+def odoo_tuple_in(iterable):
     """Return `True` if `iterable` contains an expected tuple like
     ``(6, 0, IDS)`` (and so on).
 
-        >>> oerp_tuple_in([0, 1, 2])        # Simple list
+        >>> odoo_tuple_in([0, 1, 2])        # Simple list
         False
-        >>> oerp_tuple_in([(6, 0, [42])])   # List of tuples
+        >>> odoo_tuple_in([(6, 0, [42])])   # List of tuples
         True
-        >>> oerp_tuple_in([[1, 42]])        # List of lists
+        >>> odoo_tuple_in([[1, 42]])        # List of lists
         True
     """
     if not iterable:
         return False
-    def is_oerp_tuple(elt):
+    def is_odoo_tuple(elt):
         try:
             return elt[:1][0] in [1, 2, 3, 4, 5] \
                     or elt[:2] in [(6, 0), [6, 0], (0, 0), [0, 0]]
         except:
             return False
-    return any(is_oerp_tuple(elt) for elt in iterable)
+    return any(is_odoo_tuple(elt) for elt in iterable)
 
 
 def records2ids(iterable):
     """Replace `browse_records` contained in `iterable` by their
     corresponding IDs:
 
-        >>> groups = list(oerp.user.groups_id)
+        >>> groups = list(odoo.user.groups_id)
         >>> records2ids(groups)
         [1, 2, 3, 14, 17, 18, 19, 7, 8, 9, 5, 20, 21, 22, 23]
     """
@@ -177,7 +177,7 @@ class Many2ManyField(BaseField):
             ids = instance.__data__['values'][self.name][:]
         # None value => get the value on the fly
         if ids is None:
-            orig_ids = instance.__oerp__.execute(
+            orig_ids = instance.__odoo__.execute(
                 instance.__osv__['name'],
                 'read',
                 [instance.id], [self.name])[0][self.name]
@@ -187,7 +187,7 @@ class Many2ManyField(BaseField):
         if self.name in instance.__data__['updated_values']:
             ids = ids or []
             values = instance.__data__['updated_values'][self.name]
-            # Handle OERP tuples to update 'ids'
+            # Handle ODOO tuples to update 'ids'
             for value in values:
                 if value[0] == 6 and value[2]:
                     ids = value[2]
@@ -200,7 +200,7 @@ class Many2ManyField(BaseField):
         context = instance.__data__['context'].copy()
         context.update(self.context)
         return browse.BrowseRecordIterator(
-            model=instance.__oerp__.get(self.relation),
+            model=instance.__odoo__.get(self.relation),
             ids=ids,
             context=context,
             parent=instance,
@@ -208,7 +208,7 @@ class Many2ManyField(BaseField):
 
     def __set__(self, instance, value):
         value = self.check_value(value)
-        if value and not oerp_tuple_in(value):
+        if value and not odoo_tuple_in(value):
             value = [(6, 0, records2ids(value))]
         elif not value:
             value = [(5, )]
@@ -237,7 +237,7 @@ class Many2OneField(BaseField):
             # FIXME if id_ is a browse_record
         # None value => get the value on the fly
         if id_ is None:
-            id_ = instance.__oerp__.execute(
+            id_ = instance.__odoo__.execute(
                 instance.__osv__['name'],
                 'read',
                 [instance.id], [self.name])[0][self.name]
@@ -245,7 +245,7 @@ class Many2OneField(BaseField):
         if id_:
             context = instance.__data__['context'].copy()
             context.update(self.context)
-            rel_obj = instance.__class__.__oerp__.get(self.relation)
+            rel_obj = instance.__class__.__odoo__.get(self.relation)
             return rel_obj.browse(id_[0], context=context)
         return False
 
@@ -253,7 +253,7 @@ class Many2OneField(BaseField):
         if isinstance(value, browse.BrowseRecord):
             o_rel = value
         elif is_int(value):
-            rel_obj = instance.__class__.__oerp__.get(self.relation)
+            rel_obj = instance.__class__.__odoo__.get(self.relation)
             o_rel = rel_obj.browse(value)
         elif value in [None, False]:
             o_rel = False
@@ -291,7 +291,7 @@ class One2ManyField(BaseField):
             ids = instance.__data__['values'][self.name][:]
         # None value => get the value on the fly
         if ids is None:
-            orig_ids = instance.__oerp__.execute(
+            orig_ids = instance.__odoo__.execute(
                 instance.__osv__['name'],
                 'read',
                 [instance.id], [self.name])[0][self.name]
@@ -301,7 +301,7 @@ class One2ManyField(BaseField):
         if self.name in instance.__data__['updated_values']:
             ids = ids or []
             values = instance.__data__['updated_values'][self.name]
-            # Handle OERP tuples to update 'ids'
+            # Handle ODOO tuples to update 'ids'
             for value in values:
                 if value[0] == 6 and value[2]:
                     ids = value[2]
@@ -314,7 +314,7 @@ class One2ManyField(BaseField):
         context = instance.__data__['context'].copy()
         context.update(self.context)
         return browse.BrowseRecordIterator(
-            model=instance.__oerp__.get(self.relation),
+            model=instance.__odoo__.get(self.relation),
             ids=ids,
             context=context,
             parent=instance,
@@ -322,7 +322,7 @@ class One2ManyField(BaseField):
 
     def __set__(self, instance, value):
         value = self.check_value(value)
-        if value and not oerp_tuple_in(value):
+        if value and not odoo_tuple_in(value):
             value = [(6, 0, records2ids(value))]
         elif not value:
             value = [(5, )]
@@ -350,7 +350,7 @@ class ReferenceField(BaseField):
             value = instance.__data__['updated_values'][self.name]
         # None value => get the value on the fly
         if value is None:
-            value = instance.__oerp__.execute(
+            value = instance.__odoo__.execute(
                 instance.__osv__['name'],
                 'read',
                 [instance.id], [self.name])[0][self.name]
@@ -362,7 +362,7 @@ class ReferenceField(BaseField):
             if relation and o_id:
                 context = instance.__data__['context'].copy()
                 context.update(self.context)
-                rel_obj = instance.__class__.__oerp__.get(relation)
+                rel_obj = instance.__class__.__odoo__.get(relation)
                 return rel_obj.browse(o_id, context=context)
         return False
 
@@ -393,7 +393,7 @@ class ReferenceField(BaseField):
             relation, sep, o_id = value.rpartition(',')
             relation = relation.strip()
             o_id = o_id.strip()
-            #o_rel = instance.__class__.__oerp__.browse(relation, o_id)
+            #o_rel = instance.__class__.__odoo__.browse(relation, o_id)
             if not relation or not is_int(o_id):
                 raise ValueError("String not well formatted, expecting "
                                  "'{relation},{id}' format")

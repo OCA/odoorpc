@@ -16,7 +16,7 @@ from odoorpc.tools import v
 class TestExecuteKw(unittest.TestCase):
 
     def setUp(self):
-        self.odoo = odoorpc.OERP(
+        self.odoo = odoorpc.ODOO(
             ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
             version=ARGS.version)
         if v(self.odoo.version) < v('6.1'):

@@ -22,8 +22,8 @@
 
 class ConnectorError(BaseException):
     """Exception raised by the ``odoorpc.rpc`` package."""
-    def __init__(self, message, oerp_traceback=None):
+    def __init__(self, message, odoo_traceback=None):
         self.message = message
-        self.oerp_traceback = oerp_traceback
+        self.odoo_traceback = odoo_traceback
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

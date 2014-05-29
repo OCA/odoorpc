@@ -19,7 +19,7 @@
 #
 ##############################################################################
 """This module contains the :class:`Config <odoorpc.config.Config>` class which
-manage the configuration related to an instance of :class:`OERP <odoorpc.OERP>`,
+manage the configuration related to an instance of :class:`ODOO <odoorpc.ODOO>`,
 and some useful helper functions used internally in `OdooRPC`.
 """
 import collections
@@ -30,20 +30,20 @@ MATCH_VERSION = re.compile(r'[^\d.]')
 
 class Config(collections.MutableMapping):
     """Class which manage the configuration of an
-    :class:`OERP <odoorpc.OERP>` instance.
+    :class:`ODOO <odoorpc.ODOO>` instance.
 
     .. note::
-        This class have to be used through the :attr:`odoorpc.OERP.config`
+        This class have to be used through the :attr:`odoorpc.ODOO.config`
         property.
 
     >>> import odoorpc
-    >>> oerp = odoorpc.OERP('localhost')
-    >>> type(oerp.config)
+    >>> odoo = odoorpc.ODOO('localhost')
+    >>> type(odoo.config)
     <class 'odoorpc.tools.Config'>
     """
-    def __init__(self, oerp, options):
+    def __init__(self, odoo, options):
         super(Config, self).__init__()
-        self._oerp = oerp
+        self._odoo = odoo
         self._options = options or {}
 
     def __getitem__(self, key):
@@ -52,7 +52,7 @@ class Config(collections.MutableMapping):
     def __setitem__(self, key, value):
         """Handle ``timeout`` option to set the timeout on the connector."""
         if key == 'timeout':
-            self._oerp._connector.timeout = value
+            self._odoo._connector.timeout = value
         self._options[key] = value
 
     def __delitem__(self, key):

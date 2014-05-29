@@ -15,7 +15,7 @@ import odoorpc
 class TestSession(unittest.TestCase):
 
     def setUp(self):
-        self.odoo = odoorpc.OERP(
+        self.odoo = odoorpc.ODOO(
             ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
             version=ARGS.version)
         self.user = self.odoo.login(ARGS.user, ARGS.passwd, ARGS.database)
@@ -26,28 +26,28 @@ class TestSession(unittest.TestCase):
         os.remove(self.file_path)
 
     def test_session_odoo_list(self):
-        result = odoorpc.OERP.list(rc_file=self.file_path)
+        result = odoorpc.ODOO.list(rc_file=self.file_path)
         self.assertIsInstance(result, list)
         other_file_path = tempfile.mkstemp()[1]
-        result = odoorpc.OERP.list(rc_file=other_file_path)
+        result = odoorpc.ODOO.list(rc_file=other_file_path)
         self.assertIsInstance(result, list)
 
     def test_session_odoo_save_and_remove(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
-        result = odoorpc.OERP.list(rc_file=self.file_path)
+        result = odoorpc.ODOO.list(rc_file=self.file_path)
         self.assertIn(self.session_name, result)
-        odoorpc.OERP.remove(self.session_name, rc_file=self.file_path)
+        odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
     def test_session_odoo_load(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
-        odoo = odoorpc.OERP.load(self.session_name, rc_file=self.file_path)
-        self.assertIsInstance(odoo, odoorpc.OERP)
+        odoo = odoorpc.ODOO.load(self.session_name, rc_file=self.file_path)
+        self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertEqual(self.odoo.server, odoo.server)
         self.assertEqual(self.odoo.port, odoo.port)
         self.assertEqual(self.odoo.database, odoo.database)
         self.assertEqual(self.odoo.protocol, odoo.protocol)
         self.assertEqual(self.odoo.user, odoo.user)
-        odoorpc.OERP.remove(self.session_name, rc_file=self.file_path)
+        odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
     def test_session_tools_get(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
@@ -64,7 +64,7 @@ class TestSession(unittest.TestCase):
         result = odoorpc.tools.session.get(
             self.session_name, rc_file=self.file_path)
         self.assertEqual(data, result)
-        odoorpc.OERP.remove(self.session_name, rc_file=self.file_path)
+        odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
     def test_session_tools_get_all(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
@@ -83,6 +83,6 @@ class TestSession(unittest.TestCase):
         result = odoorpc.tools.session.get_all(rc_file=self.file_path)
         self.assertIn(self.session_name, result)
         self.assertEqual(data, result)
-        odoorpc.OERP.remove(self.session_name, rc_file=self.file_path)
+        odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

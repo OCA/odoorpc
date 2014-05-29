@@ -14,7 +14,7 @@ import odoorpc
 class TestDB(unittest.TestCase):
 
     def setUp(self):
-        self.odoo = odoorpc.OERP(
+        self.odoo = odoorpc.ODOO(
             ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
             version=ARGS.version)
         self.databases = []

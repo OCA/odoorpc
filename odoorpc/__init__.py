@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""The `odoorpc` module defines the :class:`OERP` class.
+"""The `odoorpc` module defines the :class:`ODOO` class.
 
-The :class:`OERP` class is the entry point to manage `Odoo` servers.
+The :class:`ODOO` class is the entry point to manage `Odoo` servers.
 You can use this one to write `Python` programs that performs a variety of
 automated jobs that communicate with a `Odoo` server.
 """
@@ -30,9 +30,9 @@ __email__ = 'sebastien.alix@osiell.com'
 __licence__ = 'LGPL v3'
 __version__ = '0.8.1'
 
-#__all__ = ['OERP', 'error']
+__all__ = ['ODOO', 'error']
 
-from odoorpc.oerp import OERP
+from odoorpc.odoo import ODOO
 from odoorpc import error
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -32,13 +32,13 @@ class Model(object):
     """Represent a data model.
 
     .. note::
-        This class have to be used through the :func:`odoorpc.OERP.get`
+        This class have to be used through the :func:`odoorpc.ODOO.get`
         method.
 
     >>> import odoorpc
-    >>> oerp = odoorpc.OERP('localhost')
-    >>> user = oerp.login('admin', 'passwd', 'database')
-    >>> user_obj = oerp.get('res.users')
+    >>> odoo = odoorpc.ODOO('localhost')
+    >>> user = odoo.login('admin', 'passwd', 'database')
+    >>> user_obj = odoo.get('res.users')
     >>> user_obj
     <odoorpc.service.osv.osv.Model object at 0xb75ba4ac>
     >>> user_obj.name_get(user.id) # Use any methods from the model instance
@@ -53,11 +53,11 @@ class Model(object):
 
     """
 
-    fields_reserved = ['id', '__oerp__', '__osv__', '__data__']
+    fields_reserved = ['id', '__odoo__', '__osv__', '__data__']
 
-    def __init__(self, oerp, model):
+    def __init__(self, odoo, model):
         super(Model, self).__init__()
-        self._oerp = oerp
+        self._odoo = odoo
         self._name = model
         self._browse_class = self._generate_browse_class()
 
@@ -66,10 +66,10 @@ class Model(object):
         from `model`. The fields and values for such objects are generated
         dynamically.
 
-        >>> oerp.get('res.partner').browse(1)
+        >>> odoo.get('res.partner').browse(1)
         browse_record(res.partner, 1)
 
-        >>> [partner.name for partner in oerp.get('res.partner').browse([1, 2])]
+        >>> [partner.name for partner in odoo.get('res.partner').browse([1, 2])]
         [u'Your Company', u'ASUStek']
 
         A list of data types used by ``browse_record`` fields are
@@ -98,7 +98,7 @@ class Model(object):
 
         """
         # Retrieve server fields info and generate corresponding local fields
-        fields_get = self._oerp.execute(self._name, 'fields_get')
+        fields_get = self._odoo.execute(self._name, 'fields_get')
         cls_name = self._name.replace('.', '_')
         # Encode the class name for the Python2 'type()' function.
         # No need to do this for Python3.
@@ -116,9 +116,9 @@ class Model(object):
             cls_fields['name'] = fields.generate_field(self, 'name', field_data)
 
         cls = type(cls_name, (browse.BrowseRecord,), {})
-        cls.__oerp__ = self._oerp
+        cls.__odoo__ = self._odoo
         cls.__osv__ = {'name': self._name, 'columns': cls_fields}
-        slots = ['__oerp__', '__osv__', '__dict__', '__data__']
+        slots = ['__odoo__', '__osv__', '__dict__', '__data__']
         slots.extend(cls_fields.keys())
         cls.__slots__ = slots
         return cls
@@ -153,7 +153,7 @@ class Model(object):
         in the purpose to cancel all changes made.
 
         """
-        context = context or self._oerp.context
+        context = context or self._odoo.context
         obj_data = obj.__data__
         obj_data['context'] = context
         # Get basic fields (no relational ones)
@@ -207,10 +207,10 @@ class Model(object):
         """Provide a dynamic access to a RPC method."""
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
-            if self._oerp.config['auto_context'] \
+            if self._odoo.config['auto_context'] \
                     and 'context' not in kwargs:
-                kwargs['context'] = self._oerp.context
-            result = self._oerp.execute_kw(
+                kwargs['context'] = self._odoo.context
+            result = self._odoo.execute_kw(
                 self._browse_class.__osv__['name'], method, args, kwargs)
             return result
         return rpc_method
@@ -230,6 +230,6 @@ class Model(object):
         return browse.BrowseRecordIterator(self, ids)
 
     def __len__(self):
-        return self._oerp.search(self._browse_class.__osv__['name'], count=True)
+        return self._odoo.search(self._browse_class.__osv__['name'], count=True)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

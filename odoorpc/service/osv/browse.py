@@ -25,16 +25,16 @@ from odoorpc import error
 class BrowseRecord(object):
     """Base class that all browsable records inherit from.
     No attributes should be defined in this class (except ``_id``/``id``,
-    ``__oerp__``, ``__osv__``, ``__data__`` and Python magic methods) in order
+    ``__odoo__``, ``__osv__``, ``__data__`` and Python magic methods) in order
     to not be conflicted with the fields defined in the model class on
     the server.
 
-    A reference to the :class:`OERP <odoorpc.OERP>` object used to instanciate
-    a ``browse_record`` is available through the ``__oerp__`` attribute::
+    A reference to the :class:`ODOO <odoorpc.ODOO>` object used to instanciate
+    a ``browse_record`` is available through the ``__odoo__`` attribute::
 
-        >>> oerp = odoorpc.OERP('localhost')
-        >>> user = oerp.login('admin', 'admin', 'db_name')
-        >>> user.__oerp__ == oerp
+        >>> odoo = odoorpc.ODOO('localhost')
+        >>> user = odoo.login('admin', 'admin', 'db_name')
+        >>> user.__odoo__ == odoo
         True
 
     The ``__data__`` attribute is used to store some data related to the
@@ -62,7 +62,7 @@ class BrowseRecord(object):
          'name': 'res.users'}
 
     """
-    __oerp__ = None
+    __odoo__ = None
     __osv__ = None
 
     def __init__(self, o_id):

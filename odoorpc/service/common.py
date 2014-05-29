@@ -28,12 +28,12 @@ class Common(object):
     log in on the server, and provides various utility functions.
 
     .. note::
-        This service have to be used through the :attr:`odoorpc.OERP.common`
+        This service have to be used through the :attr:`odoorpc.ODOO.common`
         property.
 
     >>> import odoorpc
-    >>> oerp = odoorpc.OERP('localhost')
-    >>> oerp.common
+    >>> odoo = odoorpc.ODOO('localhost')
+    >>> odoo.common
     <odoorpc.service.common.Common object at 0xb76266ac>
 
     .. warning::
@@ -47,31 +47,31 @@ class Common(object):
 
     .. method:: Common.login(db, login, password)
 
-        >>> oerp.common.login('test_db', 'admin', 'admin_passwd')
+        >>> odoo.common.login('test_db', 'admin', 'admin_passwd')
         1
 
         :return: the user's ID or `False`
 
     .. method:: Common.authenticate(db, login, password, user_agent_env)
 
-        >>> oerp.common.authenticate('test_db', 'admin', 'admin_passwd', {})
+        >>> odoo.common.authenticate('test_db', 'admin', 'admin_passwd', {})
         1
 
         :return: the user's ID or `False`
 
     .. method:: Common.version()
 
-        >>> oerp.common.version()
+        >>> odoo.common.version()
         {'protocol_version': 1, 'server_version': '6.1'}
 
     .. method:: Common.about(extended=False)
 
         Return information about the server.
 
-        >>> oerp.common.about()
+        >>> odoo.common.about()
         'See http://openerp.com'
 
-        >>> oerp.common.about(True)
+        >>> odoo.common.about(True)
         ['See http://openerp.com', '8.0alpha1']
 
         :param: extended: if `True` then return version info
@@ -79,21 +79,21 @@ class Common(object):
 
     .. method:: Common.timezone_get(db, login, password)
 
-        >>> oerp.common.timezone_get('test_db', 'admin', 'admin_passwd')
+        >>> odoo.common.timezone_get('test_db', 'admin', 'admin_passwd')
         'UTC'
     """
-    def __init__(self, oerp):
-        self._oerp = oerp
+    def __init__(self, odoo):
+        self._odoo = odoo
 
     def __getattr__(self, method):
         """Provide a dynamic access to a RPC method."""
         def rpc_method(*args):
             """Return the result of the RPC request."""
             try:
-                meth = getattr(self._oerp._connector.common, method, False)
+                meth = getattr(self._odoo._connector.common, method, False)
                 return meth(*args)
             except rpc.error.ConnectorError as exc:
-                raise error.RPCError(exc.message, exc.oerp_traceback)
+                raise error.RPCError(exc.message, exc.odoo_traceback)
         return rpc_method
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

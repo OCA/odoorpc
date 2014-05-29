@@ -31,12 +31,12 @@ class DB(object):
     and restore databases.
 
     .. note::
-        This service have to be used through the :attr:`odoorpc.OERP.db`
+        This service have to be used through the :attr:`odoorpc.ODOO.db`
         property.
 
     >>> import odoorpc
-    >>> oerp = odoorpc.OERP('localhost')
-    >>> oerp.db
+    >>> odoo = odoorpc.ODOO('localhost')
+    >>> odoo.db
     <odoorpc.service.db.DB object at 0xb75fb04c>
 
     .. warning::
@@ -54,7 +54,7 @@ class DB(object):
 
         Return a list of the databases:
 
-        >>> oerp.db.list()
+        >>> odoo.db.list()
         ['prod_db', 'test_db']
 
         :return: a list of database names
@@ -63,7 +63,7 @@ class DB(object):
 
         Return a list of codes and names of language supported by the server:
 
-        >>> oerp.db.list_lang()
+        >>> odoo.db.list_lang()
         [['sq_AL', 'Albanian / Shqipëri'], ['ar_AR', 'Arabic / الْعَرَبيّة'], ...]
 
         :return: a list of pairs representing languages with their codes and
@@ -73,7 +73,7 @@ class DB(object):
 
         Return the version of the server:
 
-        >>> oerp.db.server_version()
+        >>> odoo.db.server_version()
         '6.1'
 
         :return: the version of the server as string
@@ -82,7 +82,7 @@ class DB(object):
 
         Return a dump of `database` in `base64`:
 
-        >>> binary_data = oerp.db.dump('super_admin_passwd', 'prod_db')
+        >>> binary_data = odoo.db.dump('super_admin_passwd', 'prod_db')
 
         The super administrator password `super_admin_passwd` is
         required to perform this action.
@@ -94,7 +94,7 @@ class DB(object):
         Restore in `database` a dump previously created with the
         :func:`dump <DB.dump>` method:
 
-        >>> oerp.db.restore('super_admin_passwd', 'test_db', binary_data)
+        >>> odoo.db.restore('super_admin_passwd', 'test_db', binary_data)
 
         The super administrator password `super_admin_passwd` is
         required to perform this action.
@@ -103,7 +103,7 @@ class DB(object):
 
         Drop the `database`:
 
-        >>> oerp.db.drop('super_admin_passwd', 'test_db')
+        >>> odoo.db.drop('super_admin_passwd', 'test_db')
         True
 
         The super administrator password `super_admin_passwd` is
@@ -123,7 +123,7 @@ class DB(object):
         :func:`get_progress <DB.get_progress>` method with the database ID
         returned to know its current state.
 
-        >>> database_id = oerp.db.create('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
+        >>> database_id = odoo.db.create('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
 
         The super administrator password `super_admin_passwd` is
         required to perform this action.
@@ -135,9 +135,9 @@ class DB(object):
         Check the state of the creating process for the database identified by
         the `database_id` parameter.
 
-        >>> oerp.db.get_progress('super_admin_passwd', database_id) # Just after the call to the 'create' method
+        >>> odoo.db.get_progress('super_admin_passwd', database_id) # Just after the call to the 'create' method
         (0, [])
-        >>> oerp.db.get_progress('super_admin_passwd', database_id) # Once the database is fully created
+        >>> odoo.db.get_progress('super_admin_passwd', database_id) # Once the database is fully created
         (1.0, [{'login': 'admin', 'password': 'admin', 'name': 'Administrator'},
                {'login': 'demo', 'password': 'demo', 'name': 'Demo User'}])
 
@@ -151,7 +151,7 @@ class DB(object):
 
         Similar to :func:`create <DB.create>` but blocking.
 
-        >>> oerp.db.create_database('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
+        >>> odoo.db.create_database('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
         True
 
         The super administrator password `super_admin_passwd` is
@@ -163,7 +163,7 @@ class DB(object):
 
         Duplicate `original_database' as `database`.
 
-        >>> oerp.db.duplicate_database('super_admin_passwd', 'prod_db', 'test_db')
+        >>> odoo.db.duplicate_database('super_admin_passwd', 'prod_db', 'test_db')
         True
 
         The super administrator password `super_admin_passwd` is
@@ -175,7 +175,7 @@ class DB(object):
 
         Rename the `old_name` database to `new_name`.
 
-        >>> oerp.db.rename('super_admin_passwd', 'test_db', 'test_db2')
+        >>> odoo.db.rename('super_admin_passwd', 'test_db', 'test_db2')
         True
 
         The super administrator password `super_admin_passwd` is
@@ -187,7 +187,7 @@ class DB(object):
 
         Check if connection to database is possible.
 
-        >>> oerp.db.db_exist('prod_db')
+        >>> odoo.db.db_exist('prod_db')
         True
 
         :return: `True` or `False`
@@ -196,7 +196,7 @@ class DB(object):
 
         Change the administrator password by `new_passwd`.
 
-        >>> oerp.db.change_admin_password('super_admin_passwd', 'new_passwd')
+        >>> odoo.db.change_admin_password('super_admin_passwd', 'new_passwd')
         True
 
         The super administrator password `super_admin_passwd` is
@@ -205,18 +205,18 @@ class DB(object):
         :return: `True`
 
     """
-    def __init__(self, oerp):
-        self._oerp = oerp
+    def __init__(self, odoo):
+        self._odoo = odoo
 
     def __getattr__(self, method):
         """Provide a dynamic access to a RPC method."""
         def rpc_method(*args):
             """Return the result of the RPC request."""
             try:
-                meth = getattr(self._oerp._connector.db, method, False)
+                meth = getattr(self._odoo._connector.db, method, False)
                 return meth(*args)
             except rpc.error.ConnectorError as exc:
-                raise error.RPCError(exc.message, exc.oerp_traceback)
+                raise error.RPCError(exc.message, exc.odoo_traceback)
         return rpc_method
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

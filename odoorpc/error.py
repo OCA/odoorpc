@@ -24,10 +24,10 @@ occurred.
 
 
 class Error(Exception):
-    def __init__(self, message, oerp_traceback=False):
+    def __init__(self, message, odoo_traceback=False):
         super(Error, self).__init__()
         self.message = message
-        self.oerp_traceback = oerp_traceback
+        self.odoo_traceback = odoo_traceback
 
     def __str__(self):
         return "{message}".format(message=self.message)

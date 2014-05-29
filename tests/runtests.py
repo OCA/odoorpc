@@ -34,16 +34,16 @@ if __name__ == '__main__':
     loader = unittest.TestLoader().loadTestsFromTestCase(TestTools)
     suite.addTest(loader)
 
-    # 2) Test OERP.__init__
+    # 2) Test ODOO.__init__
     loader = unittest.TestLoader().loadTestsFromTestCase(TestInit)
     suite.addTest(loader)
-    # 3) Test OERP.db (create the database)
+    # 3) Test ODOO.db (create the database)
     if ARGS.create_db:
         loader = unittest.TestLoader().loadTestsFromTestCase(TestDBCreate)
         suite.addTest(loader)
     else:
         print("-- TestDBCreate skipped --")
-    # 4) Test OERP.login
+    # 4) Test ODOO.login
     loader = unittest.TestLoader().loadTestsFromTestCase(TestLogin)
     suite.addTest(loader)
 
@@ -51,21 +51,21 @@ if __name__ == '__main__':
     #- Tests -
     #---------
 
-    # Test OERP.db
+    # Test ODOO.db
     loader = unittest.TestLoader().loadTestsFromTestCase(TestDB)
     suite.addTest(loader)
 
-    # Test OERP.execute and OERP.execute_kw
+    # Test ODOO.execute and ODOO.execute_kw
     loader = unittest.TestLoader().loadTestsFromTestCase(TestExecute)
     suite.addTest(loader)
     loader = unittest.TestLoader().loadTestsFromTestCase(TestExecuteKw)
     suite.addTest(loader)
 
-    # Test OERP.browse
+    # Test ODOO.browse
     loader = unittest.TestLoader().loadTestsFromTestCase(TestBrowse)
     suite.addTest(loader)
 
-    # Test OERP.get
+    # Test ODOO.get
     loader = unittest.TestLoader().loadTestsFromTestCase(TestOSV)
     suite.addTest(loader)
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     #- Final Tests -
     #---------------
 
-    # Test OERP.db (drop the database)
+    # Test ODOO.db (drop the database)
     if ARGS.create_db and ARGS.drop_db:
         loader = unittest.TestLoader().loadTestsFromTestCase(TestDBDrop)
         suite.addTest(loader)

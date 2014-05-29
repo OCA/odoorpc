@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module contains the ``OERP`` class which is the entry point to manage
+"""This module contains the ``ODOO`` class which is the entry point to manage
 an `Odoo` server.
 """
 import os
@@ -32,24 +32,24 @@ from odoorpc.tools import session
 from odoorpc.service import common, db, osv
 
 
-class OERP(object):
-    """Return a new instance of the :class:`OERP` class.
+class ODOO(object):
+    """Return a new instance of the :class:`ODOO` class.
     The optional `database` parameter specifies the default database to use
-    when the :func:`login <odoorpc.OERP.login>` method is called.
+    when the :func:`login <odoorpc.ODOO.login>` method is called.
     If no `database` is set, the `database` parameter of the
-    :func:`login <odoorpc.OERP.login>` method will be mandatory.
+    :func:`login <odoorpc.ODOO.login>` method will be mandatory.
 
     `XML-RPC` protocol are supported. Respective values for the `protocol`
     parameter are ``xmlrpc`` and ``xmlrpc+ssl``.
 
         >>> import odoorpc
-        >>> oerp = odoorpc.OERP('localhost', protocol='xmlrpc', port=8069)
+        >>> odoo = odoorpc.ODOO('localhost', protocol='xmlrpc', port=8069)
 
     `OdooRPC` will try by default to detect the server version in order to
     adapt its requests. However, it is possible to force the version to use
     with the `version` parameter:
 
-        >>> oerp = odoorpc.OERP('localhost', version='8.0')
+        >>> odoo = odoorpc.ODOO('localhost', version='8.0')
 
     :raise: :class:`odoorpc.error.InternalError`,
         :class:`odoorpc.error.RPCError`
@@ -58,7 +58,7 @@ class OERP(object):
     def __init__(self, server='localhost', database=None, protocol='xmlrpc',
                  port=8069, timeout=120, version=None):
         if protocol not in ['xmlrpc', 'xmlrpc+ssl']:
-            txt = ("The protocol '{0}' is not supported by the OERP class. "
+            txt = ("The protocol '{0}' is not supported by the ODOO class. "
                    "Please choose a protocol among these ones: {1}")
             txt = txt.format(protocol, ['xmlrpc', 'xmlrpc+ssl'])
             raise error.InternalError(txt)
@@ -87,24 +87,24 @@ class OERP(object):
     def config(self):
         """Dictionary of available configuration options.
 
-        >>> oerp.config
+        >>> odoo.config
         {'auto_context': True, 'timeout': 120}
 
         - ``auto_context``: if set to `True`, the user context will be sent
           automatically to every call of a
           :class:`model <odoorpc.service.osv.Model>` method (default: `True`):
 
-            >>> product_osv = oerp.get('product.product')
+            >>> product_osv = odoo.get('product.product')
             >>> product_osv.name_get([3]) # Context sent by default ('lang': 'fr_FR' here)
             [[3, '[PC1] PC Basic']]
-            >>> oerp.config['auto_context'] = False
+            >>> odoo.config['auto_context'] = False
             >>> product_osv.name_get([3]) # No context sent
             [[3, '[PC1] Basic PC']]
 
         - ``timeout``: set the maximum timeout in seconds for a RPC request
           (default: `120`):
 
-            >>> oerp.config['timeout'] = 300
+            >>> odoo.config['timeout'] = 300
 
         """
         return self._config
@@ -114,7 +114,7 @@ class OERP(object):
     def user(self):
         """The browsable record of the user connected.
 
-        >>> oerp.login('admin', 'admin') == oerp.user
+        >>> odoo.login('admin', 'admin') == odoo.user
         True
 
         """
@@ -124,11 +124,11 @@ class OERP(object):
     def context(self):
         """The context of the user connected.
 
-        >>> oerp.login('admin', 'admin')
+        >>> odoo.login('admin', 'admin')
         browse_record('res.users', 1)
-        >>> oerp.context
+        >>> odoo.context
         {'lang': 'fr_FR', 'tz': False}
-        >>> oerp.context['lang'] = 'en_US'
+        >>> odoo.context['lang'] = 'en_US'
 
         """
         return self._context
@@ -137,7 +137,7 @@ class OERP(object):
     def version(self):
         """The version of the server.
 
-        >>> oerp.version
+        >>> odoo.version
         '8.0'
         """
         return self._connector.version
@@ -172,7 +172,7 @@ class OERP(object):
         record (from the ``res.users`` model).
         If `database` is not specified, the default one will be used instead.
 
-        >>> user = oerp.login('admin', 'admin', database='db_name')
+        >>> user = odoo.login('admin', 'admin', database='db_name')
         >>> user.name
         u'Administrator'
 
@@ -187,7 +187,7 @@ class OERP(object):
         try:
             user_id = self.common.login(self._database, user, passwd)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
         else:
             if user_id:
                 self._uid = user_id
@@ -208,7 +208,7 @@ class OERP(object):
         """Execute the `method` of `model`.
         `*args` parameters varies according to the `method` used.
 
-        >>> oerp.execute('res.partner', 'read', [1, 2], ['name'])
+        >>> odoo.execute('res.partner', 'read', [1, 2], ['name'])
         [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
 
         :return: the result returned by the `method` called
@@ -222,7 +222,7 @@ class OERP(object):
                 self._password,
                 model, method, *args)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
 
     def execute_kw(self, model, method, args=None, kwargs=None):
         """Execute the `method` of `model`.
@@ -230,7 +230,7 @@ class OERP(object):
         and `kwargs` a dictionary (named parameters). Both varies according
         to the `method` used.
 
-        >>> oerp.execute_kw('res.partner', 'read', [[1, 2]], {'fields': ['name']})
+        >>> odoo.execute_kw('res.partner', 'read', [[1, 2]], {'fields': ['name']})
         [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
 
         :return: the result returned by the `method` called
@@ -245,7 +245,7 @@ class OERP(object):
                 self._database, self._uid, self._password,
                 model, method, args, kwargs)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
 
     def exec_workflow(self, model, signal, obj_id):
         """Execute the workflow `signal` on
@@ -261,16 +261,16 @@ class OERP(object):
                 self._database, self._uid, self._password,
                 model, signal, obj_id)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
 
     def report(self, report_name, model, obj_ids, report_type='pdf',
                context=None):
         """Download a report from the server and return the local
         path of the file.
 
-        >>> oerp.report('sale.order', 'sale.order', 1)
+        >>> odoo.report('sale.order', 'sale.order', 1)
         '/tmp/odoorpc_uJ8Iho.pdf'
-        >>> oerp.report('sale.order', 'sale.order', [1, 2])
+        >>> odoo.report('sale.order', 'sale.order', [1, 2])
         '/tmp/odoorpc_giZS0v.pdf'
 
         :return: the path to the generated temporary file
@@ -287,7 +287,7 @@ class OERP(object):
             pdf_data = self._get_report_data(report_name, model, obj_ids,
                                              report_type, context)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
         return self._print_file_data(pdf_data)
 
     def _get_report_data(self, report_name, model, obj_ids,
@@ -306,7 +306,7 @@ class OERP(object):
                 self._database, self.user.id, self._password,
                 report_name, obj_ids, data, context)
         except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.oerp_traceback)
+            raise error.RPCError(exc.message, exc.odoo_traceback)
         state = False
         attempt = 0
         while not state:
@@ -355,9 +355,9 @@ class OERP(object):
         """Update the record corresponding to `browse_record` by sending its values
         to the server (only field values which have been changed).
 
-        >>> partner = oerp.browse('res.partner', 1)
+        >>> partner = odoo.browse('res.partner', 1)
         >>> partner.name = "Test"
-        >>> oerp.write_record(partner)  # write('res.partner', [1], {'name': "Test"})
+        >>> odoo.write_record(partner)  # write('res.partner', [1], {'name': "Test"})
 
         :return: `True`
         :raise: :class:`odoorpc.error.RPCError`
@@ -370,8 +370,8 @@ class OERP(object):
     def unlink_record(self, browse_record, context=None):
         """Delete the record corresponding to `browse_record` from the server.
 
-        >>> partner = oerp.browse('res.partner', 1)
-        >>> oerp.unlink_record(partner)  # unlink('res.partner', [1])
+        >>> partner = odoo.browse('res.partner', 1)
+        >>> odoo.unlink_record(partner)  # unlink('res.partner', [1])
 
         :return: `True`
         :raise: :class:`odoorpc.error.RPCError`
@@ -412,13 +412,13 @@ class OERP(object):
         These informations are stored in the ``~/.odoorpcrc`` file by default.
 
             >>> import odoorpc
-            >>> oerp = odoorpc.OERP('localhost', protocol='xmlrpc', port=8069)
-            >>> oerp.login('admin', 'admin', 'db_name')
-            >>> oerp.save('foo')
+            >>> odoo = odoorpc.ODOO('localhost', protocol='xmlrpc', port=8069)
+            >>> odoo.login('admin', 'admin', 'db_name')
+            >>> odoo.save('foo')
 
         Such informations can be loaded with the :func:`odoorpc.load` function
-        by returning a pre-configured session of :class:`OERP <odoorpc.OERP>`,
-        or with the `oerp` command line tool supplied with `odoorpc`.
+        by returning a pre-configured session of :class:`ODOO <odoorpc.ODOO>`,
+        or with the `odoo` command line tool supplied with `odoorpc`.
         """
         self._check_logged_user()
         data = {
@@ -435,13 +435,13 @@ class OERP(object):
 
     @classmethod
     def load(cls, name, rc_file='~/.odoorpcrc'):
-        """Return a :class:`OERP` session pre-configured and connected
+        """Return a :class:`ODOO` session pre-configured and connected
         with informations identified by `name`:
 
             >>> import odoorpc
-            >>> oerp = odoorpc.OERP.load('foo')
+            >>> odoo = odoorpc.ODOO.load('foo')
 
-        Such informations are stored with the :func:`OERP.save <odoorpc.OERP.save>`
+        Such informations are stored with the :func:`ODOO.save <odoorpc.ODOO.save>`
         method.
         """
         data = session.get(name, rc_file)
@@ -449,16 +449,16 @@ class OERP(object):
             raise error.Error(
                 "'{0}' session is not of type '{1}'".format(
                     name, cls.__name__))
-        oerp = cls(
+        odoo = cls(
             server=data['server'],
             protocol=data['protocol'],
             port=data['port'],
             timeout=data['timeout'],
         )
-        oerp.login(
+        odoo.login(
             user=data['user'], passwd=data['passwd'],
             database=data['database'])
-        return oerp
+        return odoo
 
     @classmethod
     def list(cls, rc_file='~/.odoorpcrc'):
@@ -466,12 +466,12 @@ class OERP(object):
         `rc_file` file:
 
             >>> import odoorpc
-            >>> odoorpc.OERP.list()
+            >>> odoorpc.ODOO.list()
             ['foo', 'bar']
 
         Then, use the :func:`load` function with the desired session:
 
-            >>> oerp = odoorpc.OERP.load('foo')
+            >>> odoo = odoorpc.ODOO.load('foo')
         """
         sessions = session.get_all(rc_file)
         return [name for name, data in sessions.iteritems()
@@ -483,7 +483,7 @@ class OERP(object):
         """Remove the session identified by `name` from the `rc_file` file:
 
             >>> import odoorpc
-            >>> odoorpc.OERP.remove('foo')
+            >>> odoorpc.ODOO.remove('foo')
             True
         """
         data = session.get(name, rc_file)

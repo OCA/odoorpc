@@ -33,7 +33,7 @@ def get_all(rc_file='~/.odoorpcrc'):
     
     >>> import odoorpc
     >>> odoorpc.tools.session.get_all()
-    {'foo': {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'OERP', 'port': 8069, 'server': 'localhost'}}
+    {'foo': {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'server': 'localhost'}}
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -58,7 +58,7 @@ def get(name, rc_file='~/.odoorpcrc'):
 
     >>> import odoorpc
     >>> odoorpc.tools.session.get('foo')
-    {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'OERP', 'port': 8069, 'server': 'localhost'}
+    {'protocol': 'xmlrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'server': 'localhost'}
 
     :raise: :class:`odoorpc.error.Error`
     """
@@ -94,7 +94,7 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     in the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.save('foo', {'type': 'OERP', 'server': 'localhost', 'protocol': 'xmlrpc', 'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin', 'database': 'db_name'})
+    >>> odoorpc.tools.session.save('foo', {'type': 'ODOO', 'server': 'localhost', 'protocol': 'xmlrpc', 'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin', 'database': 'db_name'})
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])

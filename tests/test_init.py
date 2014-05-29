@@ -14,9 +14,9 @@ class TestInit(unittest.TestCase):
 
     def test_init1(self):
         # Server + Database + Protocol + Port
-        odoo = odoorpc.OERP(ARGS.server, ARGS.database,
+        odoo = odoorpc.ODOO(ARGS.server, ARGS.database,
                             ARGS.protocol, ARGS.port)
-        self.assertIsInstance(odoo, odoorpc.OERP)
+        self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
         self.assertEqual(odoo.server, ARGS.server)
         self.assertEqual(odoo.database, ARGS.database)
@@ -25,9 +25,9 @@ class TestInit(unittest.TestCase):
 
     def test_init2(self):
         # Server + Database + Protocol + Port + Timeout
-        odoo = odoorpc.OERP(ARGS.server, ARGS.database,
+        odoo = odoorpc.ODOO(ARGS.server, ARGS.database,
                             ARGS.protocol, ARGS.port, 42)
-        self.assertIsInstance(odoo, odoorpc.OERP)
+        self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
         self.assertEqual(odoo.server, ARGS.server)
         self.assertEqual(odoo.database, ARGS.database)
