@@ -38,11 +38,11 @@ if __name__ == '__main__':
     loader = unittest.TestLoader().loadTestsFromTestCase(TestInit)
     suite.addTest(loader)
     # 3) Test ODOO.db (create the database)
-    if ARGS.create_db:
-        loader = unittest.TestLoader().loadTestsFromTestCase(TestDBCreate)
-        suite.addTest(loader)
-    else:
-        print("-- TestDBCreate skipped --")
+    #if ARGS.create_db:
+    #    loader = unittest.TestLoader().loadTestsFromTestCase(TestDBCreate)
+    #    suite.addTest(loader)
+    #else:
+    #    print("-- TestDBCreate skipped --")
     # 4) Test ODOO.login
     loader = unittest.TestLoader().loadTestsFromTestCase(TestLogin)
     suite.addTest(loader)
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     #---------
 
     # Test ODOO.db
-    loader = unittest.TestLoader().loadTestsFromTestCase(TestDB)
-    suite.addTest(loader)
+    #loader = unittest.TestLoader().loadTestsFromTestCase(TestDB)
+    #suite.addTest(loader)
 
     # Test ODOO.execute and ODOO.execute_kw
     loader = unittest.TestLoader().loadTestsFromTestCase(TestExecute)
@@ -82,20 +82,20 @@ if __name__ == '__main__':
     #---------------
 
     # Test ODOO.db (drop the database)
-    if ARGS.create_db and ARGS.drop_db:
-        loader = unittest.TestLoader().loadTestsFromTestCase(TestDBDrop)
-        suite.addTest(loader)
-    else:
-        print("-- TestDBDrop skipped --")
+    #if ARGS.create_db and ARGS.drop_db:
+    #    loader = unittest.TestLoader().loadTestsFromTestCase(TestDBDrop)
+    #    suite.addTest(loader)
+    #else:
+    #    print("-- TestDBDrop skipped --")
 
     # Run all tests
-    if ARGS.test_xmlrpc:
-        print("-- RUN (XMLRPC) --")
-        ARGS.protocol = 'xmlrpc'
-        ARGS.port = int(ARGS.xmlrpc_port)
+    if ARGS.test_jsonrpc:
+        print("-- RUN (JSON-RPC) --")
+        ARGS.protocol = 'jsonrpc'
+        ARGS.port = int(ARGS.jsonrpc_port)
         unittest.TextTestRunner(verbosity=ARGS.verbosity).run(suite)
-    if not ARGS.test_xmlrpc:
+    if not ARGS.test_jsonrpc:
         print("-- NO TEST --")
-        print("Please use '--test_xmlrpc' option.")
+        print("Please use '--test_jsonrpc' option.")
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

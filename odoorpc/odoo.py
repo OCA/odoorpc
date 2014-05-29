@@ -29,25 +29,20 @@ import time
 
 from odoorpc import rpc, error, tools
 from odoorpc.tools import session
-from odoorpc.service import common, db, osv
+from odoorpc.service import db, osv
 
 
 class ODOO(object):
     """Return a new instance of the :class:`ODOO` class.
-    The optional `database` parameter specifies the default database to use
-    when the :func:`login <odoorpc.ODOO.login>` method is called.
-    If no `database` is set, the `database` parameter of the
-    :func:`login <odoorpc.ODOO.login>` method will be mandatory.
-
-    `XML-RPC` protocol are supported. Respective values for the `protocol`
-    parameter are ``xmlrpc`` and ``xmlrpc+ssl``.
+    `JSON-RPC` protocol is used to make requests, and the respective values
+    for the `protocol` parameter are ``jsonrpc`` (default) and ``jsonrpc+ssl``.
 
         >>> import odoorpc
-        >>> odoo = odoorpc.ODOO('localhost', protocol='xmlrpc', port=8069)
+        >>> odoo = odoorpc.ODOO('localhost', protocol='jsonrpc', port=8069)
 
     `OdooRPC` will try by default to detect the server version in order to
-    adapt its requests. However, it is possible to force the version to use
-    with the `version` parameter:
+    adapt its requests if necessary. However, it is possible to force the
+    version to use with the `version` parameter:
 
         >>> odoo = odoorpc.ODOO('localhost', version='8.0')
 
@@ -55,22 +50,21 @@ class ODOO(object):
         :class:`odoorpc.error.RPCError`
     """
 
-    def __init__(self, server='localhost', database=None, protocol='xmlrpc',
+    def __init__(self, server='localhost', protocol='jsonrpc',
                  port=8069, timeout=120, version=None):
-        if protocol not in ['xmlrpc', 'xmlrpc+ssl']:
+        if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = ("The protocol '{0}' is not supported by the ODOO class. "
                    "Please choose a protocol among these ones: {1}")
-            txt = txt.format(protocol, ['xmlrpc', 'xmlrpc+ssl'])
+            txt = txt.format(protocol, ['jsonrpc', 'jsonrpc+ssl'])
             raise error.InternalError(txt)
         self._server = server
         self._port = port
         self._protocol = protocol
-        self._database = self._database_default = database
+        self._database = None
         self._uid = None
         self._password = None
         self._user = None
-        self._common = common.Common(self)
-        self._db = db.DB(self)
+        #self._db = db.DB(self)
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
@@ -114,7 +108,7 @@ class ODOO(object):
     def user(self):
         """The browsable record of the user connected.
 
-        >>> odoo.login('admin', 'admin') == odoo.user
+        >>> odoo.login('admin', 'admin', 'db_name') == odoo.user
         True
 
         """
@@ -124,7 +118,7 @@ class ODOO(object):
     def context(self):
         """The context of the user connected.
 
-        >>> odoo.login('admin', 'admin')
+        >>> odoo.login('admin', 'admin', 'db_name')
         browse_record('res.users', 1)
         >>> odoo.context
         {'lang': 'fr_FR', 'tz': False}
@@ -148,15 +142,12 @@ class ODOO(object):
                     doc="The port used.")
     protocol = property(lambda self: self._protocol,
                         doc="The protocol used.")
-
     database = property(lambda self: self._database,
                         doc="The database currently used.")
-    common = property(lambda self: self._common,
-                      doc=("""The common service (``/common`` RPC service).
-                       See the :class:`odoorpc.service.common.Common` class."""))
-    db = property(lambda self: self._db,
-                  doc=("""The database management service (``/db`` RPC service).
-                       See the :class:`odoorpc.service.db.DB` class."""))
+    #db = property(lambda self: self._db,
+    #              doc=("""The database management service (``/web/database``
+    #                   RPC service).  See the :class:`odoorpc.service.db.DB`
+    #                   class."""))
 
     #NOTE: in the past this function was implemented as a decorator for other
     # methods needed to be checked, but Sphinx documentation generator is not
@@ -180,24 +171,30 @@ class ODOO(object):
         :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.Error`
         """
         # Raise an error if no database was given
-        self._database = database or self._database_default
+        self._database = database
         if not self._database:
             raise error.Error("No database specified")
         # Get the user's ID and generate the corresponding User record
         try:
-            user_id = self.common.login(self._database, user, passwd)
+            data = self._connector.proxy.web.session.authenticate(
+                db=database, login=user, password=passwd)
+            if data.get('error'):
+                raise error.RPCError(
+                    ', '.join("%s" % arg
+                             for arg in data['error']['data']['arguments']),
+                    data['error']['data']['debug'])
+            user_id = data['result']['uid']
         except rpc.error.ConnectorError as exc:
             raise error.RPCError(exc.message, exc.odoo_traceback)
         else:
             if user_id:
                 self._uid = user_id
                 self._password = passwd
-                self._context = self.execute('res.users', 'context_get')
+                self._context = data['result']['user_context']
                 user_obj = self.get('res.users')
                 self._user = user_obj.browse(user_id, context=self._context)
                 return self._user
             else:
-                #FIXME: Raise an error?
                 raise error.RPCError("Wrong login ID or password")
 
     # ------------------------- #
@@ -217,10 +214,14 @@ class ODOO(object):
         self._check_logged_user()
         # Execute the query
         try:
-            return self._connector.object.execute(
-                self._database, self._uid,
-                self._password,
-                model, method, *args)
+            data = self._connector.proxy.web.dataset.call(
+                model=model, method=method, args=args)
+            if data.get('error'):
+                raise error.RPCError(
+                    ', '.join("%s" % arg
+                             for arg in data['error']['data']['arguments']),
+                    data['error']['data']['debug'])
+            return data['result']
         except rpc.error.ConnectorError as exc:
             raise error.RPCError(exc.message, exc.odoo_traceback)
 
@@ -241,111 +242,120 @@ class ODOO(object):
         args = args or []
         kwargs = kwargs or {}
         try:
-            return self._connector.object.execute_kw(
-                self._database, self._uid, self._password,
-                model, method, args, kwargs)
+            data = self._connector.proxy.web.dataset.call_kw(
+                model=model, method=method, args=args, kwargs=kwargs)
+            if data.get('error'):
+                raise error.RPCError(
+                    ', '.join("%s" % arg
+                             for arg in data['error']['data']['arguments']),
+                    data['error']['data']['debug'])
+            return data['result']
         except rpc.error.ConnectorError as exc:
             raise error.RPCError(exc.message, exc.odoo_traceback)
 
-    def exec_workflow(self, model, signal, obj_id):
+    def exec_workflow(self, model, obj_id, signal):
         """Execute the workflow `signal` on
         the instance having the ID `obj_id` of `model`.
 
         :raise: :class:`odoorpc.error.RPCError`
         """
-        #TODO NEED TEST
         self._check_logged_user()
         # Execute the workflow query
         try:
-            self._connector.object.exec_workflow(
-                self._database, self._uid, self._password,
-                model, signal, obj_id)
+            data = self._connector.proxy.web.dataset.exec_workflow(
+                model=model, id=obj_id, signal=signal)
+            if data.get('error'):
+                raise error.RPCError(
+                    ', '.join("%s" % arg
+                             for arg in data['error']['data']['arguments']),
+                    data['error']['data']['debug'])
+            return data['result']
         except rpc.error.ConnectorError as exc:
             raise error.RPCError(exc.message, exc.odoo_traceback)
 
-    def report(self, report_name, model, obj_ids, report_type='pdf',
-               context=None):
-        """Download a report from the server and return the local
-        path of the file.
+    #def report(self, report_name, model, obj_ids, report_type='pdf',
+    #           context=None):
+    #    """Download a report from the server and return the local
+    #    path of the file.
 
-        >>> odoo.report('sale.order', 'sale.order', 1)
-        '/tmp/odoorpc_uJ8Iho.pdf'
-        >>> odoo.report('sale.order', 'sale.order', [1, 2])
-        '/tmp/odoorpc_giZS0v.pdf'
+    #    >>> odoo.report('sale.order', 'sale.order', 1)
+    #    '/tmp/odoorpc_uJ8Iho.pdf'
+    #    >>> odoo.report('sale.order', 'sale.order', [1, 2])
+    #    '/tmp/odoorpc_giZS0v.pdf'
 
-        :return: the path to the generated temporary file
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        #TODO report_type: what it means exactly?
+    #    :return: the path to the generated temporary file
+    #    :raise: :class:`odoorpc.error.RPCError`
+    #    """
+    #    #TODO report_type: what it means exactly?
 
-        self._check_logged_user()
-        # If no context was supplied, get the default one
-        if context is None:
-            context = self.context
-        # Execute the report query
-        try:
-            pdf_data = self._get_report_data(report_name, model, obj_ids,
-                                             report_type, context)
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
-        return self._print_file_data(pdf_data)
+    #    self._check_logged_user()
+    #    # If no context was supplied, get the default one
+    #    if context is None:
+    #        context = self.context
+    #    # Execute the report query
+    #    try:
+    #        pdf_data = self._get_report_data(report_name, model, obj_ids,
+    #                                         report_type, context)
+    #    except rpc.error.ConnectorError as exc:
+    #        raise error.RPCError(exc.message, exc.odoo_traceback)
+    #    return self._print_file_data(pdf_data)
 
-    def _get_report_data(self, report_name, model, obj_ids,
-                         report_type='pdf', context=None):
-        """Download binary data of a report from the server."""
-        context = context or {}
-        obj_ids = [obj_ids] if isinstance(obj_ids, (int, long)) else obj_ids
-        data = {
-            'model': model,
-            'id': obj_ids[0],
-            'ids': obj_ids,
-            'report_type': report_type,
-        }
-        try:
-            report_id = self._connector.report.report(
-                self._database, self.user.id, self._password,
-                report_name, obj_ids, data, context)
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
-        state = False
-        attempt = 0
-        while not state:
-            try:
-                pdf_data = self._connector.report.report_get(
-                    self._database, self.user.id, self._password,
-                    report_id)
-            except rpc.error.ConnectorError as exc:
-                raise error.RPCError("Unknown error occurred during the "
-                                     "download of the report.")
-            state = pdf_data['state']
-            if not state:
-                time.sleep(1)
-                attempt += 1
-            if attempt > 200:
-                raise error.RPCError("Download time exceeded, "
-                                     "the operation has been canceled.")
-        return pdf_data
+    #def _get_report_data(self, report_name, model, obj_ids,
+    #                     report_type='pdf', context=None):
+    #    """Download binary data of a report from the server."""
+    #    context = context or {}
+    #    obj_ids = [obj_ids] if isinstance(obj_ids, (int, long)) else obj_ids
+    #    data = {
+    #        'model': model,
+    #        'id': obj_ids[0],
+    #        'ids': obj_ids,
+    #        'report_type': report_type,
+    #    }
+    #    try:
+    #        report_id = self._connector.report.report(
+    #            self._database, self.user.id, self._password,
+    #            report_name, obj_ids, data, context)
+    #    except rpc.error.ConnectorError as exc:
+    #        raise error.RPCError(exc.message, exc.odoo_traceback)
+    #    state = False
+    #    attempt = 0
+    #    while not state:
+    #        try:
+    #            pdf_data = self._connector.report.report_get(
+    #                self._database, self.user.id, self._password,
+    #                report_id)
+    #        except rpc.error.ConnectorError as exc:
+    #            raise error.RPCError("Unknown error occurred during the "
+    #                                 "download of the report.")
+    #        state = pdf_data['state']
+    #        if not state:
+    #            time.sleep(1)
+    #            attempt += 1
+    #        if attempt > 200:
+    #            raise error.RPCError("Download time exceeded, "
+    #                                 "the operation has been canceled.")
+    #    return pdf_data
 
-    @staticmethod
-    def _print_file_data(data):
-        """Print data in a temporary file and return the path of this one."""
-        if 'result' not in data:
-            raise error.InternalError(
-                "Invalid data, the operation has been canceled.")
-        content = base64.decodestring(data['result'])
-        if data.get('code') == 'zlib':
-            content = zlib.decompress(content)
+    #@staticmethod
+    #def _print_file_data(data):
+    #    """Print data in a temporary file and return the path of this one."""
+    #    if 'result' not in data:
+    #        raise error.InternalError(
+    #            "Invalid data, the operation has been canceled.")
+    #    content = base64.decodestring(data['result'])
+    #    if data.get('code') == 'zlib':
+    #        content = zlib.decompress(content)
 
-        if data['format'] in ['pdf', 'html', 'doc', 'xls',
-                              'sxw', 'odt', 'tiff']:
-            if data['format'] == 'html' and os.name == 'nt':
-                data['format'] = 'doc'
-            (file_no, file_path) = tempfile.mkstemp('.' + data['format'],
-                                                    'odoorpc_')
-            with file(file_path, 'wb+') as fp:
-                fp.write(content)
-            os.close(file_no)
-            return file_path
+    #    if data['format'] in ['pdf', 'html', 'doc', 'xls',
+    #                          'sxw', 'odt', 'tiff']:
+    #        if data['format'] == 'html' and os.name == 'nt':
+    #            data['format'] = 'doc'
+    #        (file_no, file_path) = tempfile.mkstemp('.' + data['format'],
+    #                                                'odoorpc_')
+    #        with file(file_path, 'wb+') as fp:
+    #            fp.write(content)
+    #        os.close(file_no)
+    #        return file_path
 
     # ---------------------- #
     # -- Special methods  -- #
@@ -412,7 +422,7 @@ class ODOO(object):
         These informations are stored in the ``~/.odoorpcrc`` file by default.
 
             >>> import odoorpc
-            >>> odoo = odoorpc.ODOO('localhost', protocol='xmlrpc', port=8069)
+            >>> odoo = odoorpc.ODOO('localhost', port=8069)
             >>> odoo.login('admin', 'admin', 'db_name')
             >>> odoo.save('foo')
 

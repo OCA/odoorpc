@@ -18,24 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module provides `RPC` connectors which use the `XML-RPC` or `JSON-RPC`
-protocol to communicate with an `Odoo` server.
+"""This module provides `RPC` connector which use the `JSON-RPC` protocol
+to communicate with an `Odoo` server.
 
 Afterwards, `RPC` services and their associated methods can be accessed
-dynamically from the connector returned.
+dynamically from this connector.
+Here are the main services URLs:
 
-`XML-RPC` provides an interface to services like ``/xmlrpc2/db``,
-``/xmlrpc2/common`` or ``/xmlrpc2/object``.
-On the other hand, `JSON-RPC` provides a completely different interface, with
-services provided by Web modules like ``/web/session``,
-``/web/dataset`` and so on.
+==================  ======================================================
+URL                 Description
+==================  ======================================================
+''/web/database''   Manage databases (create, drop, backup...)
+''/web/session''    Manage the user session (authentication, logout...)
+''/web/dataset''    Manage all kinds of data (model methods, workflows)
+''/web/action''     Manage all kinds of action (act_window, report.xml...)
+''/web/export''     Manage data exports
+''/web/menu''       Access to menus related to the user connected
+==================  ======================================================
+
 """
-from odoorpc.rpc import error, service, jsonrpclib
+from odoorpc.rpc import error, jsonrpclib
 from odoorpc.tools import v
-
-XML_RPC_PATHS = [
-    '/xmlrpc/2',
-]
 
 
 class Connector(object):
@@ -58,71 +61,13 @@ class Connector(object):
 
     @property
     def timeout(self):
+        """Return the timeout."""
         return self._timeout
 
     @timeout.setter
     def timeout(self, timeout):
+        """Set the timeout."""
         self._timeout = timeout
-
-
-class ConnectorXMLRPC(Connector):
-    """Connector class using the `XML-RPC` protocol.
-
-    >>> from odoorpc import rpc
-    >>> cnt = rpc.ConnectorXMLRPC('localhost', port=8069)
-
-    Login and retrieve ID of the user connected:
-
-    >>> uid = cnt.common.login('database', 'user', 'passwd')
-
-    Execute a query:
-
-    >>> res = cnt.object.execute('database', uid, 'passwd', 'res.partner', 'read', [1])
-
-    Execute a workflow query:
-
-    >>> res = cnt.object.exec_workflow('database', uid, 'passwd', 'sale.order', 'order_confirm', 4)
-    """
-    def __init__(self, server, port=8069, timeout=120, version=None):
-        super(ConnectorXMLRPC, self).__init__(server, port, timeout, version)
-        if self.version:
-            # Server >= 8.0
-            if v(self.version) >= v('8.0'):
-                self._url = 'http://{server}:{port}/xmlrpc/2'.format(
-                    server=self.server, port=self.port)
-        # Detect the version
-        if self._url is None:
-            # We begin with the last known XML-RPC path to give the priority to
-            # the last server version supported
-            paths = XML_RPC_PATHS[:]
-            paths.reverse()
-            for path in paths:
-                url = 'http://{server}:{port}{path}'.format(
-                    server=self.server, port=self.port, path=path)
-                try:
-                    db = service.ServiceXMLRPC(
-                        self, 'db', '{url}/{srv}'.format(url=url, srv='db'))
-                    version = db.server_version()
-                except error.ConnectorError:
-                    continue
-                else:
-                    self._url = url
-                    self.version = version
-                    break
-
-    def __getattr__(self, service_name):
-        url = self._url + '/' + service_name
-        srv = service.ServiceXMLRPC(self, service_name, url)
-        setattr(self, service_name, srv)
-        return srv
-
-
-class ConnectorXMLRPCSSL(ConnectorXMLRPC):
-    """Connector class using the `XML-RPC` protocol over `SSL`."""
-    def __init__(self, server, port=8069, timeout=120, version=None):
-        super(ConnectorXMLRPCSSL, self).__init__(
-            server, port, timeout, version)
-        self._url = self._url.replace('http', 'https')
 
 
 class ConnectorJSONRPC(Connector):
@@ -182,14 +127,17 @@ class ConnectorJSONRPC(Connector):
 
     @property
     def proxy(self):
+        """Return the JSON-RPC proxy."""
         return self._proxy
 
     @property
     def timeout(self):
+        """Return the timeout."""
         return self._proxy._timeout
 
     @timeout.setter
     def timeout(self, timeout):
+        """Set the timeout."""
         self._proxy._timeout = timeout
 
 
@@ -207,10 +155,8 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
 
 
 PROTOCOLS = {
-    'xmlrpc': ConnectorXMLRPC,
-    'xmlrpc+ssl': ConnectorXMLRPCSSL,
-    #'jsonrpc': ConnectorJSONRPC,
-    #'jsonrpc+ssl': ConnectorJSONRPCSSL,
+    'jsonrpc': ConnectorJSONRPC,
+    'jsonrpc+ssl': ConnectorJSONRPCSSL,
 }
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -6,14 +6,14 @@ _parser = argparse.ArgumentParser(description="Run tests for OdooRPC.")
 
 _parser.add_argument('--server', default='localhost',
                      help="Host")
-#_parser.add_argument('--protocol', default='xmlrpc',
+#_parser.add_argument('--protocol', default='jsonrpc',
 #                     help="Protocol")
 #_parser.add_argument('--port', default='8069',
 #                     help="Port")
 
-_parser.add_argument('--test_xmlrpc', action='store_true',
+_parser.add_argument('--test_jsonrpc', action='store_true',
                      help="Test the XML-RPC protocol")
-_parser.add_argument('--xmlrpc_port', default='8069',
+_parser.add_argument('--jsonrpc_port', default='8069',
                      help="Port to use with the XML-RPC protocol")
 _parser.add_argument('--version', default=None,
                      help="OpenERP version used")
