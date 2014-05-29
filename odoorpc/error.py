@@ -24,22 +24,28 @@ occurred.
 
 
 class Error(Exception):
-    def __init__(self, message, odoo_traceback=False):
+    """Base class for exception."""
+    def __init__(self, msg, odoo_traceback=False):
         super(Error, self).__init__()
-        self.message = message
+        self.msg = msg
         self.odoo_traceback = odoo_traceback
 
     def __str__(self):
-        return "{message}".format(message=self.message)
+        return repr(self.msg)
 
 
 class RPCError(Error):
-    """Exception raised when an error related to a RPC query occurred."""
+    """Exception raised for errors related to RPC queries."""
+    pass
+
+
+class LoginError(Error):
+    """Exception raised when the login on a server has failed."""
     pass
 
 
 class InternalError(Error):
-    """Exception raised when an error occurred during an internal operation."""
+    """Exception raised for errors occurring during an internal operation."""
     pass
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

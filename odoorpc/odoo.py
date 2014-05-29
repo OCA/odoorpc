@@ -149,13 +149,60 @@ class ODOO(object):
     #                   RPC service).  See the :class:`odoorpc.service.db.DB`
     #                   class."""))
 
-    #NOTE: in the past this function was implemented as a decorator for other
-    # methods needed to be checked, but Sphinx documentation generator is not
-    # able to auto-document decorated methods.
+    def rpc(self, url, kwargs):
+        """Low level method to execute JSON-RPC queries. It basically performs
+        a request and raises an :class:`odoorpc.error.RPCError` exception if
+        the response contains an error.
+
+        You have to know the names of each parameter required by the function
+        called, and set them in the `kwargs` dictionary.
+
+        Here an authentication request::
+
+        >>> data = odoo.rpc('/web/session/authenticate',
+        ...                 {'db': 'db_name', 'login':'admin', 'password': 'admin'})
+        >>> from pprint import pprint as pp
+        >>> pp(data)
+        {u'id': 645674382,
+         u'jsonrpc': u'2.0',
+         u'result': {u'db': u'db_name',
+                     u'session_id': u'fa740abcb91784b8f4750c5c5b14da3fcc782d11',
+                     u'uid': 1,
+                     u'user_context': {u'lang': u'en_US',
+                                       u'tz': u'Europe/Brussels',
+                                       u'uid': 1},
+                     u'username': u'admin'}}
+
+        And a call to the ``read`` method of the ``res.users`` model::
+
+        >>> data = odoo.rpc('/web/dataset/call',
+        ...                 {'model': 'res.users', 'method': 'read',
+        ...                  'args': [[1], ['name']]})
+        >>> pp(data)
+        {u'id': 756578441,
+         u'jsonrpc': u'2.0',
+         u'result': [{u'id': 1, u'name': u'Administrator'}]}
+
+        :return: a RPC response (dictionary)
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
+
+        """
+        data = self._connector.proxy[url](**kwargs)
+        if data.get('error'):
+            message = ', '.join(
+                "%s" % arg for arg in data['error']['data']['arguments'])
+            traceback = data['error']['data']['debug']
+            raise error.RPCError(message, traceback)
+        return data
+
+    # NOTE: in the past this function was implemented as a decorator for
+    # methods needing to be checked, but Sphinx documentation generator is not
+    # able to parse decorated methods.
     def _check_logged_user(self):
         """Check if a user is logged. Otherwise, an error is raised."""
         if not self._uid or not self._password:
-            raise error.Error(u"User login required.")
+            raise error.LoginError(u"User login required.")
 
     def login(self, user='admin', passwd='admin', database=None):
         """Log in as the given `user` with the password `passwd` on the
@@ -168,34 +215,24 @@ class ODOO(object):
         u'Administrator'
 
         :return: the user connected as a browsable record
-        :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.Error`
+        :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.LoginError`
+        :raise: `urllib2.HTTPError`
         """
-        # Raise an error if no database was given
-        self._database = database
-        if not self._database:
-            raise error.Error("No database specified")
-        # Get the user's ID and generate the corresponding User record
-        try:
-            data = self._connector.proxy.web.session.authenticate(
-                db=database, login=user, password=passwd)
-            if data.get('error'):
-                raise error.RPCError(
-                    ', '.join("%s" % arg
-                             for arg in data['error']['data']['arguments']),
-                    data['error']['data']['debug'])
-            user_id = data['result']['uid']
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
+        # Get the user's ID and generate the corresponding user record
+        data = self.rpc(
+            '/web/session/authenticate',
+            {'db': database, 'login': user, 'password': passwd})
+        user_id = data['result']['uid']
+        if user_id:
+            self._database = database
+            self._uid = user_id
+            self._password = passwd
+            self._context = data['result']['user_context']
+            user_obj = self.get('res.users')
+            self._user = user_obj.browse(user_id, context=self._context)
+            return self._user
         else:
-            if user_id:
-                self._uid = user_id
-                self._password = passwd
-                self._context = data['result']['user_context']
-                user_obj = self.get('res.users')
-                self._user = user_obj.browse(user_id, context=self._context)
-                return self._user
-            else:
-                raise error.RPCError("Wrong login ID or password")
+            raise error.LoginError("Wrong login ID or password")
 
     # ------------------------- #
     # -- Raw XML-RPC methods -- #
@@ -210,20 +247,14 @@ class ODOO(object):
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
         """
         self._check_logged_user()
         # Execute the query
-        try:
-            data = self._connector.proxy.web.dataset.call(
-                model=model, method=method, args=args)
-            if data.get('error'):
-                raise error.RPCError(
-                    ', '.join("%s" % arg
-                             for arg in data['error']['data']['arguments']),
-                    data['error']['data']['debug'])
-            return data['result']
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
+        data = self.rpc(
+            '/web/dataset/call',
+            {'model': model, 'method': method, 'args': args})
+        return data['result']
 
     def execute_kw(self, model, method, args=None, kwargs=None):
         """Execute the `method` of `model`.
@@ -236,42 +267,31 @@ class ODOO(object):
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
         """
         self._check_logged_user()
         # Execute the query
         args = args or []
         kwargs = kwargs or {}
-        try:
-            data = self._connector.proxy.web.dataset.call_kw(
-                model=model, method=method, args=args, kwargs=kwargs)
-            if data.get('error'):
-                raise error.RPCError(
-                    ', '.join("%s" % arg
-                             for arg in data['error']['data']['arguments']),
-                    data['error']['data']['debug'])
-            return data['result']
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
+        data = self.rpc(
+            '/web/dataset/call_kw',
+            {'model': model, 'method': method,
+                'args': args, 'kwargs': kwargs})
+        return data['result']
 
     def exec_workflow(self, model, obj_id, signal):
         """Execute the workflow `signal` on
         the instance having the ID `obj_id` of `model`.
 
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
         """
         self._check_logged_user()
         # Execute the workflow query
-        try:
-            data = self._connector.proxy.web.dataset.exec_workflow(
-                model=model, id=obj_id, signal=signal)
-            if data.get('error'):
-                raise error.RPCError(
-                    ', '.join("%s" % arg
-                             for arg in data['error']['data']['arguments']),
-                    data['error']['data']['debug'])
-            return data['result']
-        except rpc.error.ConnectorError as exc:
-            raise error.RPCError(exc.message, exc.odoo_traceback)
+        data = self.rpc(
+            '/web/dataset/exec_workflow',
+            {'model': model, 'id': obj_id, 'signal': signal})
+        return data['result']
 
     #def report(self, report_name, model, obj_ids, report_type='pdf',
     #           context=None):
