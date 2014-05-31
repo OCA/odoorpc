@@ -19,10 +19,10 @@
 #
 ##############################################################################
 """Provide the :class:`DB` class in order to manage the server databases."""
+import base64
+import io
 
-import time
-
-from odoorpc import rpc, error
+from odoorpc import error
 
 
 class DB(object):
@@ -37,186 +37,172 @@ class DB(object):
     >>> import odoorpc
     >>> odoo = odoorpc.ODOO('localhost')
     >>> odoo.db
-    <odoorpc.service.db.DB object at 0xb75fb04c>
-
-    .. warning::
-
-        All methods documented below are not strictly implemented in `OdooRPC`
-        (except the
-        :func:`create_and_wait <odoorpc.service.db.DB.create_and_wait>` method).
-
-        Method calls are purely dynamic, and the following documentation can be
-        wrong if the API of the server is changed between versions. Anyway, if
-        you know the API proposed by the server for the ``/db`` RPC
-        service, it will work.
-
-    .. method:: DB.list()
-
-        Return a list of the databases:
-
-        >>> odoo.db.list()
-        ['prod_db', 'test_db']
-
-        :return: a list of database names
-
-    .. method:: DB.list_lang()
-
-        Return a list of codes and names of language supported by the server:
-
-        >>> odoo.db.list_lang()
-        [['sq_AL', 'Albanian / Shqipëri'], ['ar_AR', 'Arabic / الْعَرَبيّة'], ...]
-
-        :return: a list of pairs representing languages with their codes and
-                 names
-
-    .. method:: DB.server_version()
-
-        Return the version of the server:
-
-        >>> odoo.db.server_version()
-        '6.1'
-
-        :return: the version of the server as string
-
-    .. method:: DB.dump(super_admin_passwd, database)
-
-        Return a dump of `database` in `base64`:
-
-        >>> binary_data = odoo.db.dump('super_admin_passwd', 'prod_db')
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: the `base64` string representation of the `database`
-
-    .. method:: DB.restore(super_admin_passwd, database, binary_data)
-
-        Restore in `database` a dump previously created with the
-        :func:`dump <DB.dump>` method:
-
-        >>> odoo.db.restore('super_admin_passwd', 'test_db', binary_data)
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-    .. method:: DB.drop(super_admin_passwd, database)
-
-        Drop the `database`:
-
-        >>> odoo.db.drop('super_admin_passwd', 'test_db')
-        True
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: `True`
-
-    .. method:: DB.create(super_admin_passwd, database, demo_data=False, lang='en_US', admin_passwd='admin')
-
-        Request the server to create a new database named `database`
-        which will have `admin_passwd` as administrator password and localized
-        with the `lang` parameter.
-        You have to set the flag `demo_data` to `True` in order to insert
-        demonstration data.
-
-        As the creating process may take some time, you can execute the
-        :func:`get_progress <DB.get_progress>` method with the database ID
-        returned to know its current state.
-
-        >>> database_id = odoo.db.create('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: the ID of the new database
-
-    .. method:: DB.get_progress(super_admin_passwd, database_id)
-
-        Check the state of the creating process for the database identified by
-        the `database_id` parameter.
-
-        >>> odoo.db.get_progress('super_admin_passwd', database_id) # Just after the call to the 'create' method
-        (0, [])
-        >>> odoo.db.get_progress('super_admin_passwd', database_id) # Once the database is fully created
-        (1.0, [{'login': 'admin', 'password': 'admin', 'name': 'Administrator'},
-               {'login': 'demo', 'password': 'demo', 'name': 'Demo User'}])
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: A tuple with the progressing state and a list
-                of user accounts created (once the database is fully created).
-
-    .. method:: DB.create_database(super_admin_passwd, database, demo_data=False, lang='en_US', admin_passwd='admin')
-
-        Similar to :func:`create <DB.create>` but blocking.
-
-        >>> odoo.db.create_database('super_admin_passwd', 'test_db', False, 'fr_FR', 'my_admin_passwd')
-        True
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: `True`
-
-    .. method:: DB.duplicate_database(super_admin_passwd, original_database, database)
-
-        Duplicate `original_database' as `database`.
-
-        >>> odoo.db.duplicate_database('super_admin_passwd', 'prod_db', 'test_db')
-        True
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: `True`
-
-    .. method:: DB.rename(super_admin_passwd, old_name, new_name)
-
-        Rename the `old_name` database to `new_name`.
-
-        >>> odoo.db.rename('super_admin_passwd', 'test_db', 'test_db2')
-        True
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: `True`
-
-    .. method:: DB.db_exist(database)
-
-        Check if connection to database is possible.
-
-        >>> odoo.db.db_exist('prod_db')
-        True
-
-        :return: `True` or `False`
-
-    .. method:: DB.change_admin_password(super_admin_passwd, new_passwd)
-
-        Change the administrator password by `new_passwd`.
-
-        >>> odoo.db.change_admin_password('super_admin_passwd', 'new_passwd')
-        True
-
-        The super administrator password `super_admin_passwd` is
-        required to perform this action.
-
-        :return: `True`
+    <odoorpc.service.db.DB object at 0x7f95b76fdbd0>
 
     """
     def __init__(self, odoo):
         self._odoo = odoo
 
-    def __getattr__(self, method):
-        """Provide a dynamic access to a RPC method."""
-        def rpc_method(*args):
-            """Return the result of the RPC request."""
-            try:
-                meth = getattr(self._odoo._connector.db, method, False)
-                return meth(*args)
-            except rpc.error.ConnectorError as exc:
-                raise error.RPCError(exc.message, exc.odoo_traceback)
-        return rpc_method
+    def dump(self, password, db):
+        """Backup the `db` database. Returns the dump as a binary ZIP file
+        containing the SQL dump file alongside the filestore directory (if any).
+
+        >>> dump = odoo.db.backup('super_admin_passwd', 'prod')
+
+        If you get a timeout error, increase this one before performing the
+        request:
+
+        >>> timeout_backup = odoo.config['timeout']
+        >>> odoo.config['timeout'] = 600    # Timeout set to 10 minutes
+        >>> dump = odoo.db.backup('super_admin_passwd', 'prod')
+        >>> odoo.config['timeout'] = timeout_backup
+
+        Write it on the file system:
+
+        >>> with open('dump.zip', 'w') as dump_zip:
+        ...     dump_zip.write(dump.read())
+        ...
+
+        You can manipulate the file with the `zipfile` module for instance:
+
+        >>> import zipfile
+        >>> zipfile.ZipFile('dump.zip').namelist()
+        ['dump.sql',
+         'filestore/ef/ef2c882a36dbe90fc1e7e28d816ad1ac1464cfbb',
+         'filestore/dc/dcf00aacce882bbfd117c0277e514f829b4c5bf0']
+
+        The super administrator password is required to perform this method.
+
+        :return: `io.BytesIO`
+        :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
+        """
+        data = self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'dump',
+             'args': [password, db]})
+        binary_data = base64.standard_b64decode(data['result'])
+        return io.BytesIO(binary_data)
+
+    def change_password(self, password, new_password):
+        """Change the administrator password by `new_password`.
+
+        >>> odoo.db.change_password('super_admin_passwd', 'new_admin_passwd')
+
+        The super administrator password is required to perform this method.
+
+        :raise: :class:`odoorpc.error.RPCError`
+        """
+        self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'change_admin_password',
+             'args': [password, new_password]})
+
+    def create(self, password, db, demo=False, lang='en_US', admin_password='admin'):
+        """Request the server to create a new database named `db`
+        which will have `admin_password` as administrator password and
+        localized with the `lang` parameter.
+        You have to set the flag `demo` to `True` in order to insert
+        demonstration data.
+
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd')
+
+        If you get a timeout error, increase this one before performing the
+        request:
+
+        >>> timeout_backup = odoo.config['timeout']
+        >>> odoo.config['timeout'] = 600    # Timeout set to 10 minutes
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd')
+        >>> odoo.config['timeout'] = timeout_backup
+
+        The super administrator password is required to perform this method.
+
+        :raise: :class:`odoorpc.error.RPCError`
+        """
+        self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'create_database',
+             'args': [password, db, demo, lang, admin_password]})
+
+    def drop(self, password, db):
+        """Drop the `db` database. Returns `True` if the database was removed,
+        `False` otherwise (database did not exist):
+
+        >>> odoo.db.drop('super_admin_passwd', 'test')
+        True
+
+        The super administrator password is required to perform this method.
+
+        :return: `True` or `False`
+        :raise: :class:`odoorpc.error.RPCError`
+        """
+        data = self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'drop',
+             'args': [password, db]})
+        return data['result']
+
+    def duplicate(self, password, db, new_db):
+        """Duplicate `db' as `new_db`.
+
+        >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test')
+
+        The super administrator password is required to perform this method.
+
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib2.HTTPError`
+        """
+        self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'duplicate_database',
+             'args': [password, db, new_db]})
+
+    def list(self):
+        """Return the list of the databases:
+
+        >>> odoo.db.list()
+        ['prod', 'test']
+
+        :return: a list of database names
+        """
+        data = self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'list',
+             'args': []})
+        return data.get('result', [])
+
+    def restore(self, password, db, dump, copy=False):
+        """Restore the `dump` database into the new `db` database.
+        The `dump` file object can be obtained with the
+        :func:`dump <DB.dump>` method.
+        If `copy` is set to `True`, the restored database will have a new UUID.
+
+        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file)
+
+        If you get a timeout error, increase this one before performing the
+        request:
+
+        >>> timeout_backup = odoo.config['timeout']
+        >>> odoo.config['timeout'] = 7200   # Timeout set to 2 hours
+        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file)
+        >>> odoo.config['timeout'] = timeout_backup
+
+        The super administrator password is required to perform this method.
+
+        :raise: `urllib2.HTTPError`
+        """
+        if dump.closed:
+            raise error.InternalError("Dump file closed")
+        b64_data = base64.standard_b64encode(dump.read()).decode()
+        self._odoo.json(
+            '/jsonrpc',
+            {'service': 'db',
+             'method': 'restore',
+             'args': [password, db, b64_data, copy]})
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

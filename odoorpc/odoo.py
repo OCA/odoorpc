@@ -24,6 +24,7 @@ an `Odoo` server.
 from odoorpc import rpc, error, tools
 from odoorpc.tools import session
 from odoorpc.service import osv
+from odoorpc.service.db import DB
 
 
 class ODOO(object):
@@ -54,12 +55,12 @@ class ODOO(object):
         self._server = server
         self._port = port
         self._protocol = protocol
-        self._db = None
+        self._database = None
         self._uid = None
         self._password = None
         self._user = None
         self._context = None
-        #self._db = db.DB(self)
+        self._db = DB(self)
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
@@ -131,17 +132,20 @@ class ODOO(object):
         """
         return self._connector.version
 
+    @property
+    def db(self):
+        """The database management service.
+        See the :class:`odoorpc.service.db.DB` class.
+        """
+        return self._db
+
     server = property(lambda self: self._server,
                       doc="The server name.")
     port = property(lambda self: self._port,
                     doc="The port used.")
     protocol = property(lambda self: self._protocol,
                         doc="The protocol used.")
-    db = property(lambda self: self._db, doc="The database currently used.")
-    #db = property(lambda self: self._db,
-    #              doc=("""The database management service (``/web/database``
-    #                   RPC service).  See the :class:`odoorpc.service.db.DB`
-    #                   class."""))
+    database = property(lambda self: self._database, doc="The database currently used.")
 
     def json(self, url, params):
         """Low level method to execute JSON queries.
@@ -249,7 +253,7 @@ class ODOO(object):
             {'db': db, 'login': login, 'password': password})
         user_id = data['result']['uid']
         if user_id:
-            self._db = db
+            self._database = db
             self._uid = user_id
             self._password = password
             self._context = data['result']['user_context']
@@ -272,7 +276,7 @@ class ODOO(object):
         if not self._uid:
             return False
         self.json('/web/session/destroy', {})
-        self._db = self._uid = self._password = self._context = None
+        self._database = self._uid = self._password = self._context = None
         self._user = None
         return True
 

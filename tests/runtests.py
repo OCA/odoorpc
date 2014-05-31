@@ -52,8 +52,8 @@ if __name__ == '__main__':
     #---------
 
     # Test ODOO.db
-    #loader = unittest.TestLoader().loadTestsFromTestCase(TestDB)
-    #suite.addTest(loader)
+    loader = unittest.TestLoader().loadTestsFromTestCase(TestDB)
+    suite.addTest(loader)
 
     # Test ODOO.execute and ODOO.execute_kw
     loader = unittest.TestLoader().loadTestsFromTestCase(TestExecute)
