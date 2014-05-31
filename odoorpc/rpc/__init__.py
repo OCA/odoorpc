@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module provides `RPC` connector which use the `JSON-RPC` protocol
-to communicate with an `Odoo` server.
+"""This module provides `Proxy` classes to communicate with an `Odoo` server
+with the `JSON-RPC` protocol or through simple HTTP requests.
 
-Afterwards, `RPC` services and their associated methods can be accessed
-dynamically from this connector.
+On `Odoo` server, web controllers expose two kinds of methods: `json`
+and `http`. These methods can be accessed from the proxy classes of this module.
 Here are the main services URLs:
 
 ==================  ======================================================
@@ -30,6 +30,7 @@ URL                 Description
 ==================  ======================================================
 ''/web/database''   Manage databases (create, drop, backup...)
 ''/web/session''    Manage the user session (authentication, logout...)
+''/web/webclient''  Retrieve information about the server version
 ''/web/dataset''    Manage all kinds of data (model methods, workflows)
 ''/web/action''     Manage all kinds of action (act_window, report.xml...)
 ''/web/export''     Manage data exports
@@ -37,6 +38,9 @@ URL                 Description
 ==================  ======================================================
 
 """
+import urllib2
+import cookielib
+
 from odoorpc.rpc import error, jsonrpclib
 from odoorpc.tools import v
 
@@ -57,7 +61,11 @@ class Connector(object):
             self.port = int(port)
         self._timeout = timeout
         self.version = version
-        self._url = None
+
+    @property
+    def ssl(self):
+        """Return `True` if SSL is activated."""
+        return False
 
     @property
     def timeout(self):
@@ -91,13 +99,13 @@ class ConnectorJSONRPC(Connector):
 
     You can send requests this way too:
 
-    >>> cnt.proxy['/web/dataset'].call(model='res.partner', method='read', args=[[1]])
+    >>> cnt.proxy['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
     {u'jsonrpc': u'2.0', u'id': 328686288,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
 
     Or like this:
 
-    >>> cnt.proxy['web']['dataset'].call(model='res.partner', method='read', args=[[1]])
+    >>> cnt.proxy['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
     {u'jsonrpc': u'2.0', u'id': 102320639,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
     """
@@ -105,40 +113,51 @@ class ConnectorJSONRPC(Connector):
                  deserialize=True):
         super(ConnectorJSONRPC, self).__init__(server, port, timeout, version)
         self.deserialize = deserialize
-        self._proxy = self._get_proxy(ssl=False)
+        # One URL opener (with cookies handling) shared between
+        # JSON and HTTP requests
+        cookie_jar = cookielib.CookieJar()
+        self._opener = urllib2.build_opener(
+            urllib2.HTTPCookieProcessor(cookie_jar))
+        self._proxy_json, self._proxy_http = self._get_proxies()
 
-    def _get_proxy(self, ssl=False):
-        """Returns a :class:`Proxy <odoorpc.rpc.jsonrpclib.Proxy>` instance
+    def _get_proxies(self):
+        """Returns the :class:`ProxyJSON <odoorpc.rpc.jsonrpclib.ProxyJSON>`
+        and :class:`ProxyHTTP <odoorpc.rpc.jsonrpclib.ProxyHTTP>` instances
         corresponding to the server version used.
         """
+        proxy_json = jsonrpclib.ProxyJSON(
+            self.server, self.port, self._timeout,
+            ssl=self.ssl, deserialize=self.deserialize, opener=self._opener)
+        proxy_http = jsonrpclib.ProxyHTTP(
+            self.server, self.port, self._timeout,
+            ssl=self.ssl, opener=self._opener)
         # Detect the server version
         if self.version is None:
-            proxy = jsonrpclib.Proxy(
-                self.server, self.port, self._timeout,
-                ssl=ssl, deserialize=self.deserialize)
-            result = proxy.web.webclient.version_info()['result']
-            # Server 6.1
-            if 'version' in result:
-                self.version = result['version']
-            # Server >= 7.0
-            elif 'server_version' in result:
+            result = proxy_json.web.webclient.version_info()['result']
+            if 'server_version' in result:
                 self.version = result['server_version']
-        return proxy
+        return proxy_json, proxy_http
 
     @property
-    def proxy(self):
-        """Return the JSON-RPC proxy."""
-        return self._proxy
+    def proxy_json(self):
+        """Return the JSON proxy."""
+        return self._proxy_json
+
+    @property
+    def proxy_http(self):
+        """Return the HTTP proxy."""
+        return self._proxy_http
 
     @property
     def timeout(self):
         """Return the timeout."""
-        return self._proxy._timeout
+        return self._proxy_json._timeout
 
     @timeout.setter
     def timeout(self, timeout):
         """Set the timeout."""
-        self._proxy._timeout = timeout
+        self._proxy_json._timeout = timeout
+        self._proxy_http._timeout = timeout
 
 
 class ConnectorJSONRPCSSL(ConnectorJSONRPC):
@@ -151,7 +170,11 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
                  deserialize=True):
         super(ConnectorJSONRPCSSL, self).__init__(
             server, port, timeout, version)
-        self._proxy = self._get_proxy(ssl=True)
+        self._proxy_json, self._proxy_http = self._get_proxies()
+
+    @property
+    def ssl(self):
+        return True
 
 
 PROTOCOLS = {

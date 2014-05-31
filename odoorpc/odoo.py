@@ -143,18 +143,20 @@ class ODOO(object):
     #                   RPC service).  See the :class:`odoorpc.service.db.DB`
     #                   class."""))
 
-    def rpc(self, url, kwargs):
-        """Low level method to execute JSON-RPC queries. It basically performs
-        a request and raises an :class:`odoorpc.error.RPCError` exception if
-        the response contains an error.
+    def json(self, url, params):
+        """Low level method to execute JSON queries.
+        It basically performs a request and raises an
+        :class:`odoorpc.error.RPCError` exception if the response contains
+        an error.
 
         You have to know the names of each parameter required by the function
-        called, and set them in the `kwargs` dictionary.
+        called, and set them in the `params` dictionary.
 
-        Here an authentication request::
+        Here an authentication request:
 
-        >>> data = odoo.rpc('/web/session/authenticate',
-        ...                 {'db': 'db_name', 'login':'admin', 'password': 'admin'})
+        >>> data = odoo.json(
+        ...     '/web/session/authenticate',
+        ...     {'db': 'db_name', 'login':'admin', 'password': 'admin'})
         >>> from pprint import pprint as pp
         >>> pp(data)
         {u'id': 645674382,
@@ -167,28 +169,58 @@ class ODOO(object):
                                        u'uid': 1},
                      u'username': u'admin'}}
 
-        And a call to the ``read`` method of the ``res.users`` model::
+        And a call to the ``read`` method of the ``res.users`` model:
 
-        >>> data = odoo.rpc('/web/dataset/call',
-        ...                 {'model': 'res.users', 'method': 'read',
-        ...                  'args': [[1], ['name']]})
+        >>> data = odoo.json(
+        ...     '/web/dataset/call',
+        ...     {'model': 'res.users', 'method': 'read',
+        ...      'args': [[1], ['name']]})
         >>> pp(data)
         {u'id': 756578441,
          u'jsonrpc': u'2.0',
          u'result': [{u'id': 1, u'name': u'Administrator'}]}
 
-        :return: a RPC response (dictionary)
+        :return: a dictionary (JSON response)
         :raise: :class:`odoorpc.error.RPCError`
         :raise: `urllib2.HTTPError`
 
         """
-        data = self._connector.proxy[url](**kwargs)
+        data = self._connector.proxy_json(url, params)
         if data.get('error'):
             message = ', '.join(
                 "%s" % arg for arg in data['error']['data']['arguments'])
             traceback = data['error']['data']['debug']
             raise error.RPCError(message, traceback)
         return data
+
+    def http(self, url, data, headers=None):
+        """Low level method to execute raw HTPP queries.
+
+        .. note::
+
+            For low level JSON-RPC queries, see the more convenient
+            :func:`odoorpc.ODOO.json` method instead.
+
+        You have to know the names of each POST parameter required by the
+        URL, and set them in the `data` string/buffer.
+        The `data` argument must be built by yourself, following the expected
+        URL parameters (with :func:`urllib.urlencode` function for simple
+        parameters, or multipart/form-data structure to handle file upload).
+
+        E.g., the HTTP raw query to backup a database on `Odoo 8.0`:
+
+        >>> response = odoo.http(
+        ...     'web/database/backup',
+        ...     'token=foo&backup_pwd=admin&backup_db=db_name')
+        >>> response
+        <addinfourl at 139685107812904 whose fp = <socket._fileobject object at 0x7f0afbd535d0>>
+        >>> binary_data = response.read()
+
+        :return: `urllib.addinfourl`
+        :raise: `urllib2.HTTPError`
+
+        """
+        return self._connector.proxy_http(url, data, headers)
 
     # NOTE: in the past this function was implemented as a decorator for
     # methods needing to be checked, but Sphinx documentation generator is not
@@ -212,7 +244,7 @@ class ODOO(object):
         :raise: `urllib2.HTTPError`
         """
         # Get the user's ID and generate the corresponding user record
-        data = self.rpc(
+        data = self.json(
             '/web/session/authenticate',
             {'db': db, 'login': login, 'password': password})
         user_id = data['result']['uid']
@@ -239,7 +271,7 @@ class ODOO(object):
         """
         if not self._uid:
             return False
-        self.rpc('/web/session/destroy', {})
+        self.json('/web/session/destroy', {})
         self._db = self._uid = self._password = self._context = None
         self._user = None
         return True
@@ -261,7 +293,7 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the query
-        data = self.rpc(
+        data = self.json(
             '/web/dataset/call',
             {'model': model, 'method': method, 'args': args})
         return data['result']
@@ -283,7 +315,7 @@ class ODOO(object):
         # Execute the query
         args = args or []
         kwargs = kwargs or {}
-        data = self.rpc(
+        data = self.json(
             '/web/dataset/call_kw',
             {'model': model, 'method': method,
                 'args': args, 'kwargs': kwargs})
@@ -298,7 +330,7 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the workflow query
-        data = self.rpc(
+        data = self.json(
             '/web/dataset/exec_workflow',
             {'model': model, 'id': obj_id, 'signal': signal})
         return data['result']
