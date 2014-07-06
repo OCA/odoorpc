@@ -45,7 +45,7 @@ class ODOO(object):
     :raise: `ValueError`
     """
 
-    def __init__(self, server='localhost', protocol='jsonrpc',
+    def __init__(self, host='localhost', protocol='jsonrpc',
                  port=8069, timeout=120, version=None):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = ("The protocol '{0}' is not supported by the ODOO class. "
@@ -60,7 +60,7 @@ class ODOO(object):
             timeout = int(timeout)
         except ValueError:
             raise ValueError("The timeout must be an integer")
-        self._server = server
+        self._host = host
         self._port = port
         self._protocol = protocol
         self._database = None
@@ -72,7 +72,7 @@ class ODOO(object):
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._server, self._port, timeout, version)
+                self._host, self._port, timeout, version)
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)
         # Dictionary of configuration options
@@ -147,8 +147,8 @@ class ODOO(object):
         """
         return self._db
 
-    server = property(lambda self: self._server,
-                      doc="The server name.")
+    host = property(lambda self: self._host,
+                    doc="Hostname of IP address of the the server.")
     port = property(lambda self: self._port,
                     doc="The port used.")
     protocol = property(lambda self: self._protocol,
@@ -507,7 +507,7 @@ class ODOO(object):
         self._check_logged_user()
         data = {
             'type': self.__class__.__name__,
-            'server': self.server,
+            'host': self.host,
             'protocol': self.protocol,
             'port': self.port,
             'timeout': self.config['timeout'],
@@ -534,7 +534,7 @@ class ODOO(object):
                 "'{0}' session is not of type '{1}'".format(
                     name, cls.__name__))
         odoo = cls(
-            server=data['server'],
+            host=data['host'],
             protocol=data['protocol'],
             port=data['port'],
             timeout=data['timeout'],

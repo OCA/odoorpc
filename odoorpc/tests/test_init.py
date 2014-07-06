@@ -9,22 +9,22 @@ import odoorpc
 class TestInit(BaseTestCase):
 
     def test_init1(self):
-        # Server + Protocol + Port
+        # Host + Protocol + Port
         odoo = odoorpc.ODOO(
             self.env['host'], self.env['protocol'], self.env['port'])
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
-        self.assertEqual(odoo.server, self.env['host'])
+        self.assertEqual(odoo.host, self.env['host'])
         self.assertEqual(odoo.protocol, self.env['protocol'])
         self.assertEqual(odoo.port, self.env['port'])
 
     def test_init2(self):
-        # Server + Protocol + Port + Timeout
+        # Host + Protocol + Port + Timeout
         odoo = odoorpc.ODOO(
             self.env['host'], self.env['protocol'], self.env['port'], 42)
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
-        self.assertEqual(odoo.server, self.env['host'])
+        self.assertEqual(odoo.host, self.env['host'])
         self.assertEqual(odoo.protocol, self.env['protocol'])
         self.assertEqual(odoo.port, self.env['port'])
         self.assertEqual(odoo.config['timeout'], 42)

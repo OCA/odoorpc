@@ -49,8 +49,8 @@ class Connector(object):
     """Connector base class defining the interface used
     to interact with a server.
     """
-    def __init__(self, server, port=8069, timeout=120, version=None):
-        self.server = server
+    def __init__(self, host, port=8069, timeout=120, version=None):
+        self.host = host
         try:
             int(port)
         except ValueError:
@@ -109,9 +109,9 @@ class ConnectorJSONRPC(Connector):
     {u'jsonrpc': u'2.0', u'id': 102320639,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
     """
-    def __init__(self, server, port=8069, timeout=120, version=None,
+    def __init__(self, host, port=8069, timeout=120, version=None,
                  deserialize=True):
-        super(ConnectorJSONRPC, self).__init__(server, port, timeout, version)
+        super(ConnectorJSONRPC, self).__init__(host, port, timeout, version)
         self.deserialize = deserialize
         # One URL opener (with cookies handling) shared between
         # JSON and HTTP requests
@@ -126,10 +126,10 @@ class ConnectorJSONRPC(Connector):
         corresponding to the server version used.
         """
         proxy_json = jsonrpclib.ProxyJSON(
-            self.server, self.port, self._timeout,
+            self.host, self.port, self._timeout,
             ssl=self.ssl, deserialize=self.deserialize, opener=self._opener)
         proxy_http = jsonrpclib.ProxyHTTP(
-            self.server, self.port, self._timeout,
+            self.host, self.port, self._timeout,
             ssl=self.ssl, opener=self._opener)
         # Detect the server version
         if self.version is None:
@@ -166,10 +166,9 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
     >>> from odoorpc import rpc
     >>> cnt = rpc.ConnectorJSONRPCSSL('localhost', port=8069)
     """
-    def __init__(self, server, port=8069, timeout=120, version=None,
+    def __init__(self, host, port=8069, timeout=120, version=None,
                  deserialize=True):
-        super(ConnectorJSONRPCSSL, self).__init__(
-            server, port, timeout, version)
+        super(ConnectorJSONRPCSSL, self).__init__(host, port, timeout, version)
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     @property

@@ -34,7 +34,7 @@ class TestSession(LoginTestCase):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         odoo = odoorpc.ODOO.load(self.session_name, rc_file=self.file_path)
         self.assertIsInstance(odoo, odoorpc.ODOO)
-        self.assertEqual(self.odoo.server, odoo.server)
+        self.assertEqual(self.odoo.host, odoo.host)
         self.assertEqual(self.odoo.port, odoo.port)
         self.assertEqual(self.odoo.db, odoo.db)
         self.assertEqual(self.odoo.protocol, odoo.protocol)
@@ -45,7 +45,7 @@ class TestSession(LoginTestCase):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         data = {
             'type': self.odoo.__class__.__name__,
-            'server': self.odoo.server,
+            'host': self.odoo.host,
             'protocol': self.odoo.protocol,
             'port': int(self.odoo.port),
             'timeout': self.odoo.config['timeout'],
@@ -63,7 +63,7 @@ class TestSession(LoginTestCase):
         data = {
             self.session_name: {
                 'type': self.odoo.__class__.__name__,
-                'server': self.odoo.server,
+                'host': self.odoo.host,
                 'protocol': self.odoo.protocol,
                 'port': int(self.odoo.port),
                 'timeout': self.odoo.config['timeout'],

@@ -33,7 +33,7 @@ def get_all(rc_file='~/.odoorpcrc'):
     
     >>> import odoorpc
     >>> odoorpc.tools.session.get_all()
-    {'foo': {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'server': 'localhost'}}
+    {'foo': {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}}
     """
     conf = SafeConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -41,7 +41,7 @@ def get_all(rc_file='~/.odoorpcrc'):
     for name in conf.sections():
         sessions[name] = {
             'type': conf.get(name, 'type'),
-            'server': conf.get(name, 'server'),
+            'host': conf.get(name, 'host'),
             'protocol': conf.get(name, 'protocol'),
             'port': conf.getint(name, 'port'),
             'timeout': conf.getint(name, 'timeout'),
@@ -58,7 +58,7 @@ def get(name, rc_file='~/.odoorpcrc'):
 
     >>> import odoorpc
     >>> odoorpc.tools.session.get('foo')
-    {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'server': 'localhost'}
+    {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}
 
     :raise: :class:`odoorpc.error.Error`
     """
@@ -69,7 +69,7 @@ def get(name, rc_file='~/.odoorpcrc'):
             "'{0}' session does not exist".format(name))
     return {
         'type': conf.get(name, 'type'),
-        'server': conf.get(name, 'server'),
+        'host': conf.get(name, 'host'),
         'protocol': conf.get(name, 'protocol'),
         'port': conf.getint(name, 'port'),
         'timeout': conf.getint(name, 'timeout'),
@@ -96,7 +96,7 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     >>> import odoorpc
     >>> odoorpc.tools.session.save(
     ...     'foo',
-    ...     {'type': 'ODOO', 'server': 'localhost', 'protocol': 'jsonrpc',
+    ...     {'type': 'ODOO', 'host': 'localhost', 'protocol': 'jsonrpc',
     ...      'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin',
     ...      'database': 'db_name'})
     """
