@@ -41,8 +41,8 @@ class ODOO(object):
 
         >>> odoo = odoorpc.ODOO('localhost', version='8.0')
 
-    :raise: :class:`odoorpc.error.InternalError`,
-        :class:`odoorpc.error.RPCError`
+    :raise: :class:`odoorpc.error.InternalError`
+    :raise: `ValueError`
     """
 
     def __init__(self, server='localhost', protocol='jsonrpc',
@@ -51,7 +51,15 @@ class ODOO(object):
             txt = ("The protocol '{0}' is not supported by the ODOO class. "
                    "Please choose a protocol among these ones: {1}")
             txt = txt.format(protocol, ['jsonrpc', 'jsonrpc+ssl'])
-            raise error.InternalError(txt)
+            raise ValueError(txt)
+        try:
+            port = int(port)
+        except ValueError:
+            raise ValueError("The port must be an integer")
+        try:
+            timeout = int(timeout)
+        except ValueError:
+            raise ValueError("The timeout must be an integer")
         self._server = server
         self._port = port
         self._protocol = protocol
