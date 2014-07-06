@@ -1,22 +1,10 @@
 # -*- coding: UTF-8 -*-
 
-try:
-    import unittest2 as unittest
-except:
-    import unittest
-
-from args import ARGS
-
+from odoorpc.tests import LoginTestCase
 import odoorpc
 
 
-class TestOSV(unittest.TestCase):
-
-    def setUp(self):
-        self.odoo = odoorpc.ODOO(
-            ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
-            version=ARGS.version)
-        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
+class TestModel(LoginTestCase):
 
     def test_model(self):
         # Check the result returned

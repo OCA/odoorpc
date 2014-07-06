@@ -1,25 +1,12 @@
 # -*- coding: UTF-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 import datetime
 
-from args import ARGS
-
+from odoorpc.tests import LoginTestCase
 import odoorpc
-from odoorpc.tools import v
 
 
-class TestBrowse(unittest.TestCase):
-
-    def setUp(self):
-        self.odoo = odoorpc.ODOO(
-            ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
-            version=ARGS.version)
-        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
-        self.user_obj = self.odoo.get('res.users')
+class TestBrowse(LoginTestCase):
 
     def test_browse_with_one_id(self):
         # Check the result returned

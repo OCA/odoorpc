@@ -1,25 +1,17 @@
 # -*- coding: UTF-8 -*-
 
-try:
-    import unittest2 as unittest
-except:
-    import unittest
 import tempfile
 import os
 
-from args import ARGS
-
+from odoorpc.tests import LoginTestCase
 import odoorpc
 
 
-class TestSession(unittest.TestCase):
+class TestSession(LoginTestCase):
 
     def setUp(self):
-        self.odoo = odoorpc.ODOO(
-            ARGS.server, protocol=ARGS.protocol, port=ARGS.port,
-            version=ARGS.version)
-        self.user = self.odoo.login(ARGS.database, ARGS.user, ARGS.passwd)
-        self.session_name = ARGS.database
+        LoginTestCase.setUp(self)
+        self.session_name = self.env['db']
         self.file_path = tempfile.mkstemp(suffix='.cfg', prefix='odoorpc_')[1]
 
     def tearDown(self):

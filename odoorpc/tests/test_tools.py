@@ -1,16 +1,10 @@
 # -*- coding: UTF-8 -*-
 
-try:
-    import unittest2 as unittest
-except:
-    import unittest
-
-from args import ARGS
-
+from odoorpc.tests import BaseTestCase
 from odoorpc import tools
 
 
-class TestTools(unittest.TestCase):
+class TestTools(BaseTestCase):
 
     def test_clean_version_numeric(self):
         version = tools.clean_version('6.1')
