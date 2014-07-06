@@ -25,6 +25,7 @@ from odoorpc import rpc, error, tools
 from odoorpc.tools import session
 from odoorpc.service import osv
 from odoorpc.service.db import DB
+from odoorpc.service.report import Report
 
 
 class ODOO(object):
@@ -69,6 +70,7 @@ class ODOO(object):
         self._user = None
         self._context = None
         self._db = DB(self)
+        self._report = Report(self)
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
@@ -146,6 +148,13 @@ class ODOO(object):
         See the :class:`odoorpc.service.db.DB` class.
         """
         return self._db
+
+    @property
+    def report(self):
+        """The report management service.
+        See the :class:`odoorpc.service.report.Report` class.
+        """
+        return self._report
 
     host = property(lambda self: self._host,
                     doc="Hostname of IP address of the the server.")
@@ -346,90 +355,6 @@ class ODOO(object):
             '/web/dataset/exec_workflow',
             {'model': model, 'id': obj_id, 'signal': signal})
         return data['result']
-
-    #def report(self, report_name, model, obj_ids, report_type='pdf',
-    #           context=None):
-    #    """Download a report from the server and return the local
-    #    path of the file.
-
-    #    >>> odoo.report('sale.order', 'sale.order', 1)
-    #    '/tmp/odoorpc_uJ8Iho.pdf'
-    #    >>> odoo.report('sale.order', 'sale.order', [1, 2])
-    #    '/tmp/odoorpc_giZS0v.pdf'
-
-    #    :return: the path to the generated temporary file
-    #    :raise: :class:`odoorpc.error.RPCError`
-    #    """
-    #    #TODO report_type: what it means exactly?
-
-    #    self._check_logged_user()
-    #    # If no context was supplied, get the default one
-    #    if context is None:
-    #        context = self.context
-    #    # Execute the report query
-    #    try:
-    #        pdf_data = self._get_report_data(report_name, model, obj_ids,
-    #                                         report_type, context)
-    #    except rpc.error.ConnectorError as exc:
-    #        raise error.RPCError(exc.message, exc.odoo_traceback)
-    #    return self._print_file_data(pdf_data)
-
-    #def _get_report_data(self, report_name, model, obj_ids,
-    #                     report_type='pdf', context=None):
-    #    """Download binary data of a report from the server."""
-    #    context = context or {}
-    #    obj_ids = [obj_ids] if isinstance(obj_ids, (int, long)) else obj_ids
-    #    data = {
-    #        'model': model,
-    #        'id': obj_ids[0],
-    #        'ids': obj_ids,
-    #        'report_type': report_type,
-    #    }
-    #    try:
-    #        report_id = self._connector.report.report(
-    #            self._database, self.user.id, self._password,
-    #            report_name, obj_ids, data, context)
-    #    except rpc.error.ConnectorError as exc:
-    #        raise error.RPCError(exc.message, exc.odoo_traceback)
-    #    state = False
-    #    attempt = 0
-    #    while not state:
-    #        try:
-    #            pdf_data = self._connector.report.report_get(
-    #                self._database, self.user.id, self._password,
-    #                report_id)
-    #        except rpc.error.ConnectorError as exc:
-    #            raise error.RPCError("Unknown error occurred during the "
-    #                                 "download of the report.")
-    #        state = pdf_data['state']
-    #        if not state:
-    #            time.sleep(1)
-    #            attempt += 1
-    #        if attempt > 200:
-    #            raise error.RPCError("Download time exceeded, "
-    #                                 "the operation has been canceled.")
-    #    return pdf_data
-
-    #@staticmethod
-    #def _print_file_data(data):
-    #    """Print data in a temporary file and return the path of this one."""
-    #    if 'result' not in data:
-    #        raise error.InternalError(
-    #            "Invalid data, the operation has been canceled.")
-    #    content = base64.decodestring(data['result'])
-    #    if data.get('code') == 'zlib':
-    #        content = zlib.decompress(content)
-
-    #    if data['format'] in ['pdf', 'html', 'doc', 'xls',
-    #                          'sxw', 'odt', 'tiff']:
-    #        if data['format'] == 'html' and os.name == 'nt':
-    #            data['format'] = 'doc'
-    #        (file_no, file_path) = tempfile.mkstemp('.' + data['format'],
-    #                                                'odoorpc_')
-    #        with file(file_path, 'wb+') as fp:
-    #            fp.write(content)
-    #        os.close(file_no)
-    #        return file_path
 
     # ---------------------- #
     # -- Special methods  -- #
