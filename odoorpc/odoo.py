@@ -314,9 +314,14 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the query
+        args_to_send = [self._db, self._uid, self._password,
+                        model, method]
+        args_to_send.extend(args)
         data = self.json(
-            '/web/dataset/call',
-            {'model': model, 'method': method, 'args': args})
+            '/jsonrpc',
+            {'service': 'object',
+             'method': 'execute',
+             'args': args_to_send})
         return data['result']
 
     def execute_kw(self, model, method, args=None, kwargs=None):
@@ -336,24 +341,32 @@ class ODOO(object):
         # Execute the query
         args = args or []
         kwargs = kwargs or {}
+        args_to_send = [self._db, self._uid, self._password,
+                        model, method]
+        args_to_send.extend([args, kwargs])
         data = self.json(
-            '/web/dataset/call_kw',
-            {'model': model, 'method': method,
-                'args': args, 'kwargs': kwargs})
+            '/jsonrpc',
+            {'service': 'object',
+             'method': 'execute_kw',
+             'args': args_to_send})
         return data['result']
 
-    def exec_workflow(self, model, obj_id, signal):
+    def exec_workflow(self, model, record_id, signal):
         """Execute the workflow `signal` on
-        the instance having the ID `obj_id` of `model`.
+        the instance having the ID `record_id` of `model`.
 
         :raise: :class:`odoorpc.error.RPCError`
         :raise: `urllib2.HTTPError`
         """
         self._check_logged_user()
         # Execute the workflow query
+        args_to_send = [self._db, self._uid, self._password,
+                        model, signal, record_id]
         data = self.json(
-            '/web/dataset/exec_workflow',
-            {'model': model, 'id': obj_id, 'signal': signal})
+            '/jsonrpc',
+            {'service': 'object',
+             'method': 'exec_workflow',
+             'args': args_to_send})
         return data['result']
 
     # ---------------------- #
