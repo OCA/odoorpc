@@ -11,12 +11,12 @@ class TestBrowse(LoginTestCase):
     def test_browse_with_one_id(self):
         # Check the result returned
         result = self.user_obj.browse(self.user.id)
-        self.assertIsInstance(result, odoorpc.service.osv.browse.BrowseRecord)
+        self.assertIsInstance(result, odoorpc.service.model.browse.BrowseRecord)
         self.assertEqual(self.user, result)
         # With context
         context = self.odoo.execute('res.users', 'context_get')
         result = self.user_obj.browse(self.user.id, context)
-        self.assertIsInstance(result, odoorpc.service.osv.browse.BrowseRecord)
+        self.assertIsInstance(result, odoorpc.service.model.browse.BrowseRecord)
         self.assertEqual(self.user, result)
 
     def test_browse_with_ids(self):
@@ -26,22 +26,22 @@ class TestBrowse(LoginTestCase):
         user_ids = self.user_obj.search([])
         for result in self.user_obj.browse(user_ids):
             self.assertIsInstance(
-                result, odoorpc.service.osv.browse.BrowseRecord)
+                result, odoorpc.service.model.browse.BrowseRecord)
         # With context
         context = self.odoo.execute('res.users', 'context_get')
         for result in self.user_obj.browse(user_ids, context):
             self.assertIsInstance(
-                result, odoorpc.service.osv.browse.BrowseRecord)
+                result, odoorpc.service.model.browse.BrowseRecord)
 
     def test_browse_with_id_false(self):
         # Check the result returned
         result = self.user_obj.browse(False)
-        self.assertIsInstance(result, odoorpc.service.osv.browse.BrowseRecord)
+        self.assertIsInstance(result, odoorpc.service.model.browse.BrowseRecord)
         self.assertEqual(False, result.id)
         # With context
         context = self.odoo.execute('res.users', 'context_get')
         result = self.user_obj.browse(False, context)
-        self.assertIsInstance(result, odoorpc.service.osv.browse.BrowseRecord)
+        self.assertIsInstance(result, odoorpc.service.model.browse.BrowseRecord)
         self.assertEqual(False, result.id)
 
     def test_browse_with_wrong_id(self):

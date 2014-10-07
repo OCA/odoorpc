@@ -23,7 +23,7 @@ an `Odoo` server.
 """
 from odoorpc import rpc, error, tools
 from odoorpc.tools import session
-from odoorpc.service import osv
+from odoorpc import service
 from odoorpc.service.db import DB
 from odoorpc.service.report import Report
 
@@ -92,13 +92,13 @@ class ODOO(object):
 
         - ``auto_context``: if set to `True`, the user context will be sent
           automatically to every call of a
-          :class:`model <odoorpc.service.osv.Model>` method (default: `True`):
+          :class:`model <odoorpc.service.model.Model>` method (default: `True`):
 
-            >>> product_osv = odoo.get('product.product')
-            >>> product_osv.name_get([3]) # Context sent by default ('lang': 'fr_FR' here)
+            >>> product_obj = odoo.get('product.product')
+            >>> product_obj.name_get([3]) # Context sent by default ('lang': 'fr_FR' here)
             [[3, '[PC1] PC Basic']]
             >>> odoo.config['auto_context'] = False
-            >>> product_osv.name_get([3]) # No context sent
+            >>> product_obj.name_get([3]) # No context sent
             [[3, '[PC1] Basic PC']]
 
         - ``timeout``: set the maximum timeout in seconds for a RPC request
@@ -371,10 +371,11 @@ class ODOO(object):
         :return: `True`
         :raise: :class:`odoorpc.error.RPCError`
         """
-        if not isinstance(browse_record, osv.BrowseRecord):
+        if not isinstance(browse_record, service.model.BrowseRecord):
             raise ValueError("An instance of BrowseRecord is required")
-        return osv.Model(self, browse_record.__osv__['name'])._write_record(
-            browse_record, context)
+        return service.model.Model(
+            self, browse_record.__osv__['name'])._write_record(
+                browse_record, context)
 
     def unlink_record(self, browse_record, context=None):
         """Delete the record corresponding to `browse_record` from the server.
@@ -385,10 +386,11 @@ class ODOO(object):
         :return: `True`
         :raise: :class:`odoorpc.error.RPCError`
         """
-        if not isinstance(browse_record, osv.BrowseRecord):
+        if not isinstance(browse_record, service.model.BrowseRecord):
             raise ValueError("An instance of BrowseRecord is required")
-        return osv.Model(self, browse_record.__osv__['name'])._unlink_record(
-            browse_record, context)
+        return service.model.Model(
+            self, browse_record.__osv__['name'])._unlink_record(
+                browse_record, context)
 
     def refresh(self, browse_record, context=None):
         """Restore original values on `browse_record` with data
@@ -397,24 +399,25 @@ class ODOO(object):
 
         :raise: :class:`odoorpc.error.RPCError`
         """
-        return osv.Model(self, browse_record.__osv__['name'])._refresh(
-            browse_record, context)
+        return service.model.Model(
+            self, browse_record.__osv__['name'])._refresh(
+                browse_record, context)
 
     def reset(self, browse_record):
         """Cancel all changes made locally on the `browse_record`.
         No request to the server is executed to perform this operation.
         Therefore, values restored may be outdated.
         """
-        return osv.Model(self, browse_record.__osv__['name'])._reset(
-            browse_record)
+        return service.model.Model(
+            self, browse_record.__osv__['name'])._reset(browse_record)
 
     def get(self, model):
         """Return a proxy of the `model` built from the
-        server (see :class:`odoorpc.service.osv.Model`).
+        server (see :class:`odoorpc.service.model.Model`).
 
-        :return: an instance of :class:`odoorpc.service.osv.Model`
+        :return: an instance of :class:`odoorpc.service.model.Model`
         """
-        return osv.Model(self, model)
+        return service.model.Model(self, model)
 
     def save(self, name, rc_file='~/.odoorpcrc'):
         """Save the session configuration under the name `name`.

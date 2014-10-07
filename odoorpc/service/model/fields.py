@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module contains classes representing the fields supported by OpenObject.
+"""This module contains classes representing the fields supported by Odoo.
 A field is a Python descriptor which defines getter/setter methods for
 its related attribute.
 """
 import datetime
 
 from odoorpc import error
-from odoorpc.service.osv import browse
+from odoorpc.service.model import browse
 
 
 def is_int(value):
@@ -80,8 +80,8 @@ class BaseField(object):
     """Field which all other fields inherit.
     Manage common metadata.
     """
-    def __init__(self, osv, name, data):
-        self.osv = osv
+    def __init__(self, model_cls, name, data):
+        self.model_cls = model_cls
         self.name = name
         self.type = 'type' in data and data['type'] or False
         self.string = 'string' in data and data['string'] or False
@@ -135,8 +135,8 @@ class BaseField(object):
 
 class SelectionField(BaseField):
     """Represent the OpenObject 'fields.selection'"""
-    def __init__(self, osv, name, data):
-        super(SelectionField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(SelectionField, self).__init__(model_cls, name, data)
         self.selection = 'selection' in data and data['selection'] or False
 
     def __get__(self, instance, owner):
@@ -164,8 +164,8 @@ class SelectionField(BaseField):
 
 class Many2ManyField(BaseField):
     """Represent the OpenObject 'fields.many2many'"""
-    def __init__(self, osv, name, data):
-        super(Many2ManyField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(Many2ManyField, self).__init__(model_cls, name, data)
         self.relation = 'relation' in data and data['relation'] or False
         self.context = 'context' in data and data['context'] or {}
         self.domain = 'domain' in data and data['domain'] or False
@@ -224,8 +224,8 @@ class Many2ManyField(BaseField):
 
 class Many2OneField(BaseField):
     """Represent the OpenObject 'fields.many2one'"""
-    def __init__(self, osv, name, data):
-        super(Many2OneField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(Many2OneField, self).__init__(model_cls, name, data)
         self.relation = 'relation' in data and data['relation'] or False
         self.context = 'context' in data and data['context'] or {}
         self.domain = 'domain' in data and data['domain'] or False
@@ -278,8 +278,8 @@ class Many2OneField(BaseField):
 
 class One2ManyField(BaseField):
     """Represent the OpenObject 'fields.one2many'"""
-    def __init__(self, osv, name, data):
-        super(One2ManyField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(One2ManyField, self).__init__(model_cls, name, data)
         self.relation = 'relation' in data and data['relation'] or False
         self.context = 'context' in data and data['context'] or {}
         self.domain = 'domain' in data and data['domain'] or False
@@ -338,8 +338,8 @@ class One2ManyField(BaseField):
 
 class ReferenceField(BaseField):
     """Represent the OpenObject 'fields.reference'."""
-    def __init__(self, osv, name, data):
-        super(ReferenceField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(ReferenceField, self).__init__(model_cls, name, data)
         self.context = 'context' in data and data['context'] or {}
         self.domain = 'domain' in data and data['domain'] or False
         self.selection = 'selection' in data and data['selection'] or False
@@ -408,8 +408,8 @@ class DateField(BaseField):
     """Represent the OpenObject 'fields.data'"""
     pattern = "%Y-%m-%d"
 
-    def __init__(self, osv, name, data):
-        super(DateField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(DateField, self).__init__(model_cls, name, data)
 
     def __get__(self, instance, owner):
         value = instance.__data__['values'][self.name]
@@ -448,8 +448,8 @@ class DateTimeField(BaseField):
     """Represent the OpenObject 'fields.datetime'"""
     pattern = "%Y-%m-%d %H:%M:%S"
 
-    def __init__(self, osv, name, data):
-        super(DateTimeField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(DateTimeField, self).__init__(model_cls, name, data)
 
     def __get__(self, instance, owner):
         value = instance.__data__['values'][self.name]
@@ -493,8 +493,8 @@ class ValueField(BaseField):
     - 'fields.text',
     - 'fields.binary',
     """
-    def __init__(self, osv, name, data):
-        super(ValueField, self).__init__(osv, name, data)
+    def __init__(self, model_cls, name, data):
+        super(ValueField, self).__init__(model_cls, name, data)
 
     def __get__(self, instance, owner):
         if self.name in instance.__data__['updated_values']:
@@ -506,31 +506,31 @@ class ValueField(BaseField):
         instance.__data__['updated_values'][self.name] = value
 
 
-def generate_field(osv, name, data):
+def generate_field(model_cls, name, data):
     """Generate a well-typed field according to the data dictionary supplied
     (obtained via the 'fields_get' method of any models).
     """
     assert 'type' in data
     field = None
     if data['type'] == 'selection':
-        field = SelectionField(osv, name, data)
+        field = SelectionField(model_cls, name, data)
     elif data['type'] == 'many2many':
-        field = Many2ManyField(osv, name, data)
+        field = Many2ManyField(model_cls, name, data)
     elif data['type'] == 'many2one':
-        field = Many2OneField(osv, name, data)
+        field = Many2OneField(model_cls, name, data)
     elif data['type'] == 'one2many':
-        field = One2ManyField(osv, name, data)
+        field = One2ManyField(model_cls, name, data)
     elif data['type'] == 'reference':
-        field = ReferenceField(osv, name, data)
+        field = ReferenceField(model_cls, name, data)
     elif data['type'] == 'date':
-        field = DateField(osv, name, data)
+        field = DateField(model_cls, name, data)
     elif data['type'] == 'datetime':
-        field = DateTimeField(osv, name, data)
+        field = DateTimeField(model_cls, name, data)
     elif data['type'] in ['char', 'float', 'integer', 'integer_big',
                           'boolean', 'text', 'binary', 'html']:
-        field = ValueField(osv, name, data)
+        field = ValueField(model_cls, name, data)
     else:
-        field = ValueField(osv, name, data)
+        field = ValueField(model_cls, name, data)
     return field
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

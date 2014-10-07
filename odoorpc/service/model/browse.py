@@ -55,9 +55,9 @@ class BrowseRecord(object):
     obtained via the ``__osv__`` attribute::
 
         >>> user.__osv__
-        {'columns': {'action_id': <odoorpc.service.osv.fields.Many2OneField object at 0xb75786ec>,
-                     'active': <odoorpc.service.osv.fields.ValueField object at 0xb7598b6c>,
-                     'company_id': <odoorpc.service.osv.fields.Many2OneField object at 0xb757868c>,
+        {'columns': {'action_id': <odoorpc.service.model.fields.Many2OneField object at 0xb75786ec>,
+                     'active': <odoorpc.service.model.fields.ValueField object at 0xb7598b6c>,
+                     'company_id': <odoorpc.service.model.fields.Many2OneField object at 0xb757868c>,
                      ...},
          'name': 'res.users'}
 
@@ -141,7 +141,7 @@ class BrowseRecordIterator(object):
         res = []
         if updated_values.get(self.parent_field.name):
             res = updated_values[self.parent_field.name][:]  # Copy
-        from odoorpc.service.osv import fields
+        from odoorpc.service.model import fields
         for id_ in fields.records2ids(records):
             if (3, id_) in res:
                 res.remove((3, id_))
@@ -160,7 +160,7 @@ class BrowseRecordIterator(object):
         res = []
         if updated_values.get(self.parent_field.name):
             res = updated_values[self.parent_field.name][:]  # Copy
-        from odoorpc.service.osv import fields
+        from odoorpc.service.model import fields
         for id_ in fields.records2ids(records):
             if (4, id_) in res:
                 res.remove((4, id_))

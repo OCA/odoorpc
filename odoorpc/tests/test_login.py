@@ -2,7 +2,7 @@
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
-from odoorpc.service import osv
+from odoorpc import service
 
 
 class TestLogin(BaseTestCase):
@@ -13,7 +13,7 @@ class TestLogin(BaseTestCase):
             port=self.env['port'], version=self.env['version'])
         user = odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
         self.assertIsNotNone(user)
-        self.assertIsInstance(user, osv.BrowseRecord)
+        self.assertIsInstance(user, service.model.BrowseRecord)
         self.assertEqual(odoo.user, user)
         self.assertEqual(odoo.db, self.env['db'])
 

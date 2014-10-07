@@ -18,8 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+"""Provide a dynamic access to all methods of data models, and an emulation of
+browse records.
+"""
 
-from odoorpc.service.osv.browse import BrowseRecord
-from odoorpc.service.osv.osv import Model
+__all__ = ['BrowseRecord', 'Model']
+
+from odoorpc.service.model.browse import BrowseRecord
+from odoorpc.service.model.model import Model
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

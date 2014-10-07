@@ -25,7 +25,7 @@ methods proposed by a data model.
 import sys  # to check Python version at runtime
 
 from odoorpc import error
-from odoorpc.service.osv import fields, browse
+from odoorpc.service.model import fields, browse
 
 
 class Model(object):
@@ -40,7 +40,7 @@ class Model(object):
     >>> user = odoo.login('admin', 'passwd', 'database')
     >>> user_obj = odoo.get('res.users')
     >>> user_obj
-    <odoorpc.service.osv.osv.Model object at 0xb75ba4ac>
+    <odoorpc.service.model.model.Model object at 0xb75ba4ac>
     >>> user_obj.name_get(user.id) # Use any methods from the model instance
     [[1, 'Administrator']]
 
