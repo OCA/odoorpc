@@ -55,10 +55,18 @@ class Report(object):
         ...     report_file.write(report.read())
         ...
 
-        :return: a file object
+        *Python 2:*
+        :return: `io.BytesIO`
         :raise: :class:`odoorpc.error.RPCError` (wrong parameters)
         :raise: `ValueError`  (received invalid data)
         :raise: `urllib2.URLError`  (connection error)
+
+        *Python 3:*
+
+        :return: `io.BytesIO`
+        :raise: :class:`odoorpc.error.RPCError` (wrong parameters)
+        :raise: `ValueError`  (received invalid data)
+        :raise: `urllib.error.URLError` (connection error)
         """
         if context is None:
             context = self._odoo.context
@@ -79,11 +87,19 @@ class Report(object):
         with reports classified by data model:
 
         >>> odoo.report.list()['account.invoice']
-        [{u'name': u'Invoices',
-          u'report_name': u'account.report_invoice',
-          u'report_type': u'qweb-pdf'}]
+        [{'name': 'Invoices',
+          'report_name': 'account.report_invoice',
+          'report_type': 'qweb-pdf'}]
 
-        :raise: `urllib2.URLError`  (connection error)
+        *Python 2:*
+
+        :return: `list` of dictionaries
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: `list` of dictionaries
+        :raise: `urllib.error.URLError` (connection error)
         """
         report_obj = self._odoo.get('ir.actions.report.xml')
         report_ids = report_obj.search([])

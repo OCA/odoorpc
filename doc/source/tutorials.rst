@@ -66,7 +66,7 @@ context automatically::
     {'lang': 'fr_FR', 'tz': False}
     >>> product_obj = odoo.get('product.product')
     >>> product_obj.name_get([3, 4])
-    [[3, '[PC1] PC Basic'], [4, u'[PC2] Basic+ PC (assembl\xe9 sur commande)']]
+    [[3, '[PC1] PC Basic'], [4, '[PC2] Basic+ PC (assembl\xe9 sur commande)']]
 
 To stop sending the user context, use the :attr:`odoorpc.ODOO.config` property::
 
@@ -161,7 +161,7 @@ in ``['default', 'invoice', 'delivery', 'contact', 'other']``::
         value = self.check_value(value)
       File "odoorpc/service/model/fields.py", line 160, in check_value
         field_name=self.name,
-    ValueError: The value 'foobar' supplied doesn't match with the possible values '[u'default', u'invoice', u'delivery', u'contact', u'other']' for the 'type' field
+    ValueError: The value 'foobar' supplied doesn't match with the possible values '['default', 'invoice', 'delivery', 'contact', 'other']' for the 'type' field
 
 Many2One
 ''''''''
@@ -358,7 +358,7 @@ To consult available reports classified by data models, use the
 :func:`get_list <odoorpc.service.report.Report.get_list>` method::
 
     >>> odoo.report.get_list()['sale.order']
-    [{u'report_name': u'sale.report_saleorder', u'name': u'Quotation / Order'}]
+    [{'report_name': 'sale.report_saleorder', 'name': 'Quotation / Order'}]
 
 Manage databases
 ----------------

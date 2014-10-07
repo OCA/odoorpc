@@ -19,6 +19,8 @@
 #
 ##############################################################################
 """This module provides the BrowseRecord class."""
+import sys
+
 from odoorpc import error
 
 
@@ -167,5 +169,11 @@ class BrowseRecordIterator(object):
             if (3, id_) not in res:
                 res.append((3, id_))
         return res
+
+# Python >= 3
+if sys.version_info.major >= 3:
+    # Map the 'next' method to '__next__'
+    BrowseRecordIterator.__next__ = BrowseRecordIterator.next
+    del BrowseRecordIterator.next
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

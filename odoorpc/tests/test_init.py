@@ -1,6 +1,12 @@
 # -*- coding: UTF-8 -*-
 
-import urllib2
+import sys
+# Python 2
+if sys.version_info.major < 3:
+    from urllib2 import URLError
+# Python >= 3
+else:
+    from urllib.error import URLError
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
@@ -37,7 +43,7 @@ class TestInit(BaseTestCase):
 
     def test_init_wrong_port(self):
         self.assertRaises(
-            urllib2.URLError,
+            URLError,
             odoorpc.ODOO,
             self.env['host'], self.env['protocol'], 65000)
 

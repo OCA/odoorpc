@@ -73,8 +73,17 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
+        *Python 2:*
+
         :return: `io.BytesIO`
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: `io.BytesIO`
+        :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
+        :raise: `urllib.error.URLError` (connection error)
         """
         data = self._odoo.json(
             '/jsonrpc',
@@ -91,7 +100,15 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
-        :raise: :class:`odoorpc.error.RPCError`
+        *Python 2:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._odoo.json(
             '/jsonrpc',
@@ -118,7 +135,15 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
-        :raise: :class:`odoorpc.error.RPCError`
+        *Python 2:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._odoo.json(
             '/jsonrpc',
@@ -135,8 +160,17 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
+        *Python 2:*
+
         :return: `True` or `False`
-        :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: `True` or `False`
+        :raise: :class:`odoorpc.error.RPCError` (access denied)
+        :raise: `urllib.error.URLError` (connection error)
         """
         data = self._odoo.json(
             '/jsonrpc',
@@ -152,8 +186,15 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
-        :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        *Python 2:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._odoo.json(
             '/jsonrpc',
@@ -167,7 +208,15 @@ class DB(object):
         >>> odoo.db.list()
         ['prod', 'test']
 
-        :return: a list of database names
+        *Python 2:*
+
+        :return: `list` of database names
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: `list` of database names
+        :raise: `urllib.error.URLError` (connection error)
         """
         data = self._odoo.json(
             '/jsonrpc',
@@ -194,7 +243,19 @@ class DB(object):
 
         The super administrator password is required to perform this method.
 
-        :raise: `urllib2.HTTPError`
+        *Python 2:*
+
+        :raise: :class:`odoorpc.error.RPCError`
+                (access denied / database already exists)
+        :raise: :class:`odoorpc.error.InternalError` (dump file closed)
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError`
+                (access denied / database already exists)
+        :raise: :class:`odoorpc.error.InternalError` (dump file closed)
+        :raise: `urllib.error.URLError` (connection error)
         """
         if dump.closed:
             raise error.InternalError("Dump file closed")

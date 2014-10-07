@@ -22,6 +22,7 @@
 A field is a Python descriptor which defines getter/setter methods for
 its related attribute.
 """
+import sys
 import datetime
 
 from odoorpc import error
@@ -37,6 +38,18 @@ def is_int(value):
         return True
     except ValueError:
         return False
+
+
+# Python 2
+if sys.version_info.major < 3:
+    def is_string(value):
+        """Return `True` if ``value`` is a string."""
+        return isinstance(value, basestring)
+# Python >= 3
+else:
+    def is_string(value):
+        """Return `True` if ``value`` is a string."""
+        return isinstance(value, str)
 
 
 def odoo_tuple_in(iterable):
@@ -105,7 +118,7 @@ class BaseField(object):
             if hasattr(self, attr):
                 value = getattr(self, attr)
                 if value:
-                    if isinstance(value, basestring):
+                    if is_string(value):
                         attrs_rep.append("{0}='{1}'".format(attr, value))
                     else:
                         attrs_rep.append("{0}={1}".format(attr, value))
@@ -119,7 +132,7 @@ class BaseField(object):
         #        "'{field_name}' field is readonly".format(
         #            field_name=self.name))
         if value and self.size:
-            if not isinstance(value, basestring):
+            if not is_string(value):
                 raise ValueError("Value supplied has to be a string")
             if len(value) > self.size:
                 raise ValueError(
@@ -388,7 +401,7 @@ class ReferenceField(BaseField):
             self._check_relation(relation)
             value = "%s,%s" % (relation, value.id)
             super(ReferenceField, self).check_value(value)
-        elif isinstance(value, basestring):
+        elif is_string(value):
             super(ReferenceField, self).check_value(value)
             relation, sep, o_id = value.rpartition(',')
             relation = relation.strip()
@@ -429,7 +442,7 @@ class DateField(BaseField):
         super(DateField, self).check_value(value)
         if isinstance(value, datetime.date):
             value = value.strftime("%Y-%m-%d")
-        elif isinstance(value, basestring):
+        elif is_string(value):
             try:
                 datetime.datetime.strptime(value, self.pattern)
             except:
@@ -440,7 +453,7 @@ class DateField(BaseField):
             return value
         else:
             raise ValueError(
-                "Expecting a datetime.date object or basestring")
+                "Expecting a datetime.date object or string")
         return value
 
 
@@ -469,7 +482,7 @@ class DateTimeField(BaseField):
         super(DateTimeField, self).check_value(value)
         if isinstance(value, datetime.datetime):
             value = value.strftime("%Y-%m-%d %H:%M:%S")
-        elif isinstance(value, basestring):
+        elif is_string(value):
             try:
                 datetime.datetime.strptime(value, self.pattern)
             except:
@@ -480,7 +493,7 @@ class DateTimeField(BaseField):
             return value
         else:
             raise ValueError(
-                "Expecting a datetime.datetime object or basestring")
+                "Expecting a datetime.datetime object or string")
         return value
 
 

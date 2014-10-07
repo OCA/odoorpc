@@ -42,8 +42,17 @@ class ODOO(object):
 
         >>> odoo = odoorpc.ODOO('localhost', version='8.0')
 
+    *Python 2:*
+
     :raise: :class:`odoorpc.error.InternalError`
-    :raise: `ValueError`
+    :raise: `ValueError` (wrong protocol, port value, timeout value)
+    :raise: `urllib2.URLError` (connection error)
+
+    *Python 3:*
+
+    :raise: :class:`odoorpc.error.InternalError`
+    :raise: `ValueError` (wrong protocol, port value, timeout value)
+    :raise: `urllib.error.URLError` (connection error)
     """
 
     def __init__(self, host='localhost', protocol='jsonrpc',
@@ -180,15 +189,15 @@ class ODOO(object):
         ...     {'db': 'db_name', 'login':'admin', 'password': 'admin'})
         >>> from pprint import pprint as pp
         >>> pp(data)
-        {u'id': 645674382,
-         u'jsonrpc': u'2.0',
-         u'result': {u'db': u'db_name',
-                     u'session_id': u'fa740abcb91784b8f4750c5c5b14da3fcc782d11',
-                     u'uid': 1,
-                     u'user_context': {u'lang': u'en_US',
-                                       u'tz': u'Europe/Brussels',
-                                       u'uid': 1},
-                     u'username': u'admin'}}
+        {'id': 645674382,
+         'jsonrpc': '2.0',
+         'result': {'db': 'db_name',
+                    'session_id': 'fa740abcb91784b8f4750c5c5b14da3fcc782d11',
+                    'uid': 1,
+                    'user_context': {'lang': 'en_US',
+                                     'tz': 'Europe/Brussels',
+                                     'uid': 1},
+                    'username': 'admin'}}
 
         And a call to the ``read`` method of the ``res.users`` model:
 
@@ -197,14 +206,23 @@ class ODOO(object):
         ...     {'model': 'res.users', 'method': 'read',
         ...      'args': [[1], ['name']]})
         >>> pp(data)
-        {u'id': 756578441,
-         u'jsonrpc': u'2.0',
-         u'result': [{u'id': 1, u'name': u'Administrator'}]}
+        {'id': 756578441,
+         'jsonrpc': '2.0',
+         'result': [{'id': 1, 'name': 'Administrator'}]}
+
+        *Python 2:*
 
         :return: a dictionary (JSON response)
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.HTTPError` (if `params` is not a dictionary)
+        :raise: `urllib2.URLError` (connection error)
 
+        *Python 3:*
+
+        :return: a dictionary (JSON response)
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib.error.HTTPError` (if `params` is not a dictionary)
+        :raise: `urllib.error.URLError` (connection error)
         """
         data = self._connector.proxy_json(url, params)
         if data.get('error'):
@@ -237,9 +255,17 @@ class ODOO(object):
         <addinfourl at 139685107812904 whose fp = <socket._fileobject object at 0x7f0afbd535d0>>
         >>> binary_data = response.read()
 
+        *Python 2:*
+
         :return: `urllib.addinfourl`
         :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
 
+        *Python 3:*
+
+        :return: `http.client.HTTPResponse`
+        :raise: `urllib.error.HTTPError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         return self._connector.proxy_http(url, data, headers)
 
@@ -249,7 +275,7 @@ class ODOO(object):
     def _check_logged_user(self):
         """Check if a user is logged. Otherwise, an error is raised."""
         if not self._uid or not self._password:
-            raise error.LoginError(u"User login required.")
+            raise error.LoginError("User login required.")
 
     def login(self, db, login='admin', password='admin'):
         """Log in as the given `user` with the password `passwd` on the
@@ -258,11 +284,17 @@ class ODOO(object):
 
         >>> user = odoo.login('db_name', 'admin', 'admin')
         >>> user.name
-        u'Administrator'
+        'Administrator'
 
-        :return: the user connected as a browsable record
+        *Python 2:*
+
         :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.LoginError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.LoginError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         # Get the user's ID and generate the corresponding user record
         data = self.json(
@@ -286,9 +318,17 @@ class ODOO(object):
         >>> odoo.logout()
         True
 
+        *Python 2:*
+
         :return: `True` if the operation succeed, `False` if no user was logged
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: `True` if the operation succeed, `False` if no user was logged
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         if not self._uid:
             return False
@@ -306,11 +346,19 @@ class ODOO(object):
         `*args` parameters varies according to the `method` used.
 
         >>> odoo.execute('res.partner', 'read', [1, 2], ['name'])
-        [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
+        [{'name': 'ASUStek', 'id': 2}, {'name': 'Your Company', 'id': 1}]
+
+        *Python 2:*
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: the result returned by the `method` called
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
         # Execute the query
@@ -331,11 +379,19 @@ class ODOO(object):
         to the `method` used.
 
         >>> odoo.execute_kw('res.partner', 'read', [[1, 2]], {'fields': ['name']})
-        [{'name': u'ASUStek', 'id': 2}, {'name': u'Your Company', 'id': 1}]
+        [{'name': 'ASUStek', 'id': 2}, {'name': 'Your Company', 'id': 1}]
+
+        *Python 2:*
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :return: the result returned by the `method` called
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
         # Execute the query
@@ -355,8 +411,15 @@ class ODOO(object):
         """Execute the workflow `signal` on
         the instance having the ID `record_id` of `model`.
 
+        *Python 2:*
+
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: `urllib2.HTTPError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
         # Execute the workflow query
@@ -444,6 +507,15 @@ class ODOO(object):
         Such informations can be loaded with the :func:`odoorpc.load` function
         by returning a pre-configured session of :class:`ODOO <odoorpc.ODOO>`,
         or with the `odoo` command line tool supplied with `odoorpc`.
+
+        *Python 2:*
+
+        :raise: `IOError`
+
+        *Python 3:*
+
+        :raise: `PermissionError`
+        :raise: `FileNotFoundError`
         """
         self._check_logged_user()
         data = {
@@ -466,8 +538,20 @@ class ODOO(object):
             >>> import odoorpc
             >>> odoo = odoorpc.ODOO.load('foo')
 
-        Such informations are stored with the :func:`ODOO.save <odoorpc.ODOO.save>`
-        method.
+        Such informations are stored with the
+        :func:`ODOO.save <odoorpc.ODOO.save>` method.
+
+        *Python 2:*
+
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.LoginError`
+        :raise: `urllib2.URLError` (connection error)
+
+        *Python 3:*
+
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.LoginError`
+        :raise: `urllib.error.URLError` (connection error)
         """
         data = session.get(name, rc_file)
         if data.get('type') != cls.__name__:
@@ -496,10 +580,19 @@ class ODOO(object):
         Then, use the :func:`load` function with the desired session:
 
             >>> odoo = odoorpc.ODOO.load('foo')
+
+        *Python 2:*
+
+        :raise: `IOError`
+
+        *Python 3:*
+
+        :raise: `PermissionError`
+        :raise: `FileNotFoundError`
         """
         sessions = session.get_all(rc_file)
-        return [name for name, data in sessions.iteritems()
-                if data.get('type') == cls.__name__]
+        return [name for name in sessions
+                if sessions[name].get('type') == cls.__name__]
         #return session.list(rc_file)
 
     @classmethod
@@ -509,6 +602,15 @@ class ODOO(object):
             >>> import odoorpc
             >>> odoorpc.ODOO.remove('foo')
             True
+
+        *Python 2:*
+
+        :raise: `IOError`
+
+        *Python 3:*
+
+        :raise: `PermissionError`
+        :raise: `FileNotFoundError`
         """
         data = session.get(name, rc_file)
         if data.get('type') != cls.__name__:

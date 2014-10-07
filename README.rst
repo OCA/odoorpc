@@ -59,7 +59,7 @@ It should work on next versions if `Odoo` keeps a stable API.
 Supported Python versions
 -------------------------
 
-`OdooRPC` support Python version 2.7.
+`OdooRPC` support Python 2.7, 3.2, 3.3 and 3.4.
 
 License
 -------

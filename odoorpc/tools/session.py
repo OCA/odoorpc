@@ -23,7 +23,13 @@ in `OdooRPC`.
 """
 import os
 import stat
-from ConfigParser import SafeConfigParser
+import sys
+# Python 2
+if sys.version_info.major == 2:
+    from ConfigParser import SafeConfigParser as ConfigParser
+# Python 3
+elif sys.version_info.major == 3:
+    from configparser import ConfigParser
 
 from odoorpc import error
 
@@ -35,7 +41,7 @@ def get_all(rc_file='~/.odoorpcrc'):
     >>> odoorpc.tools.session.get_all()
     {'foo': {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}}
     """
-    conf = SafeConfigParser()
+    conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     sessions = {}
     for name in conf.sections():
@@ -62,7 +68,7 @@ def get(name, rc_file='~/.odoorpcrc'):
 
     :raise: :class:`odoorpc.error.Error`
     """
-    conf = SafeConfigParser()
+    conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise error.Error(
@@ -83,7 +89,7 @@ def get(name, rc_file='~/.odoorpcrc'):
 #    """Return a list of all sessions available in the
 #    `rc_file` file.
 #    """
-#    conf = SafeConfigParser()
+#    conf = ConfigParser()
 #    conf.read([os.path.expanduser(rc_file)])
 #    # TODO
 #    return conf.sections()
@@ -100,13 +106,14 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     ...      'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin',
     ...      'database': 'db_name'})
     """
-    conf = SafeConfigParser()
+    conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         conf.add_section(name)
-    for k, v in data.iteritems():
+    for k in data:
+        v = data[k]
         conf.set(name, k, str(v))
-    with open(os.path.expanduser(rc_file), 'wb') as file_:
+    with open(os.path.expanduser(rc_file), 'w') as file_:
         os.chmod(os.path.expanduser(rc_file), stat.S_IREAD | stat.S_IWRITE)
         conf.write(file_)
 
@@ -120,7 +127,7 @@ def remove(name, rc_file='~/.odoorpcrc'):
 
     :raise: :class:`odoorpc.error.Error`
     """
-    conf = SafeConfigParser()
+    conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise error.Error(

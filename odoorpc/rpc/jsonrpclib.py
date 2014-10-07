@@ -19,13 +19,33 @@
 #
 ##############################################################################
 """Provides the :class:`ProxyJSON` class for JSON-RPC requests."""
-import urllib2
-import cookielib
 import json
 import random
-import itertools
-import mimetools
-import mimetypes
+import sys
+# Python 2
+if sys.version_info.major < 3:
+    from urllib2 import build_opener, HTTPCookieProcessor, Request
+    from cookielib import CookieJar
+
+    def encode_data(data):
+        return data
+
+    def decode_data(data):
+        return data
+# Python >= 3
+else:
+    from urllib.request import build_opener, HTTPCookieProcessor, Request
+    from http.cookiejar import CookieJar
+    import io
+
+    def encode_data(data):
+        try:
+            return bytes(data, 'utf-8')
+        except:
+            return bytes(data)
+
+    def decode_data(data):
+        return io.StringIO(data.read().decode('utf-8'))
 
 
 class Proxy(object):
@@ -37,9 +57,8 @@ class Proxy(object):
         self._builder = URLBuilder(self)
         self._opener = opener
         if not opener:
-            cookie_jar = cookielib.CookieJar()
-            self._opener = urllib2.build_opener(
-                urllib2.HTTPCookieProcessor(cookie_jar))
+            cookie_jar = CookieJar()
+            self._opener = build_opener(HTTPCookieProcessor(cookie_jar))
 
     def __getattr__(self, name):
         return getattr(self._builder, name)
@@ -64,13 +83,13 @@ class ProxyJSON(Proxy):
             "params": params,
             "id": random.randint(0, 1000000000),
         })
-        request = urllib2.Request(url='/'.join([self._root_url, url]))
+        request = Request(url='/'.join([self._root_url, url]),
+                          data=encode_data(data))
         request.add_header('Content-Type', 'application/json')
-        request.add_data(data)
         response = self._opener.open(request, timeout=self._timeout)
         if not self._deserialize:
             return response
-        return json.load(response)
+        return json.load(decode_data(response))
 
 
 class ProxyHTTP(Proxy):
@@ -78,8 +97,8 @@ class ProxyHTTP(Proxy):
     to all HTTP methods.
     """
     def __call__(self, url, data, headers=None):
-        request = urllib2.Request(url='/'.join([self._root_url, url]))
-        request.add_data(data)
+        request = Request(url='/'.join([self._root_url, url]),
+                          data=encode_data(data))
         if headers:
             for hkey in headers:
                 hvalue = headers[hkey]

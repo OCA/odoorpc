@@ -70,7 +70,7 @@ class Model(object):
         browse_record(res.partner, 1)
 
         >>> [partner.name for partner in odoo.get('res.partner').browse([1, 2])]
-        [u'Your Company', u'ASUStek']
+        ['Your Company', 'ASUStek']
 
         A list of data types used by ``browse_record`` fields are
         available :ref:`here <fields>`.
@@ -100,10 +100,11 @@ class Model(object):
         # Retrieve server fields info and generate corresponding local fields
         fields_get = self._odoo.execute(self._name, 'fields_get')
         cls_name = self._name.replace('.', '_')
-        # Encode the class name for the Python2 'type()' function.
-        # No need to do this for Python3.
-        if type(cls_name) == unicode and sys.version_info < (3,):
-            cls_name = cls_name.encode('utf-8')
+        # Encode the class name for the Python 2 'type()' function.
+        # No need to do this for Python 3.
+        if sys.version_info.major < 3:
+            if isinstance(cls_name, unicode):
+                cls_name = cls_name.encode('utf-8')
         cls_fields = {}
         for field_name, field_data in fields_get.items():
             if field_name not in Model.fields_reserved:
@@ -119,7 +120,7 @@ class Model(object):
         cls.__odoo__ = self._odoo
         cls.__osv__ = {'name': self._name, 'columns': cls_fields}
         slots = ['__odoo__', '__osv__', '__dict__', '__data__']
-        slots.extend(cls_fields.keys())
+        slots.extend(list(cls_fields))
         cls.__slots__ = slots
         return cls
 
@@ -158,7 +159,8 @@ class Model(object):
         obj_data['context'] = context
         # Get basic fields (no relational ones)
         basic_fields = []
-        for field_name, field in obj.__osv__['columns'].iteritems():
+        for field_name in obj.__osv__['columns']:
+            field = obj.__osv__['columns']
             if not getattr(field, 'relation', False):
                 basic_fields.append(field_name)
             else:
@@ -177,7 +179,7 @@ class Model(object):
         # No ID: fields filled with default values
         else:
             default_get = self.default_get(
-                obj.__osv__['columns'].keys(), context=context)
+                list(obj.__osv__['columns']), context=context)
             obj_data['raw_data'] = {}
             for field_name in obj.__osv__['columns']:
                 obj_data['raw_data'][field_name] = False

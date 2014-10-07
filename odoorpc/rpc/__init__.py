@@ -38,8 +38,15 @@ URL                 Description
 ==================  ======================================================
 
 """
-import urllib2
-import cookielib
+import sys
+# Python 2
+if sys.version_info.major < 3:
+    from urllib2 import build_opener, HTTPCookieProcessor
+    from cookielib import CookieJar
+# Python >= 3
+else:
+    from urllib.request import build_opener, HTTPCookieProcessor
+    from http.cookiejar import CookieJar
 
 from odoorpc.rpc import error, jsonrpclib
 from odoorpc.tools import v
@@ -87,27 +94,27 @@ class ConnectorJSONRPC(Connector):
     Open a user session:
 
     >>> cnt.proxy_json.web.session.authenticate(db='database', login='admin', password='admin')
-    {u'jsonrpc': u'2.0', u'id': 202516757,
-     u'result': {u'username': u'admin', u'user_context': {u'lang': u'fr_FR', u'tz': u'Europe/Brussels', u'uid': 1},
-     u'db': u'test70', u'uid': 1, u'session_id': u'308816f081394a9c803613895b988540'}}
+    {'jsonrpc': '2.0', 'id': 202516757,
+     'result': {'username': 'admin', 'user_context': {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1},
+     'db': 'test70', 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
 
     Read data of a partner:
 
     >>> cnt.proxy_json.web.dataset.call(model='res.partner', method='read', args=[[1]])
-    {u'jsonrpc': u'2.0', u'id': 454236230,
-     u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
+    {'jsonrpc': '2.0', 'id': 454236230,
+     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
 
     You can send requests this way too:
 
     >>> cnt.proxy_json['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
-    {u'jsonrpc': u'2.0', u'id': 328686288,
-     u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
+    {'jsonrpc': '2.0', 'id': 328686288,
+     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
 
     Or like this:
 
     >>> cnt.proxy_json['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
-    {u'jsonrpc': u'2.0', u'id': 102320639,
-     u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
+    {'jsonrpc': '2.0', 'id': 102320639,
+     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
     """
     def __init__(self, host, port=8069, timeout=120, version=None,
                  deserialize=True):
@@ -115,9 +122,9 @@ class ConnectorJSONRPC(Connector):
         self.deserialize = deserialize
         # One URL opener (with cookies handling) shared between
         # JSON and HTTP requests
-        cookie_jar = cookielib.CookieJar()
-        self._opener = urllib2.build_opener(
-            urllib2.HTTPCookieProcessor(cookie_jar))
+        cookie_jar = CookieJar()
+        self._opener = build_opener(
+            HTTPCookieProcessor(cookie_jar))
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     def _get_proxies(self):
