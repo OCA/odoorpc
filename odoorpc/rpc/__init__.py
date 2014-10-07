@@ -28,13 +28,13 @@ Here are the main services URLs:
 ==================  ======================================================
 URL                 Description
 ==================  ======================================================
-''/web/database''   Manage databases (create, drop, backup...)
-''/web/session''    Manage the user session (authentication, logout...)
-''/web/webclient''  Retrieve information about the server version
-''/web/dataset''    Manage all kinds of data (model methods, workflows)
-''/web/action''     Manage all kinds of action (act_window, report.xml...)
-''/web/export''     Manage data exports
-''/web/menu''       Access to menus related to the user connected
+``/web/database``   Manage databases (create, drop, backup...)
+``/web/session``    Manage the user session (authentication, logout...)
+``/web/webclient``  Retrieve information about the server version
+``/web/dataset``    Manage all kinds of data (model methods, workflows)
+``/web/action``     Manage all kinds of action (act_window, report.xml...)
+``/web/export``     Manage data exports
+``/web/menu``       Access to menus related to the user connected
 ==================  ======================================================
 
 """
@@ -86,26 +86,26 @@ class ConnectorJSONRPC(Connector):
 
     Open a user session:
 
-    >>> cnt.proxy.web.session.authenticate(db='database', login='admin', password='admin')
+    >>> cnt.proxy_json.web.session.authenticate(db='database', login='admin', password='admin')
     {u'jsonrpc': u'2.0', u'id': 202516757,
      u'result': {u'username': u'admin', u'user_context': {u'lang': u'fr_FR', u'tz': u'Europe/Brussels', u'uid': 1},
      u'db': u'test70', u'uid': 1, u'session_id': u'308816f081394a9c803613895b988540'}}
 
     Read data of a partner:
 
-    >>> cnt.proxy.web.dataset.call(model='res.partner', method='read', args=[[1]])
+    >>> cnt.proxy_json.web.dataset.call(model='res.partner', method='read', args=[[1]])
     {u'jsonrpc': u'2.0', u'id': 454236230,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
 
     You can send requests this way too:
 
-    >>> cnt.proxy['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
+    >>> cnt.proxy_json['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
     {u'jsonrpc': u'2.0', u'id': 328686288,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
 
     Or like this:
 
-    >>> cnt.proxy['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
+    >>> cnt.proxy_json['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
     {u'jsonrpc': u'2.0', u'id': 102320639,
      u'result': [{u'id': 1, u'comment': False, u'ean13': False, u'property_account_position': False, ...}]}
     """

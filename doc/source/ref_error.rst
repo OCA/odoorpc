@@ -1,6 +1,6 @@
-oerplib.error
+odoorpc.error
 =============
 
-.. automodule:: oerplib.error
+.. automodule:: odoorpc.error
     :members:
 

@@ -6,29 +6,29 @@ OdooRPC
 pilot your **Odoo** servers through `RPC`.
 
 Features supported:
-    - `XML-RPC` and `JSON-RPC` protocols,
-    - access to all methods proposed by a model class
-      (even ``browse``) with an API similar to the server-side API,
+    - access to all data model methods (even ``browse``) with an API similar
+      to the server-side API,
     - use named parameters with model methods,
     - user context automatically sent providing support for
       internationalization,
     - browse records,
     - execute workflows,
     - manage databases,
-    - reports downloading.
+    - reports downloading,
+    - JSON-RPC protocol (SSL supported),
 
 How does it work? See below::
 
     import odoorpc
 
     # Prepare the connection to the server
-    odoo = odoorpc.XMLRPC('localhost', port=8069)   # JSONRPC available too
+    odoo = odoorpc.ODOO('localhost', port=8069)
 
     # Check available databases
-    print(odoo.db.list())
+    print(odoo.database.get_list())
 
     # Login (the object returned is a browsable record)
-    user = odoo.login('user', 'passwd', 'db_name')
+    user = odoo.login('db_name', 'user', 'passwd')
     print(user.name)            # name of the user connected
     print(user.company_id.name) # the name of its company
 
@@ -37,7 +37,7 @@ How does it work? See below::
     print(user_data)
 
     # Use all methods of a model
-    order_model = odoo.registry['sale.order']
+    order_model = odoo.get('sale.order')
     order_ids = order_model.search([])
     for order in order_model.browse(order_ids):
         print(order.name)
@@ -46,20 +46,20 @@ How does it work? See below::
 
     # Update data through a browsable record
     user.name = "Brian Jones"
-    odoo.save()
+    odoo.write_record(user)
 
 See the documentation for more details and features.
 
 Supported Odoo server versions
 ------------------------------
 
-`OdooRPC` has been tested on `Odoo` server v8.0.
+`OdooRPC` has been tested on `Odoo` server 8.0.
 It should work on next versions if `Odoo` keeps a stable API.
 
 Supported Python versions
 -------------------------
 
-`OdooRPC` support Python versions 2.7, 3.2, 3.3 and 3.4
+`OdooRPC` support Python version 2.7.
 
 License
 -------

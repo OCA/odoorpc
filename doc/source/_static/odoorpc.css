@@ -41,7 +41,7 @@ div.sphinxsidebar h4 {
     font-weight: normal;
     margin: 0;
     padding: 5px 10px;
-    background-color: #7C7BAD;      /*BACKUP: #ddd;*/
+    background-color: #a24689;      /*BACKUP: #ddd;*/
     text-shadow: 1px 1px 0 black;   /*BACKUP: white;*/
 }
 
@@ -52,10 +52,10 @@ div.sphinxsidebar h3 a {
 /* -- body styles ----------------------------------------------------------- */
 
 a {
-    color: #424077;                 /*BACKUP: #005B81;*/
+    color: #3E4349;                 /*BACKUP: #005B81;*/
 }
 a:hover {
-    color: #272658;                 /*BACKUP: #E32E00;*/
+    color: #0f957a;                 /*BACKUP: #E32E00;*/
     text-decoration: underline;
 }
 
@@ -72,19 +72,19 @@ div.body h6 {
 }
 
 div.body h1 { border-top: 20px solid white; margin-top: 0; font-size: 200%;
-              background-color: #64629C;}
-div.body h2 { font-size: 150%; background-color: #8684BE; /*BACKUP: #C8D5E3;*/ }
-div.body h3 { font-size: 120%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
-div.body h4 { font-size: 110%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
-div.body h5 { font-size: 100%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
-div.body h6 { font-size: 100%; background-color: #8684BE; /*BACKUP: #D8DEE3;*/ }
+              background-color: #a24689;}
+div.body h2 { font-size: 150%; background-color: #a24689; /*BACKUP: #C8D5E3;*/ }
+div.body h3 { font-size: 120%; background-color: #a24689; /*BACKUP: #D8DEE3;*/ }
+div.body h4 { font-size: 110%; background-color: #a24689; /*BACKUP: #D8DEE3;*/ }
+div.body h5 { font-size: 100%; background-color: #a24689; /*BACKUP: #D8DEE3;*/ }
+div.body h6 { font-size: 100%; background-color: #a24689; /*BACKUP: #D8DEE3;*/ }
 
 a.headerlink {
     color: white; /*BACKUP: #c60f0f;*/
 }
 
 a.headerlink:hover {
-    background-color: #7C7BAD; /*BACKUP: #c60f0f;*/
+    background-color: #a24689; /*BACKUP: #c60f0f;*/
     color: white;
 }
 

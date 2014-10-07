@@ -1,65 +1,62 @@
-.. OERPLib documentation master file, created by
-   sphinx-quickstart on Thu Sep 15 10:49:22 2011.
+.. OdooRPC documentation master file, created by
+   sphinx-quickstart on Sun Jul  6 16:32:50 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to OERPLib's documentation!
+Welcome to OdooRPC's documentation!
 ===================================
 
 Introduction
 ------------
 
-**OERPLib** is a Python module providing an easy way to
-pilot your **OpenERP** and **Odoo** servers through `RPC`.
+**OdooRPC** is a Python module providing an easy way to
+pilot your **Odoo** servers through `RPC`.
 
 Features supported:
-    - `XML-RPC` and (legacy) `Net-RPC` protocols,
-    - access to all methods proposed by a model class
-      (even ``browse``) with an API similar to the server-side API,
-    - ability to use named parameters with such methods (server >= `6.1`),
-    - user context automatically sent (server >= `6.1`) providing support
-      for internationalization,
+    - access to all data model methods (even ``browse``) with an API similar
+      to the server-side API,
+    - use named parameters with model methods,
+    - user context automatically sent providing support for
+      internationalization,
     - browse records,
     - execute workflows,
     - manage databases,
     - reports downloading,
-    - inspection capabilities (graphical output of relations between models and
-      dependencies between modules, list ``on_change`` methods from model
-      views, ...).
+    - JSON-RPC protocol (SSL supported),
 
 Quick start
 -----------
 
 How does it work? See below::
 
-    import oerplib
+    import odoorpc
 
     # Prepare the connection to the server
-    oerp = oerplib.OERP('localhost', protocol='xmlrpc', port=8069)
+    odoo = odoorpc.ODOO('localhost', port=8069)
 
     # Check available databases
-    print(oerp.db.list())
+    print(odoo.database.get_list())
 
     # Login (the object returned is a browsable record)
-    user = oerp.login('user', 'passwd', 'db_name')
+    user = odoo.login('db_name', 'user', 'passwd')
     print(user.name)            # name of the user connected
     print(user.company_id.name) # the name of its company
 
     # Simple 'raw' query
-    user_data = oerp.execute('res.users', 'read', [user.id])
+    user_data = odoo.execute('res.users', 'read', [user.id])
     print(user_data)
 
-    # Use all methods of a model class
-    order_obj = oerp.get('sale.order')
-    order_ids = order_obj.search([])
-    for order in order_obj.browse(order_ids):
+    # Use all methods of a model
+    order_model = odoo.get('sale.order')
+    order_ids = order_model.search([])
+    for order in order_model.browse(order_ids):
         print(order.name)
         products = [line.product_id.name for line in order.order_line]
         print(products)
 
     # Update data through a browsable record
     user.name = "Brian Jones"
-    oerp.write_record(user)
+    odoo.write_record(user)
 
 For more details and features, see the :ref:`tutorials <tutorials>`, the
 :ref:`Frequently Asked Questions (FAQ) <faq>` and the
@@ -76,17 +73,16 @@ Contents
     faq
     reference
 
-Supported OpenERP/Odoo server versions
---------------------------------------
+Supported Odoo server versions
+------------------------------
 
-`OERPLib` has been tested on `OpenERP` server v5.0, v6.0, v6.1, v7.0 and
-`Odoo` v8.0.
+`OdooRPC` has been tested on `Odoo` server 8.0.
 It should work on next versions if `Odoo` keeps a stable API.
 
 Supported Python versions
 -------------------------
 
-`OERPLib` support Python versions 2.6, 2.7.
+`OdooRPC` support Python version 2.7.
 
 License
 -------
@@ -97,12 +93,12 @@ Bugs or suggestions
 -------------------
 
 Please, feel free to report bugs or suggestions in the `Bug Tracker
-<https://bugs.launchpad.net/oerplib>`_!
+<TODO>`_!
 
 Make a donation
 ---------------
 
-`OERPLib` is mainly developed on free time. To show your appreciation and
+`OdooRPC` is mainly developed on free time. To show your appreciation and
 support this project, it is possible to make a donation through `PayPal`:
 
 .. raw:: html

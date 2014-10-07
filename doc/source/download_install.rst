@@ -6,55 +6,47 @@ Download and install instructions
 Python Package Index (PyPI)
 ---------------------------
 
-You can install OERPLib with the `easy_install` tool::
+You can install `OdooRPC` with `pip`::
 
-    $ easy_install oerplib
+    $ pip install odoorpc
 
-Or with `pip`::
-
-    $ pip install oerplib
-
-An alternative way is to download the tarball from
-`Python Package Index <http://pypi.python.org/pypi/OERPLib/>`_ page,
-and install manually (replace `X.Y.Z` accordingly)::
-
-    $ wget http://pypi.python.org/packages/source/O/OERPLib/OERPLib-X.Y.Z.tar.gz
-    $ tar xzvf OERPLib-X.Y.Z.tar.gz
-    $ cd OERPLib-X.Y.Z
-    $ python setup.py install
-
-No dependency is required except `pydot <http://code.google.com/p/pydot/>`_ for
-some methods of the :class:`inspect <oerplib.service.inspect.Inspect>` service
-(optional).
+No dependency is required.
 
 Source code
 -----------
 
-The project is hosted on `Launchpad <https://launchpad.net/oerplib>`_.
-To get the current development branch (the ``trunk``), just type::
+The project is hosted on `GitHub <https://github.com/TODO/odoorpc>`_.
+To get the current development branch (``master``), just type::
 
-    $ bzr branch lp:oerplib
+    $ git clone https://github.com/TODO/odoorpc.git
 
 For the last version of a stable branch (replace `X.Y` accordingly)::
 
-    $ bzr branch lp:oerplib/X.Y
+    $ git checkout X.Y
 
 Run tests
 ---------
 
-.. versionadded:: 0.4.0
+Unit tests depend on the standard module `unittest` (Python 2.7 and 3.x).
+To run all unit tests from the project directory, run the following command::
 
-Unit tests depends on `unittest2` (Python 2.3+) or `unittest`
-(Python 2.7 and 3.x), and `argparse`.
+    $ python -m unittest discover -v
 
-To run unit tests from the project directory, run the following command::
+To run a specific test::
 
-    $ PYTHONPATH=.:$PYTHONPATH ./tests/runtests.py --help
+    $ python -m unittest -v odoorpc.tests.test_init
 
-Then, set your parameters in order to indicate the `OpenERP` server on which
-you want to perform the tests, for instance::
+To configure the connection to the server, some environment variables are
+available::
 
-    $ PYTHONPATH=.:$PYTHONPATH ./tests/runtests.py --create_db --server 192.168.1.4 --test_xmlrpc --xmlrpc_port 8069
+    $ export ORPC_TEST_PROTOCOL=jsonrpc
+    $ export ORPC_TEST_HOST=localhost
+    $ export ORPC_TEST_PORT=8069
+    $ export ORPC_TEST_DB=odoorpc_test
+    $ export ORPC_TEST_USER=admin
+    $ export ORPC_TEST_PWD=admin
+    $ export ORPC_TEST_VERSION=8.0
+    $ export ORPC_TEST_SUPER_PWD=admin
+    $ python -m unittest discover -v
 
-The name of the database created is ``oerplib-test`` by default.
-
+The database ``odoorpc_test`` will be created if it does not exist.
