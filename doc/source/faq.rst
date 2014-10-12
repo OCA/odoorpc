@@ -3,6 +3,66 @@
 Frequently Asked Questions (FAQ)
 ================================
 
+Why OdooRPC? And why migrate from OERPLib to OdooRPC?
+-----------------------------------------------------
+
+It was a tough decision, but several reasons motivated the `OdooRPC` project:
+
+**RPC Protocol**
+  The first point is about the supported protocol, `XML-RPC` is kept in `Odoo`
+  for compatibility reasons (and will not evolve anymore, maybe removed one
+  day), replaced by the `JSON-RPC` one. Although these
+  protocols are almost similar in the way we build RPC requests, some points
+  make `JSON-RPC` a better and reliable choice like the way to handle errors
+  raised by the `Odoo` server (access to the type of exception raised, the
+  complete server traceback...). To keep a clean and maintainable base code, it
+  would have been difficult to support both protocols in `OERPLib`, and it is
+  why `OdooRPC` only support `JSON-RPC`.
+
+  Another good point with `JSON-RPC` is the ability to request all server web
+  controllers to reproduce requests (`type='json'` ones) made by the official
+  `Javascript` web client.
+  As the code to make such requests is based on standard `HTTP` related Python
+  modules, `OdooRPC` is also able to request `HTTP` web controllers
+  (`type='http'` ones).
+
+  In fact, you could see `OdooRPC` as a high level API for `Odoo` with which
+  you could replicate the behaviour of the official `Javascript` web client,
+  but in `Python`.
+
+**New server API**
+  One goal of `OERPLib` was to give an API not too different from the server
+  side API to reduce the learning gap between server-side development and
+  client-side with an `RPC` library. With the new 8.0 API which appears in
+  `Odoo` 8.0 this is another brake (the old API will be removed one day), so
+  the current API of `OERPLib` will not be consistent for the next years.
+  As such, `OdooRPC` mimics A LOT the new API 8.0 of Odoo, for more
+  consistency (see the :ref:`tutorials <tutorials>`).
+
+**New brand Odoo**
+  `OpenERP` became `Odoo`, so what does `OERPLib` mean? `OEWhat`? This is
+  obvious for old developers which start the `OpenERP` adventure since the
+  early days, but the `OpenERP` brand is led to disappear, and it can be
+  confusing for newcomers in the `Odoo` world. So, `OdooRPC` speaks for
+  itself.
+
+**Maintening cost, code cleanup**
+  `OpenERP` has evolved a lot since the version 5.0 (2009), making `OERPLib`
+  hard to maintain (write tests for all versions before each `OERPLib` and
+  `OpenERP` release is very time consuming). All the compatibility code for
+  `OpenERP` 5.0 to 7.0 was dropped for `OdooRPC`, making the project more
+  maintainable. `Odoo` is now a more mature product, and `OdooRPC` should
+  suffer less about compatibility issues from one release to another.
+
+  As `OdooRPC` has not the same constraints concerning `Python`
+  environments where it could be running on, it is able to work on `Python`
+  2.7 to 3.X.
+
+`OdooRPC` is turned towards the future, so you are encouraged to use or migrate
+on it for projects based on `Odoo` >= 8.0. It is more reliable, better covered
+by unit tests, and almost identical to the server side new API.
+
+
 Connect to an Odoo Online (SaaS) instance
 -----------------------------------------
 
