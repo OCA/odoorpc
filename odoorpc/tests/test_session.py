@@ -36,9 +36,9 @@ class TestSession(LoginTestCase):
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertEqual(self.odoo.host, odoo.host)
         self.assertEqual(self.odoo.port, odoo.port)
-        self.assertEqual(self.odoo.db, odoo.db)
         self.assertEqual(self.odoo.protocol, odoo.protocol)
-        self.assertEqual(self.odoo.user, odoo.user)
+        self.assertEqual(self.odoo.env.db, odoo.env.db)
+        self.assertEqual(self.odoo.env.uid, odoo.env.uid)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
     def test_session_tools_get(self):
@@ -49,9 +49,9 @@ class TestSession(LoginTestCase):
             'protocol': self.odoo.protocol,
             'port': int(self.odoo.port),
             'timeout': self.odoo.config['timeout'],
-            'user': self.odoo.user.login,
+            'user': self.odoo._login,
             'passwd': self.odoo._password,
-            'database': self.odoo.db,
+            'database': self.odoo.env.db,
         }
         result = odoorpc.tools.session.get(
             self.session_name, rc_file=self.file_path)
@@ -67,9 +67,9 @@ class TestSession(LoginTestCase):
                 'protocol': self.odoo.protocol,
                 'port': int(self.odoo.port),
                 'timeout': self.odoo.config['timeout'],
-                'user': self.odoo.user.login,
+                'user': self.odoo._login,
                 'passwd': self.odoo._password,
-                'database': self.odoo.db,
+                'database': self.odoo.env.db,
             }
         }
         result = odoorpc.tools.session.get_all(rc_file=self.file_path)

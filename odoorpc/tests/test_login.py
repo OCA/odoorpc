@@ -2,7 +2,7 @@
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
-from odoorpc import service
+from odoorpc.service.model import Model
 
 
 class TestLogin(BaseTestCase):
@@ -11,11 +11,11 @@ class TestLogin(BaseTestCase):
         odoo = odoorpc.ODOO(
             self.env['host'], protocol=self.env['protocol'],
             port=self.env['port'], version=self.env['version'])
-        user = odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
-        self.assertIsNotNone(user)
-        self.assertIsInstance(user, service.model.BrowseRecord)
-        self.assertEqual(odoo.user, user)
-        self.assertEqual(odoo.db, self.env['db'])
+        odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
+        self.assertIsNotNone(odoo.env)
+        self.assertIsInstance(odoo.env.user, Model)
+        self.assertIn('res.users', odoo.env.registry)
+        self.assertEqual(odoo.env.db, self.env['db'])
 
     def test_login_no_password(self):
         # login no password => Error

@@ -11,7 +11,7 @@ class TestReport(LoginTestCase):
     def test_report_download_pdf(self):
         model = 'res.company'
         report_name = 'preview.report'
-        ids = self.odoo.get(model).search([])[:20]
+        ids = self.odoo.env[model].search([])[:20]
         report = self.odoo.report.download(report_name, ids)
         with tempfile.TemporaryFile(mode='wb', suffix='.pdf') as file_:
             file_.write(report.read())
@@ -19,7 +19,7 @@ class TestReport(LoginTestCase):
     def test_report_download_qweb_pdf(self):
         model = 'account.invoice'
         report_name = 'account.report_invoice'
-        ids = self.odoo.get(model).search([])[:10]
+        ids = self.odoo.env[model].search([])[:10]
         report = self.odoo.report.download(report_name, ids)
         with tempfile.TemporaryFile(mode='wb', suffix='.pdf') as file_:
             file_.write(report.read())
@@ -27,7 +27,7 @@ class TestReport(LoginTestCase):
     def test_report_download_sxw(self):
         model = 'ir.model'
         report_name = 'ir.model.overview'
-        ids = self.odoo.get(model).search([])[:20]
+        ids = self.odoo.env[model].search([])[:20]
         report = self.odoo.report.download(report_name, ids)
         with tempfile.TemporaryFile(mode='wb', suffix='.sxw') as file_:
             file_.write(report.read())

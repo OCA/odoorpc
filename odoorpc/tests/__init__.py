@@ -41,13 +41,13 @@ class LoginTestCase(BaseTestCase):
     """Instanciates an ``odoorpc.ODOO`` object and perform the user login."""
     def setUp(self):
         BaseTestCase.setUp(self)
-        self.user = self.odoo.login(
-            self.env['db'], self.env['user'], self.env['pwd'])
-        self.user_obj = self.odoo.get('res.users')
+        self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
+        self.user = self.odoo.env.user
+        self.user_obj = self.odoo.env['res.users']
         # Install 'sale' module
         self.odoo.config['timeout'] = 600
-        module_obj = self.odoo.get('ir.module.module')
-        module_ids = module_obj.search([('name', '=', 'sale')])
+        module_obj = self.odoo.env['ir.module.module']
+        module_ids = module_obj.search([('name', 'in', ['sale', 'crm'])])
         module_obj.button_immediate_install(module_ids)
         self.odoo.config['timeout'] = 120
 

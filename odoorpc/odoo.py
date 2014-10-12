@@ -22,8 +22,8 @@
 an `Odoo` server.
 """
 from odoorpc import rpc, error, tools
+from odoorpc.env import Environment
 from odoorpc.tools import session
-from odoorpc import service
 from odoorpc.service.db import DB
 from odoorpc.service.report import Report
 
@@ -73,11 +73,9 @@ class ODOO(object):
         self._host = host
         self._port = port
         self._protocol = protocol
-        self._database = None
-        self._uid = None
+        self._env = None
+        self._login = None
         self._password = None
-        self._user = None
-        self._context = None
         self._db = DB(self)
         self._report = Report(self)
         # Instanciate the server connector
@@ -89,7 +87,8 @@ class ODOO(object):
         # Dictionary of configuration options
         self._config = tools.Config(
             self,
-            {'auto_context': True,
+            {'auto_commit': True,
+             'auto_context': True,
              'timeout': timeout})
 
     @property
@@ -103,11 +102,11 @@ class ODOO(object):
           automatically to every call of a
           :class:`model <odoorpc.service.model.Model>` method (default: `True`):
 
-            >>> product_obj = odoo.get('product.product')
-            >>> product_obj.name_get([3]) # Context sent by default ('lang': 'fr_FR' here)
+            >>> Product = odoo.env['product.product']
+            >>> Product.name_get([3])   # Context sent by default ('lang': 'fr_FR' here)
             [[3, '[PC1] PC Basic']]
             >>> odoo.config['auto_context'] = False
-            >>> product_obj.name_get([3]) # No context sent
+            >>> Product.name_get([3])   # No context sent
             [[3, '[PC1] Basic PC']]
 
         - ``timeout``: set the maximum timeout in seconds for a RPC request
@@ -117,30 +116,6 @@ class ODOO(object):
 
         """
         return self._config
-
-    # Readonly properties
-    @property
-    def user(self):
-        """The browsable record of the user connected.
-
-        >>> odoo.login('db_name', 'admin', 'admin') == odoo.user
-        True
-
-        """
-        return self._user
-
-    @property
-    def context(self):
-        """The context of the user connected.
-
-        >>> odoo.login('db_name', 'admin', 'admin')
-        browse_record('res.users', 1)
-        >>> odoo.context
-        {'lang': 'fr_FR', 'tz': False}
-        >>> odoo.context['lang'] = 'en_US'
-
-        """
-        return self._context
 
     @property
     def version(self):
@@ -171,7 +146,21 @@ class ODOO(object):
                     doc="The port used.")
     protocol = property(lambda self: self._protocol,
                         doc="The protocol used.")
-    database = property(lambda self: self._database, doc="The database currently used.")
+
+    @property
+    def env(self):
+        """The environment which wraps data to manage records such as the
+        user context and the registry to access data model proxies.
+
+        >>> Partner = odoo.env['res.partner']
+        >>> Partner
+        Model('res.partner')
+
+        See the :class:`odoorpc.env.Environment` class.
+        """
+        self._check_logged_user()
+        return self._env
+
 
     def json(self, url, params):
         """Low level method to execute JSON queries.
@@ -274,16 +263,15 @@ class ODOO(object):
     # able to parse decorated methods.
     def _check_logged_user(self):
         """Check if a user is logged. Otherwise, an error is raised."""
-        if not self._uid or not self._password:
+        if not self._env or not self._password or not self._login:
             raise error.LoginError("User login required.")
 
     def login(self, db, login='admin', password='admin'):
         """Log in as the given `user` with the password `passwd` on the
-        database `db` and return the corresponding user as a browsable
-        record (from the ``res.users`` model).
+        database `db`.
 
-        >>> user = odoo.login('db_name', 'admin', 'admin')
-        >>> user.name
+        >>> odoo.login('db_name', 'admin', 'admin')
+        >>> odoo.env.user.name
         'Administrator'
 
         *Python 2:*
@@ -300,15 +288,12 @@ class ODOO(object):
         data = self.json(
             '/web/session/authenticate',
             {'db': db, 'login': login, 'password': password})
-        user_id = data['result']['uid']
-        if user_id:
-            self._database = db
-            self._uid = user_id
+        uid = data['result']['uid']
+        if uid:
+            context = data['result']['user_context']
+            self._env = Environment(self, db, uid, context=context)
+            self._login = login
             self._password = password
-            self._context = data['result']['user_context']
-            user_obj = self.get('res.users')
-            self._user = user_obj.browse(user_id, context=self._context)
-            return self._user
         else:
             raise error.LoginError("Wrong login ID or password")
 
@@ -330,11 +315,12 @@ class ODOO(object):
         :raise: :class:`odoorpc.error.RPCError`
         :raise: `urllib.error.URLError` (connection error)
         """
-        if not self._uid:
+        if not self.env:
             return False
         self.json('/web/session/destroy', {})
-        self._database = self._uid = self._password = self._context = None
-        self._user = None
+        self._env = None
+        self._login = None
+        self._password = None
         return True
 
     # ------------------------- #
@@ -362,7 +348,7 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the query
-        args_to_send = [self._db, self._uid, self._password,
+        args_to_send = [self.env.db, self.env.uid, self._password,
                         model, method]
         args_to_send.extend(args)
         data = self.json(
@@ -397,7 +383,7 @@ class ODOO(object):
         # Execute the query
         args = args or []
         kwargs = kwargs or {}
-        args_to_send = [self._db, self._uid, self._password,
+        args_to_send = [self.env.db, self.env.uid, self._password,
                         model, method]
         args_to_send.extend([args, kwargs])
         data = self.json(
@@ -433,67 +419,8 @@ class ODOO(object):
         return data['result']
 
     # ---------------------- #
-    # -- Special methods  -- #
+    # -- Session methods  -- #
     # ---------------------- #
-
-    def write_record(self, browse_record, context=None):
-        """Update the record corresponding to `browse_record` by sending its values
-        to the server (only field values which have been changed).
-
-        >>> partner = odoo.browse('res.partner', 1)
-        >>> partner.name = "Test"
-        >>> odoo.write_record(partner)  # write('res.partner', [1], {'name': "Test"})
-
-        :return: `True`
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        if not isinstance(browse_record, service.model.BrowseRecord):
-            raise ValueError("An instance of BrowseRecord is required")
-        return service.model.Model(
-            self, browse_record.__osv__['name'])._write_record(
-                browse_record, context)
-
-    def unlink_record(self, browse_record, context=None):
-        """Delete the record corresponding to `browse_record` from the server.
-
-        >>> partner = odoo.browse('res.partner', 1)
-        >>> odoo.unlink_record(partner)  # unlink('res.partner', [1])
-
-        :return: `True`
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        if not isinstance(browse_record, service.model.BrowseRecord):
-            raise ValueError("An instance of BrowseRecord is required")
-        return service.model.Model(
-            self, browse_record.__osv__['name'])._unlink_record(
-                browse_record, context)
-
-    def refresh(self, browse_record, context=None):
-        """Restore original values on `browse_record` with data
-        fetched on the server.
-        As a result, all changes made locally on the record are canceled.
-
-        :raise: :class:`odoorpc.error.RPCError`
-        """
-        return service.model.Model(
-            self, browse_record.__osv__['name'])._refresh(
-                browse_record, context)
-
-    def reset(self, browse_record):
-        """Cancel all changes made locally on the `browse_record`.
-        No request to the server is executed to perform this operation.
-        Therefore, values restored may be outdated.
-        """
-        return service.model.Model(
-            self, browse_record.__osv__['name'])._reset(browse_record)
-
-    def get(self, model):
-        """Return a proxy of the `model` built from the
-        server (see :class:`odoorpc.service.model.Model`).
-
-        :return: an instance of :class:`odoorpc.service.model.Model`
-        """
-        return service.model.Model(self, model)
 
     def save(self, name, rc_file='~/.odoorpcrc'):
         """Save the session configuration under the name `name`.
@@ -524,9 +451,9 @@ class ODOO(object):
             'protocol': self.protocol,
             'port': self.port,
             'timeout': self.config['timeout'],
-            'user': self.user.login,
+            'user': self._login,
             'passwd': self._password,
-            'database': self.db,
+            'database': self.env.db,
         }
         session.save(name, data, rc_file)
 

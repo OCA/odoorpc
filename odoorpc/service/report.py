@@ -69,8 +69,9 @@ class Report(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         if context is None:
-            context = self._odoo.context
-        args_to_send = [self._odoo._db, self._odoo._uid, self._odoo._password,
+            context = self._odoo.env.context
+        args_to_send = [self._odoo.env.db,
+                        self._odoo.env.uid, self._odoo._password,
                         name, ids, datas, context]
         data = self._odoo.json(
             '/jsonrpc',
@@ -101,9 +102,9 @@ class Report(object):
         :return: `list` of dictionaries
         :raise: `urllib.error.URLError` (connection error)
         """
-        report_obj = self._odoo.get('ir.actions.report.xml')
-        report_ids = report_obj.search([])
-        reports = report_obj.read(
+        Report = self._odoo.env['ir.actions.report.xml']
+        report_ids = Report.search([])
+        reports = Report.read(
             report_ids, ['name', 'model', 'report_name', 'report_type'])
         result = {}
         for report in reports:

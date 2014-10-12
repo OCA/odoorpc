@@ -19,12 +19,11 @@
 #
 ##############################################################################
 """Provide a dynamic access to all methods of data models, and an emulation of
-browse records.
+records/recordsets.
 """
 
-__all__ = ['BrowseRecord', 'Model']
+__all__ = ['Model']
 
-from odoorpc.service.model.browse import BrowseRecord
 from odoorpc.service.model.model import Model
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
