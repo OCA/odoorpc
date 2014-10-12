@@ -31,12 +31,10 @@ if sys.version_info.major == 2:
 elif sys.version_info.major == 3:
     from configparser import ConfigParser
 
-from odoorpc import error
-
 
 def get_all(rc_file='~/.odoorpcrc'):
     """Return all session configurations from the `rc_file` file.
-    
+
     >>> import odoorpc
     >>> odoorpc.tools.session.get_all()
     {'foo': {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}}
@@ -66,12 +64,12 @@ def get(name, rc_file='~/.odoorpcrc'):
     >>> odoorpc.tools.session.get('foo')
     {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}
 
-    :raise: :class:`odoorpc.error.Error`
+    :raise: `ValueError` (wrong session name)
     """
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
-        raise error.Error(
+        raise ValueError(
             "'{0}' session does not exist".format(name))
     return {
         'type': conf.get(name, 'type'),
@@ -125,12 +123,12 @@ def remove(name, rc_file='~/.odoorpcrc'):
     >>> import odoorpc
     >>> odoorpc.tools.session.remove('foo')
 
-    :raise: :class:`odoorpc.error.Error`
+    :raise: `ValueError` (wrong session name)
     """
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
-        raise error.Error(
+        raise ValueError(
             "'{0}' session does not exist".format(name))
     conf.remove_section(name)
     with open(os.path.expanduser(rc_file), 'wb') as file_:

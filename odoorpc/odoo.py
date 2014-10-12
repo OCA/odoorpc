@@ -215,10 +215,9 @@ class ODOO(object):
         """
         data = self._connector.proxy_json(url, params)
         if data.get('error'):
-            message = ', '.join(
-                "%s" % arg for arg in data['error']['data']['arguments'])
-            traceback = data['error']['data']['debug']
-            raise error.RPCError(message, traceback)
+            raise error.RPCError(
+                data['error']['data']['message'],
+                data['error'])
         return data
 
     def http(self, url, data, headers=None):
@@ -276,12 +275,14 @@ class ODOO(object):
 
         *Python 2:*
 
-        :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.LoginError`
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
-        :raise: :class:`odoorpc.error.RPCError`, :class:`odoorpc.error.LoginError`
+        :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib.error.URLError` (connection error)
         """
         # Get the user's ID and generate the corresponding user record
@@ -482,7 +483,7 @@ class ODOO(object):
         """
         data = session.get(name, rc_file)
         if data.get('type') != cls.__name__:
-            raise error.Error(
+            raise error.InternalError(
                 "'{0}' session is not of type '{1}'".format(
                     name, cls.__name__))
         odoo = cls(
@@ -541,7 +542,7 @@ class ODOO(object):
         """
         data = session.get(name, rc_file)
         if data.get('type') != cls.__name__:
-            raise error.Error(
+            raise error.InternalError(
                 "'{0}' session is not of type '{1}'".format(
                     name, cls.__name__))
         return session.remove(name, rc_file)

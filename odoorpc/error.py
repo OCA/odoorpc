@@ -25,18 +25,38 @@ occurred.
 
 class Error(Exception):
     """Base class for exception."""
-    def __init__(self, msg, odoo_traceback=False):
-        super(Error, self).__init__()
-        self.msg = msg
-        self.odoo_traceback = odoo_traceback
-
-    def __str__(self):
-        return repr(self.msg)
+    pass
 
 
 class RPCError(Error):
-    """Exception raised for errors related to RPC queries."""
-    pass
+    """Exception raised for errors related to RPC queries.
+    Error details (like the `Odoo` server traceback) are available through the
+    `info` attribute:
+
+        >>> from pprint import pprint as pp
+        >>> try:
+        ...     odoo.execute('res.users', 'wrong_method')
+        ... except odoorpc.error.RPCError as exc:
+        ...     pp(exc.info)
+        ...
+        {'code': 200,
+         'data': {'arguments': ["'res.users' object has no attribute 'wrong_method'"],
+                  'debug': 'Traceback (most recent call last):\\n  File "/home/odoo/odoo/server/openerp/http.py", line 499, in [...]',
+                  'message': "'res.users' object has no attribute 'wrong_method'",
+                  'name': 'exceptions.AttributeError'},
+         'message': 'OpenERP Server Error'}
+    """
+    def __init__(self, message, info=False):
+        super(Error, self).__init__(message, info)
+        self.info = info
+
+    def __str__(self):
+        return self.args and self.args[0] or ''
+
+    def __repr__(self):
+        return "%s(%s)" % (
+            self.__class__.__name__,
+            repr(self.args[0]))
 
 
 class LoginError(Error):

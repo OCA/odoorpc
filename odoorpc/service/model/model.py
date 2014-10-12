@@ -255,7 +255,7 @@ class Model(BaseModel):
                     self._values[field_name][row['id']] = row[field_name]
             ids_in_error = set(self.ids) - ids_fetched
             if ids_in_error:
-                raise error.RPCError(
+                raise ValueError(
                     "There is no '{model}' record with IDs {ids}.".format(
                         model=self._name, ids=list(ids_in_error)))
         # No ID: fields filled with default values

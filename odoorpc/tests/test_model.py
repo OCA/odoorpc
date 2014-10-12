@@ -47,7 +47,7 @@ class TestModel(LoginTestCase):
 
     def test_model_browse_wrong_id(self):
         self.assertRaises(
-            error.RPCError,
+            ValueError,
             self.partner_obj.browse,
             9999999)    # Wrong ID
         self.assertRaises(
