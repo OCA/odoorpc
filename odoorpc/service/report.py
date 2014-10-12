@@ -56,6 +56,7 @@ class Report(object):
         ...
 
         *Python 2:*
+
         :return: `io.BytesIO`
         :raise: :class:`odoorpc.error.RPCError` (wrong parameters)
         :raise: `ValueError`  (received invalid data)

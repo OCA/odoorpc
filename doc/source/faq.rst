@@ -19,6 +19,10 @@ Then, just use the ``jsonrpc+ssl`` protocol with the port 443::
 Update a record with an `on_change` method
 ------------------------------------------
 
+.. note:
+    It is about the the old API (`on_change` statement declared in a XML view
+    with its associated Python method).
+
 `OdooRPC` does not provide helpers for such methods currently.
 A call to an ``on_change`` method intend to be executed from a view and there
 is no support for that (not yet?) such as fill a form, validate it, etc...
@@ -26,17 +30,16 @@ is no support for that (not yet?) such as fill a form, validate it, etc...
 But you can emulate an ``on_change`` by writing your own function,
 for instance::
 
-    def on_change(odoo, record, method, *args):
+    def on_change(record, method, args=None, kwargs=None):
         """Update `record` with the result of the on_change `method`"""
-        res = odoo.execute(record.__osv__['name'], method, *args)
+        res = record._odoo.execute_kw(record._name, method, args, kwargs)
         for k, v in res['value'].iteritems():
             setattr(record, k, v)
-        return record
 
 And call it on a record with the desired method and its parameters::
 
     >>> order = odoo.get('sale.order').browse(42)
-    >>> order = on_change(odoo, order, 'product_id_change', ARGS...)
+    >>> on_change(order, 'product_id_change', args=[ARGS], kwargs={KWARGS})
     >>> odoo.write_record(order)  # Save your record
 
 Some model methods does not accept the `context` parameter

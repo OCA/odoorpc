@@ -337,12 +337,14 @@ class ODOO(object):
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
@@ -370,12 +372,14 @@ class ODOO(object):
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
         :return: the result returned by the `method` called
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
@@ -399,11 +403,13 @@ class ODOO(object):
         *Python 2:*
 
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
         :raise: :class:`odoorpc.error.RPCError`
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
@@ -422,24 +428,27 @@ class ODOO(object):
     # ---------------------- #
 
     def save(self, name, rc_file='~/.odoorpcrc'):
-        """Save the session configuration under the name `name`.
-        These informations are stored in the ``~/.odoorpcrc`` file by default.
+        """Save the current :class:`ODOO <odoorpc.ODOO>` instance (a `session`)
+        inside `rc_file` (``~/.odoorpcrc`` by default). This session will be
+        identified by `name`::
 
             >>> import odoorpc
             >>> odoo = odoorpc.ODOO('localhost', port=8069)
             >>> odoo.login('db_name', 'admin', 'admin')
             >>> odoo.save('foo')
 
-        Such informations can be loaded with the :func:`odoorpc.load` function
-        by returning a pre-configured session of :class:`ODOO <odoorpc.ODOO>`,
-        or with the `odoo` command line tool supplied with `odoorpc`.
+        Use the :func:`list <odoorpc.ODOO.list>` class method to list all
+        stored sessions, and the :func:`load <odoorpc.ODOO.load>` class method
+        to retrieve an already-connected :class:`ODOO <odoorpc.ODOO>` instance.
 
         *Python 2:*
 
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `IOError`
 
         *Python 3:*
 
+        :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `PermissionError`
         :raise: `FileNotFoundError`
         """
@@ -458,14 +467,13 @@ class ODOO(object):
 
     @classmethod
     def load(cls, name, rc_file='~/.odoorpcrc'):
-        """Return a :class:`ODOO` session pre-configured and connected
-        with informations identified by `name`:
+        """Return a connected :class:`ODOO` session identified by `name`:
 
             >>> import odoorpc
             >>> odoo = odoorpc.ODOO.load('foo')
 
-        Such informations are stored with the
-        :func:`ODOO.save <odoorpc.ODOO.save>` method.
+        Such sessions are stored with the
+        :func:`save <odoorpc.ODOO.save>` method.
 
         *Python 2:*
 
@@ -494,16 +502,15 @@ class ODOO(object):
 
     @classmethod
     def list(cls, rc_file='~/.odoorpcrc'):
-        """Return a list of all sessions available in the
+        """Return a list of all stored sessions available in the
         `rc_file` file:
 
             >>> import odoorpc
             >>> odoorpc.ODOO.list()
             ['foo', 'bar']
 
-        Then, use the :func:`load` function with the desired session:
-
-            >>> odoo = odoorpc.ODOO.load('foo')
+        Use the :func:`save <odoorpc.ODOO.save>` and
+        :func:`load <odoorpc.ODOO.load>` methods to manage such sessions.
 
         *Python 2:*
 
@@ -529,10 +536,12 @@ class ODOO(object):
 
         *Python 2:*
 
+        :raise: `ValueError` (if the session does not exist)
         :raise: `IOError`
 
         *Python 3:*
 
+        :raise: `ValueError` (if the session does not exist)
         :raise: `PermissionError`
         :raise: `FileNotFoundError`
         """

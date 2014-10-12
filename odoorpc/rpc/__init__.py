@@ -23,20 +23,6 @@ with the `JSON-RPC` protocol or through simple HTTP requests.
 
 On `Odoo` server, web controllers expose two kinds of methods: `json`
 and `http`. These methods can be accessed from the proxy classes of this module.
-Here are the main services URLs:
-
-==================  ======================================================
-URL                 Description
-==================  ======================================================
-``/web/database``   Manage databases (create, drop, backup...)
-``/web/session``    Manage the user session (authentication, logout...)
-``/web/webclient``  Retrieve information about the server version
-``/web/dataset``    Manage all kinds of data (model methods, workflows)
-``/web/action``     Manage all kinds of action (act_window, report.xml...)
-``/web/export``     Manage data exports
-``/web/menu``       Access to menus related to the user connected
-==================  ======================================================
-
 """
 import sys
 # Python 2
