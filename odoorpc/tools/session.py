@@ -25,10 +25,10 @@ import os
 import stat
 import sys
 # Python 2
-if sys.version_info.major == 2:
+if sys.version_info.major < 3:
     from ConfigParser import SafeConfigParser as ConfigParser
-# Python 3
-elif sys.version_info.major == 3:
+# Python >= 3
+else:
     from configparser import ConfigParser
 
 
@@ -70,7 +70,7 @@ def get(name, rc_file='~/.odoorpcrc'):
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise ValueError(
-            "'{0}' session does not exist".format(name))
+            "'%s' session does not exist in %s" % (name, rc_file))
     return {
         'type': conf.get(name, 'type'),
         'host': conf.get(name, 'host'),
@@ -81,16 +81,6 @@ def get(name, rc_file='~/.odoorpcrc'):
         'passwd': conf.get(name, 'passwd'),
         'database': conf.get(name, 'database'),
     }
-
-
-#def list(rc_file='~/.odoorpcrc'):
-#    """Return a list of all sessions available in the
-#    `rc_file` file.
-#    """
-#    conf = ConfigParser()
-#    conf.read([os.path.expanduser(rc_file)])
-#    # TODO
-#    return conf.sections()
 
 
 def save(name, data, rc_file='~/.odoorpcrc'):
@@ -108,9 +98,9 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         conf.add_section(name)
-    for k in data:
-        v = data[k]
-        conf.set(name, k, str(v))
+    for key in data:
+        value = data[key]
+        conf.set(name, key, str(value))
     with open(os.path.expanduser(rc_file), 'w') as file_:
         os.chmod(os.path.expanduser(rc_file), stat.S_IREAD | stat.S_IWRITE)
         conf.write(file_)
@@ -129,7 +119,7 @@ def remove(name, rc_file='~/.odoorpcrc'):
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise ValueError(
-            "'{0}' session does not exist".format(name))
+            "'%s' session does not exist in %s" % (name, rc_file))
     conf.remove_section(name)
     with open(os.path.expanduser(rc_file), 'wb') as file_:
         conf.write(file_)

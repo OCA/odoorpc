@@ -71,7 +71,7 @@ def odoo_tuple_in(iterable):
         try:
             return elt[:1][0] in [1, 2, 3, 4, 5] \
                     or elt[:2] in [(6, 0), [6, 0], (0, 0), [0, 0]]
-        except:
+        except (TypeError, IndexError):
             return False
     return any(is_odoo_tuple(elt) for elt in iterable)
 

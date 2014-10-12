@@ -56,8 +56,7 @@ class Config(collections.MutableMapping):
         self._options[key] = value
 
     def __delitem__(self, key):
-        # TODO raise exception
-        pass
+        raise InternalError("Operation not allowed")
 
     def __iter__(self):
         return self._options.__iter__()
