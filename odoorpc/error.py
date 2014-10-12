@@ -59,11 +59,6 @@ class RPCError(Error):
             repr(self.args[0]))
 
 
-class LoginError(Error):
-    """Exception raised when the login on a server has failed."""
-    pass
-
-
 class InternalError(Error):
     """Exception raised for errors occurring during an internal operation."""
     pass

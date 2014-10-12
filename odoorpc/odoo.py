@@ -263,7 +263,7 @@ class ODOO(object):
     def _check_logged_user(self):
         """Check if a user is logged. Otherwise, an error is raised."""
         if not self._env or not self._password or not self._login:
-            raise error.LoginError("User login required.")
+            raise error.InternalError("Login required")
 
     def login(self, db, login='admin', password='admin'):
         """Log in as the given `user` with the password `passwd` on the
@@ -276,13 +276,11 @@ class ODOO(object):
         *Python 2:*
 
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib.error.URLError` (connection error)
         """
         # Get the user's ID and generate the corresponding user record
@@ -296,7 +294,7 @@ class ODOO(object):
             self._login = login
             self._password = password
         else:
-            raise error.LoginError("Wrong login ID or password")
+            raise error.RPCError("Wrong login ID or password")
 
     def logout(self):
         """Log out the user.
@@ -472,13 +470,11 @@ class ODOO(object):
         *Python 2:*
 
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib2.URLError` (connection error)
 
         *Python 3:*
 
         :raise: :class:`odoorpc.error.RPCError`
-        :raise: :class:`odoorpc.error.LoginError`
         :raise: `urllib.error.URLError` (connection error)
         """
         data = session.get(name, rc_file)
