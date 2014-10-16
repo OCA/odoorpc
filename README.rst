@@ -25,10 +25,13 @@ How does it work? See below::
     odoo = odoorpc.ODOO('localhost', port=8069)
 
     # Check available databases
-    print(odoo.database.get_list())
+    print(odoo.db.list())
 
-    # Login (the object returned is a browsable record)
-    user = odoo.login('db_name', 'user', 'passwd')
+    # Login
+    odoo.login('db_name', 'user', 'passwd')
+
+    # Current user
+    user = odoo.env.user
     print(user.name)            # name of the user connected
     print(user.company_id.name) # the name of its company
 
@@ -37,16 +40,15 @@ How does it work? See below::
     print(user_data)
 
     # Use all methods of a model
-    order_model = odoo.get('sale.order')
-    order_ids = order_model.search([])
-    for order in order_model.browse(order_ids):
+    Order = odoo.env['sale.order']
+    order_ids = Order.search([])
+    for order in Order.browse(order_ids):
         print(order.name)
         products = [line.product_id.name for line in order.order_line]
         print(products)
 
-    # Update data through a browsable record
+    # Update data through a record
     user.name = "Brian Jones"
-    odoo.write_record(user)
 
 See the documentation for more details and features.
 

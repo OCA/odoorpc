@@ -9,7 +9,7 @@ Reference
     ref_fields
     ref_odoorpc
     ref_odoo
-    ref_database
+    ref_db
     ref_report
     ref_model
     ref_env
