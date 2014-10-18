@@ -100,7 +100,6 @@ And call it on a record with the desired method and its parameters::
 
     >>> order = odoo.get('sale.order').browse(42)
     >>> on_change(order, 'product_id_change', args=[ARGS], kwargs={KWARGS})
-    >>> odoo.write_record(order)  # Save your record
 
 Some model methods does not accept the `context` parameter
 ----------------------------------------------------------
