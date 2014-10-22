@@ -2,7 +2,6 @@
 
 from datetime import datetime
 import zipfile
-import urllib2
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
