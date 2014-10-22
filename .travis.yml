@@ -5,23 +5,21 @@ python:
   - "3.3"
   - "3.4"
 
-virtualenv:
-  system_site_packages: true
-
 env:
   - VERSION="8.0" ODOO_REPO="odoo/odoo"
 
 install:
   - "wget http://freefr.dl.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb"
   - "sudo dpkg -i wkhtmltox-0.12.1_linux-trusty-amd64.deb"
-  - git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
-  - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly
+  - "wget http://nightly.odoo.com/8.0/nightly/deb/odoo_8.0-latest.deb"
+  - "sudo dpkg -i odoo_8.0-latest.deb || true"
+  - "sudo apt-get install -f -y"
+  - "sudo invoke-rc.d odoo stop"
   - pip install sphinx
 
 before_script:
-  - "nohup $HOME/odoo-$VERSION/openerp-server &"
-  - sleep 10
+  - nohup /usr/bin/openerp-server -r $USER --addons-path=/usr/lib/python2.7/dist-packages/openerp/addons &
+  - sleep 5
 
 script:
   - python -m unittest discover -v
