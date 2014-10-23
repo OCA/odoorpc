@@ -28,14 +28,19 @@ class TestEnvironment(LoginTestCase):
 
     def test_env_dirty(self):
         self.odoo.config['auto_commit'] = False
-        user = self.odoo.env.user
-        self.assertNotIn(user, self.odoo.env.dirty)
-        self.assertNotIn(user, user.env.dirty)
-        user.name = "Joe"
-        self.assertIn(user, self.odoo.env.dirty)
-        self.assertIn(user, user.env.dirty)
-        del user
-        self.assertFalse(bool(self.odoo.env.dirty))
+        def test_record_garbarge_collected():
+            user_ids = self.odoo.env['res.users'].search([('id', '!=', 1)])
+            user = self.user_obj.browse(user_ids[0])
+            self.assertNotIn(user, self.odoo.env.dirty)
+            self.assertNotIn(user, user.env.dirty)
+            user.name = "Joe"
+            self.assertIn(user, self.odoo.env.dirty)
+            self.assertIn(user, user.env.dirty)
+        test_record_garbarge_collected()
+        # Ensure the record has been garbage collected for the next test
+        import gc
+        gc.collect()
+        self.assertEqual(list(self.odoo.env.dirty), [])
 
     def test_env_registry(self):
         self.odoo.env['res.partner']
