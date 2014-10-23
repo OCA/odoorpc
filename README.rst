@@ -17,7 +17,9 @@ Features supported:
     - reports downloading,
     - JSON-RPC protocol (SSL supported),
 
-How does it work? See below::
+How does it work? See below:
+
+.. code-block:: python
 
     import odoorpc
 
