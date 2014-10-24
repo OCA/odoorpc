@@ -2,6 +2,26 @@
 OdooRPC
 =======
 
+.. image:: https://pypip.in/download/OdooRPC/badge.svg
+    :target: https://pypi.python.org/pypi/OdooRPC/
+    :alt: Downloads
+
+.. image:: https://pypip.in/version/OdooRPC/badge.svg
+    :target: https://pypi.python.org/pypi/OdooRPC/
+    :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/OdooRPC/badge.svg
+    :target: https://pypi.python.org/pypi/OdooRPC/
+    :alt: Supported Python versions
+
+.. image:: https://pypip.in/implementation/OdooRPC/badge.svg
+    :target: https://pypi.python.org/pypi/OdooRPC/
+    :alt: Supported Python implementations
+
+.. image:: https://pypip.in/license/OdooRPC/badge.svg
+    :target: https://pypi.python.org/pypi/OdooRPC/
+    :alt: License
+
 **OdooRPC** is a Python module providing an easy way to
 pilot your **Odoo** servers through `RPC`.
 
