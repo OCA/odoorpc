@@ -5,9 +5,6 @@ python:
   - "3.3"
   - "3.4"
 
-env:
-  - VERSION="8.0" ODOO_REPO="odoo/odoo"
-
 install:
   - "wget http://freefr.dl.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb"
   - "sudo dpkg -i wkhtmltox-0.12.1_linux-trusty-amd64.deb"
