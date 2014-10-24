@@ -83,6 +83,8 @@ class ProxyJSON(Proxy):
             "params": params,
             "id": random.randint(0, 1000000000),
         })
+        if url.startswith('/'):
+            url = url[1:]
         request = Request(url='/'.join([self._root_url, url]),
                           data=encode_data(data))
         request.add_header('Content-Type', 'application/json')

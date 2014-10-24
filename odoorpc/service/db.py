@@ -21,6 +21,15 @@
 """Provide the :class:`DB` class in order to manage the server databases."""
 import base64
 import io
+import sys
+# Python 2
+if sys.version_info.major < 3:
+    def encode2bytes(data):
+        return data
+# Python >= 3
+else:
+    def encode2bytes(data):
+        return bytes(data, 'ascii')
 
 from odoorpc import error
 
@@ -90,8 +99,11 @@ class DB(object):
             {'service': 'db',
              'method': 'dump',
              'args': [password, db]})
-        binary_data = base64.standard_b64decode(data['result'])
-        return io.BytesIO(binary_data)
+        # Encode to bytes forced to be compatible with Python 3.2
+        # (its 'base64.standard_b64decode()' function only accepts bytes)
+        result = encode2bytes(data['result'])
+        content = base64.standard_b64decode(result)
+        return io.BytesIO(content)
 
     def change_password(self, password, new_password):
         """Change the administrator password by `new_password`.

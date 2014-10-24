@@ -123,7 +123,7 @@ class Model(BaseModel):
         Excepted the :func:`browse <odoorpc.service.model.Model.browse>` method,
         method calls are purely dynamic. As long as you know the signature of
         the model method targeted, you will be able to use it
-        (see the :ref:`tutorial <tutorials-execute-queries>`).
+        (see the :ref:`tutorial <tuto-execute-queries>`).
 
     """
     __metaclass__ = MetaModel

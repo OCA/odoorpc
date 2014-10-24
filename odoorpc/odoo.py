@@ -314,7 +314,7 @@ class ODOO(object):
         :raise: :class:`odoorpc.error.RPCError`
         :raise: `urllib.error.URLError` (connection error)
         """
-        if not self.env:
+        if not self._env:
             return False
         self.json('/web/session/destroy', {})
         self._env = None

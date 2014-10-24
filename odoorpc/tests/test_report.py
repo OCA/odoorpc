@@ -24,14 +24,6 @@ class TestReport(LoginTestCase):
         with tempfile.TemporaryFile(mode='wb', suffix='.pdf') as file_:
             file_.write(report.read())
 
-    def test_report_download_sxw(self):
-        model = 'ir.model'
-        report_name = 'ir.model.overview'
-        ids = self.odoo.env[model].search([])[:20]
-        report = self.odoo.report.download(report_name, ids)
-        with tempfile.TemporaryFile(mode='wb', suffix='.sxw') as file_:
-            file_.write(report.read())
-
     def test_report_download_wrong_report_name(self):
         self.assertRaises(
             error.RPCError,

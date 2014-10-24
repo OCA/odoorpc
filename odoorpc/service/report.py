@@ -23,6 +23,15 @@ to generate/download them.
 """
 import base64
 import io
+import sys
+# Python 2
+if sys.version_info.major < 3:
+    def encode2bytes(data):
+        return data
+# Python >= 3
+else:
+    def encode2bytes(data):
+        return bytes(data, 'ascii')
 
 
 class Report(object):
@@ -81,7 +90,10 @@ class Report(object):
              'args': args_to_send})
         if 'result' not in data and not data['result'].get('result'):
             raise ValueError("Received invalid data.")
-        content = base64.standard_b64decode(data['result']['result'])
+        # Encode to bytes forced to be compatible with Python 3.2
+        # (its 'base64.standard_b64decode()' function only accepts bytes)
+        result = encode2bytes(data['result']['result'])
+        content = base64.standard_b64decode(result)
         return io.BytesIO(content)
 
     def list(self):

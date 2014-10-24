@@ -15,7 +15,7 @@ class TestTimeout(LoginTestCase):
 
     def test_reduced_timeout(self):
         # Set the timeout
-        self.odoo.config['timeout'] = 0.1
+        self.odoo.config['timeout'] = 0.05
         # Execute a time consuming query: handle exception
         self.assertRaises(
             socket.timeout,
