@@ -283,7 +283,7 @@ class Model(BaseModel):
             args = tuple([self.ids]) + args
             if self._odoo.config['auto_context'] \
                     and 'context' not in kwargs:
-                kwargs['context'] = self._odoo.env.context
+                kwargs['context'] = self.env.context
             result = self._odoo.execute_kw(
                 self._name, method, args, kwargs)
             return result
