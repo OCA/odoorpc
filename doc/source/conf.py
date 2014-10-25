@@ -30,7 +30,23 @@ import os
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_ext.doctest_custom',
 ]
+doctest_global_setup = """
+import os
+PROTOCOL = os.environ.get('ORPC_TEST_PROTOCOL', 'jsonrpc')
+HOST = os.environ.get('ORPC_TEST_HOST', 'localhost')
+PORT = os.environ.get('ORPC_TEST_PORT', 8069)
+DB = os.environ.get('ORPC_TEST_DB', 'odoorpc_doctest')
+USER = os.environ.get('ORPC_TEST_USER', 'admin')
+PWD = os.environ.get('ORPC_TEST_PWD', 'admin')
+VERSION = os.environ.get('ORPC_TEST_VERSION', '8.0')
+SUPER_PWD = os.environ.get('ORPC_TEST_SUPER_PWD', 'admin')
+import odoorpc
+_odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
+if DB not in _odoo.db.list():
+    _odoo.db.create(SUPER_PWD, DB, True)
+"""
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
