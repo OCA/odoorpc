@@ -43,9 +43,16 @@ PWD = os.environ.get('ORPC_TEST_PWD', 'admin')
 VERSION = os.environ.get('ORPC_TEST_VERSION', '8.0')
 SUPER_PWD = os.environ.get('ORPC_TEST_SUPER_PWD', 'admin')
 import odoorpc
-_odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
-if DB not in _odoo.db.list():
-    _odoo.db.create(SUPER_PWD, DB, True)
+odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
+if DB not in odoo.db.list():
+    odoo.db.create(SUPER_PWD, DB, True)
+odoo.login(DB, USER, PWD)
+odoo.config['timeout'] = 600
+Module = odoo.env['ir.module.module']
+module_ids = Module.search([('name', 'in', ['sale', 'crm']), ('state', '=', 'uninstalled')])
+if module_ids:
+    Module.button_immediate_install(module_ids)
+odoo.config['timeout'] = 120
 """
 
 # Add any paths that contain templates here, relative to this directory.
