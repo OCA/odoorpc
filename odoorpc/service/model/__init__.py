@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""Provide a dynamic access to all methods of data models, and an emulation of
-records/recordsets.
+"""This module provides the :class:`Model`, allowing a dynamic access to all
+methods of data models, and an emulation of records/recordsets.
 """
 
 __all__ = ['Model']

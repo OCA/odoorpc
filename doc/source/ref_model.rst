@@ -1,8 +1,7 @@
 odoorpc.service.model
 =====================
 
-odoorpc.service.model.Model
-'''''''''''''''''''''''''''
+.. automodule:: odoorpc.service.model
 
 .. autoclass:: odoorpc.service.model.Model
     :members:
