@@ -36,8 +36,39 @@ def get_all(rc_file='~/.odoorpcrc'):
     """Return all session configurations from the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.get_all()
-    {'foo': {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}}
+    >>> from pprint import pprint as pp
+    >>> pp(odoorpc.tools.session.get_all())     # doctest: +SKIP
+    {'foo': {'database': 'db_name',
+             'host': 'localhost',
+             'passwd': 'password',
+             'port': 8069,
+             'protocol': 'jsonrpc',
+             'timeout': 120,
+             'type': 'ODOO',
+             'user': 'admin'},
+     ...}
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> session = '%s_session' % DB
+        >>> odoo.save(session)
+        >>> data = odoorpc.tools.session.get_all()
+        >>> data[session]['host'] == HOST
+        True
+        >>> data[session]['protocol'] == PROTOCOL
+        True
+        >>> data[session]['port'] == int(PORT)
+        True
+        >>> data[session]['database'] == DB
+        True
+        >>> data[session]['user'] == USER
+        True
+        >>> data[session]['passwd'] == PWD
+        True
+        >>> data[session]['type'] == 'ODOO'
+        True
     """
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -61,8 +92,38 @@ def get(name, rc_file='~/.odoorpcrc'):
     from the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.get('foo')
-    {'protocol': 'jsonrpc', 'user': 'admin', 'timeout': 120, 'database': 'db_name', 'passwd': 'admin', 'type': 'ODOO', 'port': 8069, 'host': 'localhost'}
+    >>> from pprint import pprint as pp
+    >>> pp(odoorpc.tools.session.get('foo'))    # doctest: +SKIP
+    {'database': 'db_name',
+     'host': 'localhost',
+     'passwd': 'password',
+     'port': 8069,
+     'protocol': 'jsonrpc',
+     'timeout': 120,
+     'type': 'ODOO',
+     'user': 'admin'}
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> session = '%s_session' % DB
+        >>> odoo.save(session)
+        >>> data = odoorpc.tools.session.get(session)
+        >>> data['host'] == HOST
+        True
+        >>> data['protocol'] == PROTOCOL
+        True
+        >>> data['port'] == int(PORT)
+        True
+        >>> data['database'] == DB
+        True
+        >>> data['user'] == USER
+        True
+        >>> data['passwd'] == PWD
+        True
+        >>> data['type'] == 'ODOO'
+        True
 
     :raise: `ValueError` (wrong session name)
     """
@@ -91,8 +152,19 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     >>> odoorpc.tools.session.save(
     ...     'foo',
     ...     {'type': 'ODOO', 'host': 'localhost', 'protocol': 'jsonrpc',
-    ...      'port': 8069, 'timeout': 120, 'user': 'admin', 'passwd': 'admin',
-    ...      'database': 'db_name'})
+    ...      'port': 8069, 'timeout': 120, 'database': 'db_name'
+    ...      'user': 'admin', 'passwd': 'password'})    # doctest: +SKIP
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> session = '%s_session' % DB
+        >>> odoorpc.tools.session.save(
+        ...     session,
+        ...     {'type': 'ODOO', 'host': HOST, 'protocol': PROTOCOL,
+        ...      'port': PORT, 'timeout': 120, 'database': DB,
+        ...      'user': USER, 'passwd': PWD})
     """
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
@@ -111,7 +183,14 @@ def remove(name, rc_file='~/.odoorpcrc'):
     from the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.remove('foo')
+    >>> odoorpc.tools.session.remove('foo')     # doctest: +SKIP
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> session = '%s_session' % DB
+        >>> odoorpc.tools.session.remove(session)
 
     :raise: `ValueError` (wrong session name)
     """

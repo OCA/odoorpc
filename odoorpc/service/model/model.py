@@ -94,29 +94,48 @@ class Model(BaseModel):
         :class:`environment <odoorpc.env.Environment>`
         (see the :attr:`odoorpc.ODOO.env` property).
 
-    >>> import odoorpc
-    >>> odoo = odoorpc.ODOO('localhost')
-    >>> odoo.login('db_name', 'admin', 'admin')
-    >>> User = odoo.env['res.users']
-    >>> User
-    Model('res.users')
+    .. doctest::
+        :options: +SKIP
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO('localhost', port=8069)
+        >>> odoo.login('db_name', 'admin', 'password')
+        >>> User = odoo.env['res.users']
+        >>> User
+        Model('res.users')
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT)
+        >>> odoo.login(DB, USER, PWD)
+        >>> User = odoo.env['res.users']
+        >>> User
+        Model('res.users')
 
     Use this data model proxy to call any method:
 
-    >>> User.name_get([1])  # Use any methods from the model class
-    [[1, 'Administrator']]
+    .. doctest::
 
-    Browse a record:
+        >>> User.name_get([1])  # Use any methods from the model class
+        [[1, 'Administrator']]
 
-    >>> user = User.browse(1)
-    >>> user.name
-    'Administrator'
+    Get a recordset:
+
+    .. doctest::
+
+        >>> user = User.browse(1)
+        >>> user.name
+        'Administrator'
 
     And call any method from it, it will be automatically applied on the
     current record:
 
-    >>> user.name_get()     # No IDs in parameter, the method is applied on the current recordset
-    [[1, 'Administrator']]
+    .. doctest::
+
+        >>> user.name_get()     # No IDs in parameter, the method is applied on the current recordset
+        [[1, 'Administrator']]
 
     .. warning::
 
@@ -193,11 +212,15 @@ class Model(BaseModel):
     def browse(cls, ids):
         """Browse one or several records (if `ids` is a list of IDs).
 
-        >>> odoo.env['res.partner'].browse(1)
-        Recordset('res.partner', [1])
+        .. doctest::
 
-        >>> [partner.name for partner in odoo.env['res.partner'].browse([1, 2])]
-        ['Your Company', 'ASUStek']
+            >>> odoo.env['res.partner'].browse(1)
+            Recordset('res.partner', [1])
+
+        .. doctest::
+
+            >>> [partner.name for partner in odoo.env['res.partner'].browse([1, 3])]
+            ['YourCompany', 'Administrator']
 
         A list of data types returned by such record fields are
         available :ref:`here <fields>`.
@@ -214,12 +237,33 @@ class Model(BaseModel):
         `self.env` or from the positional argument if given, and modified by
         `kwargs`.
 
-        >>> product = odoo.env['product.product'].browse(42)
-        >>> product.env.lang
-        'en_US'
-        >>> product.name = "My product"     # Update the english translation
-        >>> product_fr = product.with_context(lang='fr_FR')
-        >>> product_fr.name = "Mon produit" # Update the french translation
+        Thus, the following two examples are equivalent:
+
+        .. doctest::
+
+            >>> Product = odoo.env['product.product']
+            >>> product = Product.browse(1)
+            >>> product.with_context(lang='fr_FR')
+            Recordset('product.product', [1])
+
+        .. doctest::
+
+            >>> context = product.env.context
+            >>> product.with_context(context, lang='fr_FR')
+            Recordset('product.product', [1])
+
+        This method is very convenient to update translations:
+
+        .. doctest::
+
+            >>> product_en = Product.browse(1)
+            >>> product_en.env.lang
+            'en_US'
+            >>> product_en.name = "My product"  # Update the english translation
+            >>> product_fr = product_en.with_context(lang='fr_FR')
+            >>> product_fr.env.lang
+            'fr_FR'
+            >>> product_fr.name = "Mon produit" # Update the french translation
         """
         context = dict(args[0] if args else self.env.context, **kwargs)
         return self.with_env(self.env(context=context))
@@ -270,12 +314,14 @@ class Model(BaseModel):
         """Provide a dynamic access to a RPC *instance* method (which applies
         on the current recordset).
 
-        >>> Partner = odoo.env['res.partner']
-        >>> Partner.write([1], {'name': 'My Company'})  # Class method
-        True
-        >>> partner = Partner.browse(1)
-        >>> partner.write({'name': 'My Company'})       # Instance method
-        True
+        .. doctest::
+
+            >>> Partner = odoo.env['res.partner']
+            >>> Partner.write([1], {'name': 'My Company'})  # Class method
+            True
+            >>> partner = Partner.browse(1)
+            >>> partner.write({'name': 'My Company'})       # Instance method
+            True
 
         """
         def rpc_method(*args, **kwargs):

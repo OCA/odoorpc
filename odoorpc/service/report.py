@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""Provide the :class:`Report` class in order to list available reports and
-to generate/download them.
+"""This module provide the :class:`Report` class in order to list available
+reports and to generate/download them.
 """
 import base64
 import io
@@ -42,11 +42,23 @@ class Report(object):
         This service have to be used through the :attr:`odoorpc.ODOO.report`
         property.
 
-    >>> import odoorpc
-    >>> odoo = odoorpc.ODOO('localhost')
-    >>> odoo.report
-    <odoorpc.service.report.Report object at 0x7f82fe7a1d50>
+    .. doctest::
+        :options: +SKIP
 
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO('localhost', port=8069)
+        >>> odoo.login('odoorpc_test', 'admin', 'password')
+        >>> odoo.report
+        <odoorpc.service.report.Report object at 0x7f82fe7a1d50>
+
+    .. doctest::
+        :hide:
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT)
+        >>> odoo.login(DB, USER, PWD)
+        >>> odoo.report
+        <odoorpc.service.report.Report object at ...>
     """
     def __init__(self, odoo):
         self._odoo = odoo
@@ -56,13 +68,25 @@ class Report(object):
         For instance, to download the "Quotation / Order" report of sale orders
         identified by the IDs ``[2, 3]``:
 
-        >>> report = odoo.report.download('sale.report_saleorder', [2, 3])
+        .. doctest::
+
+            >>> report = odoo.report.download('sale.report_saleorder', [2, 3])
 
         Write it on the file system:
 
-        >>> with open('sale_orders.pdf', 'w') as report_file:
-        ...     report_file.write(report.read())
-        ...
+        .. doctest::
+            :options: +SKIP
+
+            >>> with open('sale_orders.pdf', 'wb') as report_file:
+            ...     report_file.write(report.read())
+            ...
+
+        .. doctest::
+            :hide:
+
+            >>> with open('sale_orders.pdf', 'wb') as report_file:
+            ...     fileno = report_file.write(report.read())   # Python 3
+            ...
 
         *Python 2:*
 
@@ -100,10 +124,22 @@ class Report(object):
         """List available reports from the server by returning a dictionary
         with reports classified by data model:
 
-        >>> odoo.report.list()['account.invoice']
-        [{'name': 'Invoices',
-          'report_name': 'account.report_invoice',
-          'report_type': 'qweb-pdf'}]
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.report.list()['account.invoice']
+            [{'name': 'Invoices',
+              'report_type': 'qweb-pdf',
+              'report_name': 'account.report_invoice'}]
+
+        .. doctest::
+            :hide:
+
+            >>> from pprint import pprint as pp
+            >>> pp(odoo.report.list()['account.invoice'])
+            [{'name': 'Invoices',
+              'report_name': 'account.report_invoice',
+              'report_type': 'qweb-pdf'}]
 
         *Python 2:*
 

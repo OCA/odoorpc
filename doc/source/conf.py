@@ -30,7 +30,36 @@ import os
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_ext.doctest_custom',
 ]
+doctest_global_setup = """
+import os
+PROTOCOL = os.environ.get('ORPC_TEST_PROTOCOL', 'jsonrpc')
+HOST = os.environ.get('ORPC_TEST_HOST', 'localhost')
+PORT = os.environ.get('ORPC_TEST_PORT', 8069)
+DB = os.environ.get('ORPC_TEST_DB', 'odoorpc_doctest')
+USER = os.environ.get('ORPC_TEST_USER', 'admin')
+PWD = os.environ.get('ORPC_TEST_PWD', 'admin')
+VERSION = os.environ.get('ORPC_TEST_VERSION', '8.0')
+SUPER_PWD = os.environ.get('ORPC_TEST_SUPER_PWD', 'admin')
+import odoorpc
+odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
+# == create a database
+if DB not in odoo.db.list():
+    odoo.db.create(SUPER_PWD, DB, True)
+odoo.login(DB, USER, PWD)
+# == install fr_FR language
+Wizard = odoo.env['base.language.install']
+wiz_id = Wizard.create({'lang': 'fr_FR'})
+Wizard.lang_install([wiz_id])
+# == install some modules
+odoo.config['timeout'] = 600
+Module = odoo.env['ir.module.module']
+module_ids = Module.search([('name', 'in', ['sale', 'crm']), ('state', '=', 'uninstalled')])
+if module_ids:
+    Module.button_immediate_install(module_ids)
+odoo.config['timeout'] = 120
+"""
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module provides `Proxy` classes to communicate with an `Odoo` server
-with the `JSON-RPC` protocol or through simple HTTP requests.
+"""This module provides `Connector` classes to communicate with an `Odoo`
+server with the `JSON-RPC` protocol or through simple HTTP requests.
 
-On `Odoo` server, web controllers expose two kinds of methods: `json`
-and `http`. These methods can be accessed from the proxy classes of this module.
+Web controllers of `Odoo` expose two kinds of methods: `json` and `http`.
+These methods can be accessed from the connectors of this module.
 """
 import sys
 # Python 2
@@ -74,33 +74,89 @@ class Connector(object):
 class ConnectorJSONRPC(Connector):
     """Connector class using the `JSON-RPC` protocol.
 
-    >>> from odoorpc import rpc
-    >>> cnt = rpc.ConnectorJSONRPC('localhost', port=8069)
+    .. doctest::
+        :options: +SKIP
+
+        >>> from odoorpc import rpc
+        >>> cnt = rpc.ConnectorJSONRPC('localhost', port=8069)
+
+    .. doctest::
+        :hide:
+
+        >>> from odoorpc import rpc
+        >>> cnt = rpc.ConnectorJSONRPC(HOST, port=PORT)
 
     Open a user session:
 
-    >>> cnt.proxy_json.web.session.authenticate(db='database', login='admin', password='admin')
-    {'jsonrpc': '2.0', 'id': 202516757,
-     'result': {'username': 'admin', 'user_context': {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1},
-     'db': 'test70', 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
+    .. doctest::
+        :options: +SKIP
+
+        >>> cnt.proxy_json.web.session.authenticate(db='db_name', login='admin', password='password')
+        {'jsonrpc': '2.0', 'id': 202516757,
+         'result': {'username': 'admin', 'user_context': {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1},
+         'db': 'db_name', 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
+
+    .. doctest::
+        :hide:
+        :options: +NORMALIZE_WHITESPACE
+
+        >>> from pprint import pprint as pp
+        >>> pp(cnt.proxy_json.web.session.authenticate(db=DB, login=USER, password=PWD))
+        {'id': ...,
+         'jsonrpc': '2.0',
+         'result': {'db': ...,
+                    'session_id': ...,
+                    'uid': 1,
+                    'user_context': ...,
+                    'username': 'admin'}}
 
     Read data of a partner:
 
-    >>> cnt.proxy_json.web.dataset.call(model='res.partner', method='read', args=[[1]])
-    {'jsonrpc': '2.0', 'id': 454236230,
-     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+    .. doctest::
+        :options: +SKIP
+
+        >>> cnt.proxy_json.web.dataset.call(model='res.partner', method='read', args=[[1]])
+        {'jsonrpc': '2.0', 'id': 454236230,
+         'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+
+    .. doctest::
+        :hide:
+
+        >>> data = cnt.proxy_json.web.dataset.call(model='res.partner', method='read', args=[[1]])
+        >>> 'jsonrpc' in data and 'id' in data and 'result' in data
+        True
 
     You can send requests this way too:
 
-    >>> cnt.proxy_json['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
-    {'jsonrpc': '2.0', 'id': 328686288,
-     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+    .. doctest::
+        :options: +SKIP
+
+        >>> cnt.proxy_json['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
+        {'jsonrpc': '2.0', 'id': 328686288,
+         'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+
+    .. doctest::
+        :hide:
+
+        >>> data = cnt.proxy_json['/web/dataset/call'](model='res.partner', method='read', args=[[1]])
+        >>> 'jsonrpc' in data and 'id' in data and 'result' in data
+        True
 
     Or like this:
 
-    >>> cnt.proxy_json['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
-    {'jsonrpc': '2.0', 'id': 102320639,
-     'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+    .. doctest::
+        :options: +SKIP
+
+        >>> cnt.proxy_json['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
+        {'jsonrpc': '2.0', 'id': 102320639,
+         'result': [{'id': 1, 'comment': False, 'ean13': False, 'property_account_position': False, ...}]}
+
+    .. doctest::
+        :hide:
+
+        >>> data = cnt.proxy_json['web']['dataset']['call'](model='res.partner', method='read', args=[[1]])
+        >>> 'jsonrpc' in data and 'id' in data and 'result' in data
+        True
     """
     def __init__(self, host, port=8069, timeout=120, version=None,
                  deserialize=True):
@@ -156,8 +212,18 @@ class ConnectorJSONRPC(Connector):
 class ConnectorJSONRPCSSL(ConnectorJSONRPC):
     """Connector class using the `JSON-RPC` protocol over `SSL`.
 
-    >>> from odoorpc import rpc
-    >>> cnt = rpc.ConnectorJSONRPCSSL('localhost', port=8069)
+    .. doctest::
+        :options: +SKIP
+
+        >>> from odoorpc import rpc
+        >>> cnt = rpc.ConnectorJSONRPCSSL('localhost', port=8069)
+
+    .. doctest::
+        :hide:
+
+        >>> if 'ssl' in PROTOCOL:
+        ...     from odoorpc import rpc
+        ...     cnt = rpc.ConnectorJSONRPCSSL(HOST, port=PORT)
     """
     def __init__(self, host, port=8069, timeout=120, version=None,
                  deserialize=True):
