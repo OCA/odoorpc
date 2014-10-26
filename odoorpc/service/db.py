@@ -44,9 +44,9 @@ class DB(object):
         property.
 
     >>> import odoorpc
-    >>> odoo = odoorpc.ODOO('localhost')
+    >>> odoo = odoorpc.ODOO('localhost')    # doctest: +SKIP
     >>> odoo.db
-    <odoorpc.service.db.DB object at 0x7f95b76fdbd0>
+    <odoorpc.service.db.DB object at 0x...>
 
     """
     def __init__(self, odoo):
@@ -56,29 +56,57 @@ class DB(object):
         """Backup the `db` database. Returns the dump as a binary ZIP file
         containing the SQL dump file alongside the filestore directory (if any).
 
-        >>> dump = odoo.db.backup('super_admin_passwd', 'prod')
+        >>> dump = odoo.db.dump('super_admin_passwd', 'prod') # doctest: +SKIP
+
+        .. doctest::
+            :hide:
+
+            >>> dump = odoo.db.dump(SUPER_PWD, DB)
 
         If you get a timeout error, increase this one before performing the
         request:
 
         >>> timeout_backup = odoo.config['timeout']
         >>> odoo.config['timeout'] = 600    # Timeout set to 10 minutes
-        >>> dump = odoo.db.backup('super_admin_passwd', 'prod')
+        >>> dump = odoo.db.dump('super_admin_passwd', 'prod')   # doctest: +SKIP
         >>> odoo.config['timeout'] = timeout_backup
 
         Write it on the file system:
 
-        >>> with open('dump.zip', 'w') as dump_zip:
-        ...     dump_zip.write(dump.read())
-        ...
+        .. doctest::
+            :options: +SKIP
+
+            >>> with open('dump.zip', 'wb') as dump_zip:
+            ...     dump_zip.write(dump.read())
+            ...
+
+        .. doctest::
+            :hide:
+
+            >>> with open('dump.zip', 'wb') as dump_zip:
+            ...     fileno = dump_zip.write(dump.read())    # Python 3
+            ...
 
         You can manipulate the file with the `zipfile` module for instance:
 
-        >>> import zipfile
-        >>> zipfile.ZipFile('dump.zip').namelist()
-        ['dump.sql',
-         'filestore/ef/ef2c882a36dbe90fc1e7e28d816ad1ac1464cfbb',
-         'filestore/dc/dcf00aacce882bbfd117c0277e514f829b4c5bf0']
+        .. doctest::
+            :options: +SKIP
+
+            >>> import zipfile
+            >>> zipfile.ZipFile('dump.zip').namelist()
+            ['dump.sql',
+            'filestore/ef/ef2c882a36dbe90fc1e7e28d816ad1ac1464cfbb',
+            'filestore/dc/dcf00aacce882bbfd117c0277e514f829b4c5bf0',
+             ...]
+
+        .. doctest::
+            :hide:
+
+            >>> import zipfile
+            >>> zipfile.ZipFile('dump.zip').namelist() # doctest: +NORMALIZE_WHITESPACE
+            ['dump.sql',
+             'filestore/...',
+             ...]
 
         The super administrator password is required to perform this method.
 
@@ -108,7 +136,13 @@ class DB(object):
     def change_password(self, password, new_password):
         """Change the administrator password by `new_password`.
 
-        >>> odoo.db.change_password('super_admin_passwd', 'new_admin_passwd')
+        >>> odoo.db.change_password('super_admin_passwd', 'new_admin_passwd') # doctest: +SKIP
+
+        .. doctest:
+            :hide:
+
+            >>> odoo.db.change_password(SUPER_PWD, 'new_admin_passwd')
+            >>> odoo.db.change_password('new_admin_passwd', SUPER_PWD)
 
         The super administrator password is required to perform this method.
 
@@ -135,14 +169,14 @@ class DB(object):
         You have to set the flag `demo` to `True` in order to insert
         demonstration data.
 
-        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd')
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd') # doctest: +SKIP
 
         If you get a timeout error, increase this one before performing the
         request:
 
         >>> timeout_backup = odoo.config['timeout']
         >>> odoo.config['timeout'] = 600    # Timeout set to 10 minutes
-        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd')
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd') # doctest: +SKIP
         >>> odoo.config['timeout'] = timeout_backup
 
         The super administrator password is required to perform this method.
@@ -167,7 +201,7 @@ class DB(object):
         """Drop the `db` database. Returns `True` if the database was removed,
         `False` otherwise (database did not exist):
 
-        >>> odoo.db.drop('super_admin_passwd', 'test')
+        >>> odoo.db.drop('super_admin_passwd', 'test') # doctest: +SKIP
         True
 
         The super administrator password is required to perform this method.
@@ -194,7 +228,7 @@ class DB(object):
     def duplicate(self, password, db, new_db):
         """Duplicate `db' as `new_db`.
 
-        >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test')
+        >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test') # doctest: +SKIP
 
         The super administrator password is required to perform this method.
 
@@ -217,7 +251,7 @@ class DB(object):
     def list(self):
         """Return the list of the databases:
 
-        >>> odoo.db.list()
+        >>> odoo.db.list() # doctest: +SKIP
         ['prod', 'test']
 
         *Python 2:*
@@ -243,14 +277,14 @@ class DB(object):
         :func:`dump <DB.dump>` method.
         If `copy` is set to `True`, the restored database will have a new UUID.
 
-        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file)
+        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file) # doctest: +SKIP
 
         If you get a timeout error, increase this one before performing the
         request:
 
         >>> timeout_backup = odoo.config['timeout']
         >>> odoo.config['timeout'] = 7200   # Timeout set to 2 hours
-        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file)
+        >>> odoo.db.restore('super_admin_passwd', 'test', dump_file) # doctest: +SKIP
         >>> odoo.config['timeout'] = timeout_backup
 
         The super administrator password is required to perform this method.
