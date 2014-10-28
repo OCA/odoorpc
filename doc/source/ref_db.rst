@@ -1,6 +1,5 @@
-odoorpc.service.db
-==================
+odoorpc.db
+==========
 
-.. autoclass:: odoorpc.service.db.DB
+.. automodule:: odoorpc.db
     :members:
-

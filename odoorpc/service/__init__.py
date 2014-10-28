@@ -23,8 +23,8 @@ the `Odoo` server (dynamic access to data model methods, database management,
 reports downloading...).
 """
 
-__all__ = ['db', 'model', 'report']
+__all__ = ['model', 'report']
 
-from odoorpc.service import db, model, report
+from odoorpc.service import model, report
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

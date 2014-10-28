@@ -24,7 +24,7 @@ an `Odoo` server.
 from odoorpc import rpc, error, tools
 from odoorpc.env import Environment
 from odoorpc.tools import session
-from odoorpc.service.db import DB
+from odoorpc.db import DB
 from odoorpc.service.report import Report
 
 
@@ -153,7 +153,7 @@ class ODOO(object):
     @property
     def db(self):
         """The database management service.
-        See the :class:`odoorpc.service.db.DB` class.
+        See the :class:`odoorpc.db.DB` class.
         """
         return self._db
 

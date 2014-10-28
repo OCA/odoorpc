@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""Provide the :class:`DB` class in order to manage the server databases."""
+"""Provide the :class:`DB` class to manage the server databases."""
 import base64
 import io
 import sys
@@ -46,7 +46,7 @@ class DB(object):
     >>> import odoorpc
     >>> odoo = odoorpc.ODOO('localhost')    # doctest: +SKIP
     >>> odoo.db
-    <odoorpc.service.db.DB object at 0x...>
+    <odoorpc.db.DB object at 0x...>
 
     """
     def __init__(self, odoo):
