@@ -1,13 +1,13 @@
 .. _tuto-download-report:
 
-Download report
-***************
+Download reports
+****************
 
 Another nice functionnality is the reports generation with the
 :attr:`report <odoorpc.ODOO.report>` property.
-The :func:`list <odoorpc.service.report.Report.list` method allows you to list
+The :func:`list <odoorpc.report.Report.list>` method allows you to list
 all reports available on your `Odoo` server (classified by models), while the
-:func:`download <odoorpc.service.report.Report.download>` method will
+:func:`download <odoorpc.report.Report.download>` method will
 retrieve a report as a file (in PDF, HTML... depending of the report).
 
 To list available reports::

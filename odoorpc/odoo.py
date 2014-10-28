@@ -25,7 +25,7 @@ from odoorpc import rpc, error, tools
 from odoorpc.env import Environment
 from odoorpc.tools import session
 from odoorpc.db import DB
-from odoorpc.service.report import Report
+from odoorpc.report import Report
 
 
 class ODOO(object):
@@ -160,7 +160,7 @@ class ODOO(object):
     @property
     def report(self):
         """The report management service.
-        See the :class:`odoorpc.service.report.Report` class.
+        See the :class:`odoorpc.report.Report` class.
         """
         return self._report
 

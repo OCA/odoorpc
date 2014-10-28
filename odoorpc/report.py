@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-"""This module provide the :class:`Report` class in order to list available
-reports and to generate/download them.
+"""This module provide the :class:`Report` class to list available reports and
+to generate/download them.
 """
 import base64
 import io
@@ -49,7 +49,7 @@ class Report(object):
         >>> odoo = odoorpc.ODOO('localhost', port=8069)
         >>> odoo.login('odoorpc_test', 'admin', 'password')
         >>> odoo.report
-        <odoorpc.service.report.Report object at 0x7f82fe7a1d50>
+        <odoorpc.report.Report object at 0x7f82fe7a1d50>
 
     .. doctest::
         :hide:
@@ -58,7 +58,7 @@ class Report(object):
         >>> odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT)
         >>> odoo.login(DB, USER, PWD)
         >>> odoo.report
-        <odoorpc.service.report.Report object at ...>
+        <odoorpc.report.Report object at ...>
     """
     def __init__(self, odoo):
         self._odoo = odoo
