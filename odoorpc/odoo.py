@@ -123,7 +123,7 @@ class ODOO(object):
 
         - ``auto_context``: if set to `True` (default), the user context will
           be sent automatically to every call of a
-          :class:`model <odoorpc.service.model.Model>` method (default: `True`):
+          :class:`model <odoorpc.models.Model>` method (default: `True`):
 
             >>> odoo.env.context['lang'] = 'fr_FR'
             >>> Product = odoo.env['product.product']

@@ -3,7 +3,7 @@
 import time
 
 from odoorpc.tests import LoginTestCase
-from odoorpc.service.model import Model
+from odoorpc.models import Model
 from odoorpc.env import Environment
 
 

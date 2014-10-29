@@ -22,10 +22,11 @@
 methods proposed by a data model.
 """
 
+__all__ = ['Model']
+
 import sys
 
 from odoorpc import error
-#from odoorpc.service.model import fields
 
 # Python 2
 if sys.version_info.major < 3:
@@ -139,7 +140,7 @@ class Model(BaseModel):
 
     .. warning::
 
-        Excepted the :func:`browse <odoorpc.service.model.Model.browse>` method,
+        Excepted the :func:`browse <odoorpc.models.Model.browse>` method,
         method calls are purely dynamic. As long as you know the signature of
         the model method targeted, you will be able to use it
         (see the :ref:`tutorial <tuto-execute-queries>`).
@@ -225,7 +226,7 @@ class Model(BaseModel):
         A list of data types returned by such record fields are
         available :ref:`here <fields>`.
 
-        :return: a :class:`Model <odoorpc.service.model.Model>`
+        :return: a :class:`Model <odoorpc.models.Model>`
             instance (recordset)
         :raise: :class:`odoorpc.error.RPCError`
         """

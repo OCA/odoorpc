@@ -22,8 +22,4 @@
 methods of data models, and an emulation of records/recordsets.
 """
 
-__all__ = ['Model']
-
-from odoorpc.service.model.model import Model
-
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

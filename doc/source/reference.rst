@@ -11,7 +11,7 @@ Reference
     ref_odoo
     ref_db
     ref_report
-    ref_model
+    ref_models
     ref_env
     ref_rpc
     ref_tools

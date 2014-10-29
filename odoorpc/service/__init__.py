@@ -23,8 +23,4 @@ the `Odoo` server (dynamic access to data model methods, database management,
 reports downloading...).
 """
 
-__all__ = ['model']
-
-from odoorpc.service import model
-
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

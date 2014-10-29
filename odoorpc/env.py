@@ -23,7 +23,8 @@
 import sys
 import weakref
 
-from odoorpc.service.model import Model, fields
+from odoorpc.models import Model
+from odoorpc.service.model import fields
 
 
 FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
@@ -187,7 +188,7 @@ class Environment(object):
             >>> odoo.env.ref('base.lang_en')
             Recordset('res.lang', [1])
 
-        :return: a :class:`odoorpc.service.model.Model` instance (recordset)
+        :return: a :class:`odoorpc.models.Model` instance (recordset)
         :raise: :class:`odoorpc.error.RPCError`
         """
         model, id_ = self._odoo.execute(
@@ -217,7 +218,7 @@ class Environment(object):
             >>> user.name
             'Administrator'
 
-        :return: a :class:`odoorpc.service.model.Model` instance
+        :return: a :class:`odoorpc.models.Model` instance
         :raise: :class:`odoorpc.error.RPCError`
         """
         return self['res.users'].browse(self.uid)
@@ -263,7 +264,7 @@ class Environment(object):
         >>> Partner
         Model('res.partner')
 
-        :return: a :class:`odoorpc.service.model.Model` class
+        :return: a :class:`odoorpc.models.Model` class
         """
         if model not in self.registry:
             #self.registry[model] = Model(self._odoo, self, model)
@@ -283,7 +284,7 @@ class Environment(object):
     def _create_model_class(self, model):
         """Generate the model proxy class.
 
-        :return: a :class:`odoorpc.service.model.Model` class
+        :return: a :class:`odoorpc.models.Model` class
         """
         cls_name = model.replace('.', '_')
         # Hack for Python 2 (no need to do this for Python 3)

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from odoorpc.tests import LoginTestCase
-from odoorpc.service.model import Model
+from odoorpc.models import Model
 
 
 class TestFieldOne2many(LoginTestCase):

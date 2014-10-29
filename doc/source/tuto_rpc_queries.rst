@@ -20,7 +20,7 @@ However there is a more efficient way to perform methods of a model by getting
 a proxy of it with the
 :func:`model registry <odoorpc.env.Environment.__getitem__>`, which
 provides an API almost syntactically identical to the `Odoo` server side API
-(see :class:`odoorpc.service.model.Model`), and which is able to send the user
+(see :class:`odoorpc.models.Model`), and which is able to send the user
 context automatically::
 
     >>> User = odoo.env['res.users']
