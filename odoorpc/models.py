@@ -318,10 +318,10 @@ class Model(BaseModel):
         .. doctest::
 
             >>> Partner = odoo.env['res.partner']
-            >>> Partner.write([1], {'name': 'My Company'})  # Class method
+            >>> Partner.write([1], {'name': 'YourCompany'}) # Class method
             True
             >>> partner = Partner.browse(1)
-            >>> partner.write({'name': 'My Company'})       # Instance method
+            >>> partner.write({'name': 'YourCompany'})      # Instance method
             True
 
         """
