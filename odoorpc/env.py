@@ -24,7 +24,7 @@ import sys
 import weakref
 
 from odoorpc.models import Model
-from odoorpc.service.model import fields
+from odoorpc import fields
 
 
 FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']

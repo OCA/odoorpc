@@ -385,7 +385,7 @@ class Model(BaseModel):
         values = []
         if updated_values.get(parent.id):
             values = updated_values[parent.id][:]  # Copy
-        from odoorpc.service.model import fields
+        from odoorpc import fields
         for id_ in fields.records2ids(records):
             if (3, id_) in values:
                 values.remove((3, id_))
@@ -406,7 +406,7 @@ class Model(BaseModel):
         values = []
         if updated_values.get(parent.id):
             values = updated_values[parent.id][:]  # Copy
-        from odoorpc.service.model import fields
+        from odoorpc import fields
         for id_ in fields.records2ids(records):
             if (4, id_) in values:
                 values.remove((4, id_))
