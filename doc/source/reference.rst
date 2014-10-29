@@ -14,6 +14,7 @@ Reference
     ref_models
     ref_env
     ref_rpc
+    ref_session
     ref_tools
     ref_error
 

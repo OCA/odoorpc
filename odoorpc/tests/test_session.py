@@ -41,7 +41,7 @@ class TestSession(LoginTestCase):
         self.assertEqual(self.odoo.env.uid, odoo.env.uid)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
-    def test_session_tools_get(self):
+    def test_session_get(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         data = {
             'type': self.odoo.__class__.__name__,
@@ -53,12 +53,12 @@ class TestSession(LoginTestCase):
             'passwd': self.odoo._password,
             'database': self.odoo.env.db,
         }
-        result = odoorpc.tools.session.get(
+        result = odoorpc.session.get(
             self.session_name, rc_file=self.file_path)
         self.assertEqual(data, result)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
-    def test_session_tools_get_all(self):
+    def test_session_get_all(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         data = {
             self.session_name: {
@@ -72,7 +72,7 @@ class TestSession(LoginTestCase):
                 'database': self.odoo.env.db,
             }
         }
-        result = odoorpc.tools.session.get_all(rc_file=self.file_path)
+        result = odoorpc.session.get_all(rc_file=self.file_path)
         self.assertIn(self.session_name, result)
         self.assertEqual(data, result)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)

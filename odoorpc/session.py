@@ -37,7 +37,7 @@ def get_all(rc_file='~/.odoorpcrc'):
 
     >>> import odoorpc
     >>> from pprint import pprint as pp
-    >>> pp(odoorpc.tools.session.get_all())     # doctest: +SKIP
+    >>> pp(odoorpc.session.get_all())     # doctest: +SKIP
     {'foo': {'database': 'db_name',
              'host': 'localhost',
              'passwd': 'password',
@@ -54,7 +54,7 @@ def get_all(rc_file='~/.odoorpcrc'):
         >>> import odoorpc
         >>> session = '%s_session' % DB
         >>> odoo.save(session)
-        >>> data = odoorpc.tools.session.get_all()
+        >>> data = odoorpc.session.get_all()
         >>> data[session]['host'] == HOST
         True
         >>> data[session]['protocol'] == PROTOCOL
@@ -93,7 +93,7 @@ def get(name, rc_file='~/.odoorpcrc'):
 
     >>> import odoorpc
     >>> from pprint import pprint as pp
-    >>> pp(odoorpc.tools.session.get('foo'))    # doctest: +SKIP
+    >>> pp(odoorpc.session.get('foo'))    # doctest: +SKIP
     {'database': 'db_name',
      'host': 'localhost',
      'passwd': 'password',
@@ -109,7 +109,7 @@ def get(name, rc_file='~/.odoorpcrc'):
         >>> import odoorpc
         >>> session = '%s_session' % DB
         >>> odoo.save(session)
-        >>> data = odoorpc.tools.session.get(session)
+        >>> data = odoorpc.session.get(session)
         >>> data['host'] == HOST
         True
         >>> data['protocol'] == PROTOCOL
@@ -149,7 +149,7 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     in the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.save(
+    >>> odoorpc.session.save(
     ...     'foo',
     ...     {'type': 'ODOO', 'host': 'localhost', 'protocol': 'jsonrpc',
     ...      'port': 8069, 'timeout': 120, 'database': 'db_name'
@@ -160,7 +160,7 @@ def save(name, data, rc_file='~/.odoorpcrc'):
 
         >>> import odoorpc
         >>> session = '%s_session' % DB
-        >>> odoorpc.tools.session.save(
+        >>> odoorpc.session.save(
         ...     session,
         ...     {'type': 'ODOO', 'host': HOST, 'protocol': PROTOCOL,
         ...      'port': PORT, 'timeout': 120, 'database': DB,
@@ -183,14 +183,14 @@ def remove(name, rc_file='~/.odoorpcrc'):
     from the `rc_file` file.
 
     >>> import odoorpc
-    >>> odoorpc.tools.session.remove('foo')     # doctest: +SKIP
+    >>> odoorpc.session.remove('foo')     # doctest: +SKIP
 
     .. doctest::
         :hide:
 
         >>> import odoorpc
         >>> session = '%s_session' % DB
-        >>> odoorpc.tools.session.remove(session)
+        >>> odoorpc.session.remove(session)
 
     :raise: `ValueError` (wrong session name)
     """

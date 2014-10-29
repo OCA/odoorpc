@@ -23,7 +23,7 @@ an `Odoo` server.
 """
 from odoorpc import rpc, error, tools
 from odoorpc.env import Environment
-from odoorpc.tools import session
+from odoorpc import session
 from odoorpc.db import DB
 from odoorpc.report import Report
 
