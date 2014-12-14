@@ -57,7 +57,7 @@ class RPCError(Error):
         ...     odoo.execute('res.users', 'wrong_method')
         ... except odoorpc.error.RPCError as exc:
         ...     exc.info['code'] == 200
-        ...     exc.info['message'] == 'OpenERP Server Error'
+        ...     'message' in exc.info
         ...     exc.info['data']['arguments'] == ["'res.users' object has no attribute 'wrong_method'"]
         ...     exc.info['data']['debug'].startswith('Traceback (most recent call last):\\n  File')
         ...     exc.info['data']['message'] == "'res.users' object has no attribute 'wrong_method'"
