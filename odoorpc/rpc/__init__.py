@@ -94,7 +94,7 @@ class ConnectorJSONRPC(Connector):
         >>> cnt.proxy_json.web.session.authenticate(db='db_name', login='admin', password='password')
         {'jsonrpc': '2.0', 'id': 202516757,
          'result': {'username': 'admin', 'user_context': {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1},
-         'db': 'db_name', 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
+         'db': 'db_name', 'company_id': 1, 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
 
     .. doctest::
         :hide:
@@ -104,7 +104,8 @@ class ConnectorJSONRPC(Connector):
         >>> pp(cnt.proxy_json.web.session.authenticate(db=DB, login=USER, password=PWD))
         {'id': ...,
          'jsonrpc': '2.0',
-         'result': {'db': ...,
+         'result': {'company_id': 1,
+                    'db': ...,
                     'session_id': ...,
                     'uid': 1,
                     'user_context': ...,
