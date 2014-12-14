@@ -9,9 +9,9 @@ python:
 install:
   - "wget http://freefr.dl.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb"
   - "sudo dpkg -i wkhtmltox-0.12.1_linux-trusty-amd64.deb"
-  - "wget http://nightly.odoo.com/8.0/nightly/deb/odoo_8.0-latest.deb"
-  - "sudo dpkg -i odoo_8.0-latest.deb || true"
-  - "sudo apt-get install -f -y"
+  - "wget http://nightly.odoo.com/8.0/nightly/deb/odoo_8.0.latest_all.deb"
+  - "sudo dpkg -i odoo_8.0.latest_all.deb || true"
+  - "sudo apt-get update && sudo apt-get install -f -y"
   - "sudo invoke-rc.d odoo stop"
   - pip install sphinx
 
