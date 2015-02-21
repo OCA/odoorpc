@@ -104,9 +104,7 @@ class DB(object):
 
             >>> import zipfile
             >>> zipfile.ZipFile('dump.zip').namelist() # doctest: +NORMALIZE_WHITESPACE
-            ['dump.sql',
-             'filestore/...',
-             ...]
+            ['dump.sql'...'filestore/...'...]
 
         The super administrator password is required to perform this method.
 
