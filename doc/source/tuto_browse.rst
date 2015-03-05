@@ -10,7 +10,7 @@ Get records
 ===========
 
 To get one or more records (a recordset), you will use the
-:func:`browse <odoorpc.service.model.Model.browse>` method from a model proxy::
+:func:`browse <odoorpc.models.Model.browse>` method from a model proxy::
 
     >>> Partner = odoo.env['res.partner']
     >>> partner = Partner.browse(1)     # fetch one record, partner ID = 1

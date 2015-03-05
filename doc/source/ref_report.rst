@@ -1,6 +1,5 @@
-odoorpc.service.report
-======================
+odoorpc.report
+==============
 
-.. autoclass:: odoorpc.service.report.Report
+.. automodule:: odoorpc.report
     :members:
-

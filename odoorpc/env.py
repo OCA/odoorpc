@@ -23,7 +23,8 @@
 import sys
 import weakref
 
-from odoorpc.service.model import Model, fields
+from odoorpc.models import Model
+from odoorpc import fields
 
 
 FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
@@ -33,11 +34,20 @@ class Environment(object):
     """An environment wraps data like the user ID, context or current database
     name, and provides an access to data model proxies.
 
-    >>> import odoorpc
-    >>> odoo = odoorpc.ODOO('localhost')
-    >>> odoo.login('db_name', 'admin', 'admin')
-    >>> odoo.env
-    Environment(db='db_name', uid=1, context={'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1})
+    .. doctest::
+        :options: +SKIP
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO('localhost')
+        >>> odoo.login('db_name', 'admin', 'password')
+        >>> odoo.env
+        Environment(db='db_name', uid=1, context={'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1})
+
+    .. doctest::
+        :hide:
+
+        >>> odoo.env
+        Environment(db=..., uid=1, context=...)
     """
 
     def __init__(self, odoo, db, uid, context):
@@ -70,9 +80,18 @@ class Environment(object):
     def context(self):
         """The context of the user connected.
 
-        >>> odoo.login('db_name', 'admin', 'admin')
-        >>> odoo.env.context
-        {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1}
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.env.context
+            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': 1}
+
+        .. doctest::
+            :hide:
+
+            >>> from pprint import pprint as pp
+            >>> pp(odoo.env.context)
+            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': 1}
         """
         return self._context
 
@@ -80,9 +99,17 @@ class Environment(object):
     def db(self):
         """The database currently used.
 
-        >>> odoo.login('db_name', 'admin', 'admin')
-        >>> odoo.env.db
-        'db_name'
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.env.db
+            'db_name'
+
+        .. doctest::
+            :hide:
+
+            >>> odoo.env.db == DB
+            True
         """
         return self._db
 
@@ -96,22 +123,26 @@ class Environment(object):
         is set on a record field a RPC request is sent to the server to update
         the record:
 
-        >>> user = odoo.env.user
-        >>> user.name = "Joe"               # write({'name': "Joe"})
-        >>> user.email = "joe@odoo.net"     # write({'email': "joe@odoo.net"})
+        .. doctest::
+
+            >>> user = odoo.env.user
+            >>> user.name = "Joe"               # write({'name': "Joe"})
+            >>> user.email = "joe@odoo.net"     # write({'email': "joe@odoo.net"})
 
         With `auto_commit` set to `False`, changes on a record are sent all at
         once when calling the :func:`commit` method:
 
-        >>> odoo.config['auto_commit'] = False
-        >>> user = odoo.env.user
-        >>> user.name = "Joe"
-        >>> user.email = "joe@odoo.net"
-        >>> user in odoo.env.dirty
-        True
-        >>> odoo.env.commit()   # write({'name': "Joe", 'email': "joe@odoo.net"})
-        >>> user in odoo.env.dirty
-        False
+        .. doctest::
+
+            >>> odoo.config['auto_commit'] = False
+            >>> user = odoo.env.user
+            >>> user.name = "Joe"
+            >>> user.email = "joe@odoo.net"
+            >>> user in odoo.env.dirty
+            True
+            >>> odoo.env.commit()   # write({'name': "Joe", 'email': "joe@odoo.net"})
+            >>> user in odoo.env.dirty
+            False
 
         Only one RPC request is generated in the last case.
         """
@@ -139,8 +170,10 @@ class Environment(object):
     def lang(self):
         """Return the current language code.
 
-        >>> odoo.env.lang
-        'fr_FR'
+        .. doctest::
+
+            >>> odoo.env.lang
+            'en_US'
         """
         return self.context.get('lang', False)
 
@@ -150,10 +183,12 @@ class Environment(object):
         Raise an :class:`RPCError <odoorpc.error.RPCError>` if no record
         is found.
 
-        >>> odoo.env.ref('base.lang_en')
-        Recordset('res.lang', [1])
+        .. doctest::
 
-        :return: a :class:`odoorpc.service.model.Model` instance (recordset)
+            >>> odoo.env.ref('base.lang_en')
+            Recordset('res.lang', [1])
+
+        :return: a :class:`odoorpc.models.Model` instance (recordset)
         :raise: :class:`odoorpc.error.RPCError`
         """
         model, id_ = self._odoo.execute(
@@ -164,8 +199,10 @@ class Environment(object):
     def uid(self):
         """The user ID currently logged.
 
-        >>> odoo.env.uid
-        1
+        .. doctest::
+
+            >>> odoo.env.uid
+            1
         """
         return self._uid
 
@@ -173,13 +210,15 @@ class Environment(object):
     def user(self):
         """Return the current user (as a record).
 
-        >>> user = odoo.env.user
-        >>> user
-        Recordset('res.users', [1])
-        >>> user.name
-        'Administrator'
+        .. doctest::
 
-        :return: a :class:`odoorpc.service.model.Model` instance
+            >>> user = odoo.env.user
+            >>> user
+            Recordset('res.users', [1])
+            >>> user.name
+            'Administrator'
+
+        :return: a :class:`odoorpc.models.Model` instance
         :raise: :class:`odoorpc.error.RPCError`
         """
         return self['res.users'].browse(self.uid)
@@ -192,11 +231,17 @@ class Environment(object):
         way the model proxy is ready for a further use (avoiding costly `RPC`
         queries when browsing records through relations).
 
+        .. doctest::
+            :hide:
+
+            >>> odoo.env.registry.clear()
+
         >>> odoo.env.registry
         {}
-        >>> odoo.env.user.company_id.name
-        "Your Company"
-        >>> odoo.env.registry
+        >>> odoo.env.user.company_id.name   # 'res.users' and 'res.company' Model proxies will be fetched
+        'YourCompany'
+        >>> from pprint import pprint
+        >>> pprint(odoo.env.registry)
         {'res.company': Model('res.company'), 'res.users': Model('res.users')}
 
         If you need to regenerate the model proxy, simply delete it from the
@@ -219,7 +264,7 @@ class Environment(object):
         >>> Partner
         Model('res.partner')
 
-        :return: a :class:`odoorpc.service.model.Model` class
+        :return: a :class:`odoorpc.models.Model` class
         """
         if model not in self.registry:
             #self.registry[model] = Model(self._odoo, self, model)
@@ -239,7 +284,7 @@ class Environment(object):
     def _create_model_class(self, model):
         """Generate the model proxy class.
 
-        :return: a :class:`odoorpc.service.model.Model` class
+        :return: a :class:`odoorpc.models.Model` class
         """
         cls_name = model.replace('.', '_')
         # Hack for Python 2 (no need to do this for Python 3)

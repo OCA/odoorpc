@@ -4,7 +4,7 @@ import time
 
 from odoorpc.tests import LoginTestCase
 from odoorpc import error
-from odoorpc.service.model import Model
+from odoorpc.models import Model
 from odoorpc.env import Environment
 
 
@@ -108,10 +108,31 @@ class TestModel(LoginTestCase):
         Wizard = self.odoo.env['base.language.install']
         wiz_id = Wizard.create({'lang': 'fr_FR'})
         Wizard.lang_install([wiz_id])
+        # Read data with two languages
         Country = self.odoo.env['res.country']
         de_id = Country.search([('code', '=', 'DE')])[0]
         de = Country.browse(de_id)
         self.assertEqual(de.name, 'Germany')
         self.assertEqual(de.with_context(lang='fr_FR').name, 'Allemagne')
+        # Write data with two languages
+        Product = self.odoo.env['product.product']
+        self.assertEqual(Product.env.lang, 'en_US')
+        name_en = "Product en_US"
+        product_id = Product.create({'name': name_en})
+        product_en = Product.browse(product_id)
+        self.assertEqual(product_en.name, name_en)
+        product_fr = product_en.with_context(lang='fr_FR')
+        self.assertEqual(product_fr.env.lang, 'fr_FR')
+        name_fr = "Produit fr_FR"
+        product_fr.write({'name': name_fr})
+        product_fr = product_fr.with_context()  # Refresh the recordset
+        self.assertEqual(product_fr.name, name_fr)
+        self.assertEqual(Product.env.lang, 'en_US')
+        product_en = Product.browse(product_id)
+        self.assertEqual(product_en.name, name_en)
+        new_name_fr = "%s (nouveau)" % name_fr
+        product_fr.name = new_name_fr
+        product_fr = product_fr.with_context()  # Refresh the recordset
+        self.assertEqual(product_fr.name, new_name_fr)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

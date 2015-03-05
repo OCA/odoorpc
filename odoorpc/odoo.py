@@ -23,9 +23,9 @@ an `Odoo` server.
 """
 from odoorpc import rpc, error, tools
 from odoorpc.env import Environment
-from odoorpc.tools import session
-from odoorpc.service.db import DB
-from odoorpc.service.report import Report
+from odoorpc import session
+from odoorpc.db import DB
+from odoorpc.report import Report
 
 
 class ODOO(object):
@@ -33,12 +33,18 @@ class ODOO(object):
     `JSON-RPC` protocol is used to make requests, and the respective values
     for the `protocol` parameter are ``jsonrpc`` (default) and ``jsonrpc+ssl``.
 
+    .. doctest::
+        :options: +SKIP
+
         >>> import odoorpc
         >>> odoo = odoorpc.ODOO('localhost', protocol='jsonrpc', port=8069)
 
     `OdooRPC` will try by default to detect the server version in order to
     adapt its requests if necessary. However, it is possible to force the
     version to use with the `version` parameter:
+
+    .. doctest::
+        :options: +SKIP
 
         >>> odoo = odoorpc.ODOO('localhost', version='8.0')
 
@@ -95,19 +101,37 @@ class ODOO(object):
     def config(self):
         """Dictionary of available configuration options.
 
-        >>> odoo.config
-        {'auto_context': True, 'timeout': 120}
+        .. doctest::
+            :options: +SKIP
 
-        - ``auto_context``: if set to `True`, the user context will be sent
-          automatically to every call of a
-          :class:`model <odoorpc.service.model.Model>` method (default: `True`):
+            >>> odoo.config
+            {'auto_commit': True, 'auto_context': True, 'timeout': 120}
 
+        .. doctest::
+            :hide:
+
+            >>> 'auto_commit' in odoo.config
+            True
+            >>> 'auto_context' in odoo.config
+            True
+            >>> 'timeout' in odoo.config
+            True
+
+        - ``auto_commit``: if set to `True` (default), each time a value is set
+          on a record field a RPC request is sent to the server to update the
+          record (see :func:`odoorpc.env.Environment.commit`).
+
+        - ``auto_context``: if set to `True` (default), the user context will
+          be sent automatically to every call of a
+          :class:`model <odoorpc.models.Model>` method (default: `True`):
+
+            >>> odoo.env.context['lang'] = 'fr_FR'
             >>> Product = odoo.env['product.product']
-            >>> Product.name_get([3])   # Context sent by default ('lang': 'fr_FR' here)
-            [[3, '[PC1] PC Basic']]
+            >>> Product.name_get([2])   # Context sent by default ('lang': 'fr_FR' here)
+            [[2, 'Surveillance sur site']]
             >>> odoo.config['auto_context'] = False
-            >>> Product.name_get([3])   # No context sent
-            [[3, '[PC1] Basic PC']]
+            >>> Product.name_get([2])   # No context sent, 'en_US' used
+            [[2, 'On Site Monitoring']]
 
         - ``timeout``: set the maximum timeout in seconds for a RPC request
           (default: `120`):
@@ -129,14 +153,14 @@ class ODOO(object):
     @property
     def db(self):
         """The database management service.
-        See the :class:`odoorpc.service.db.DB` class.
+        See the :class:`odoorpc.db.DB` class.
         """
         return self._db
 
     @property
     def report(self):
         """The report management service.
-        See the :class:`odoorpc.service.report.Report` class.
+        See the :class:`odoorpc.report.Report` class.
         """
         return self._report
 
@@ -173,20 +197,36 @@ class ODOO(object):
 
         Here an authentication request:
 
-        >>> data = odoo.json(
-        ...     '/web/session/authenticate',
-        ...     {'db': 'db_name', 'login':'admin', 'password': 'admin'})
-        >>> from pprint import pprint as pp
-        >>> pp(data)
-        {'id': 645674382,
-         'jsonrpc': '2.0',
-         'result': {'db': 'db_name',
-                    'session_id': 'fa740abcb91784b8f4750c5c5b14da3fcc782d11',
-                    'uid': 1,
-                    'user_context': {'lang': 'en_US',
-                                     'tz': 'Europe/Brussels',
-                                     'uid': 1},
-                    'username': 'admin'}}
+        .. doctest::
+            :options: +SKIP
+
+            >>> data = odoo.json(
+            ...     '/web/session/authenticate',
+            ...     {'db': 'db_name', 'login': 'admin', 'password': 'admin'})
+            >>> from pprint import pprint
+            >>> pprint(data)
+            {'id': 645674382,
+             'jsonrpc': '2.0',
+             'result': {'db': 'db_name',
+                        'session_id': 'fa740abcb91784b8f4750c5c5b14da3fcc782d11',
+                        'uid': 1,
+                        'user_context': {'lang': 'en_US',
+                                         'tz': 'Europe/Brussels',
+                                         'uid': 1},
+                        'username': 'admin'}}
+
+        .. doctest::
+            :hide:
+
+            >>> data = odoo.json(
+            ...     '/web/session/authenticate',
+            ...     {'db': DB, 'login': USER, 'password': PWD})
+            >>> data['result']['db'] == DB
+            True
+            >>> data['result']['uid'] == 1
+            True
+            >>> data['result']['username'] == USER
+            True
 
         And a call to the ``read`` method of the ``res.users`` model:
 
@@ -194,8 +234,9 @@ class ODOO(object):
         ...     '/web/dataset/call',
         ...     {'model': 'res.users', 'method': 'read',
         ...      'args': [[1], ['name']]})
-        >>> pp(data)
-        {'id': 756578441,
+        >>> from pprint import pprint
+        >>> pprint(data)
+        {'id': ...,
          'jsonrpc': '2.0',
          'result': [{'id': 1, 'name': 'Administrator'}]}
 
@@ -236,12 +277,21 @@ class ODOO(object):
 
         E.g., the HTTP raw query to backup a database on `Odoo 8.0`:
 
-        >>> response = odoo.http(
-        ...     'web/database/backup',
-        ...     'token=foo&backup_pwd=admin&backup_db=db_name')
-        >>> response
-        <addinfourl at 139685107812904 whose fp = <socket._fileobject object at 0x7f0afbd535d0>>
-        >>> binary_data = response.read()
+        .. doctest::
+            :options: +SKIP
+
+            >>> response = odoo.http(
+            ...     'web/database/backup',
+            ...     'token=foo&backup_pwd=admin&backup_db=db_name')
+            >>> binary_data = response.read()
+
+        .. doctest::
+            :hide:
+
+            >>> response = odoo.http(
+            ...     'web/database/backup',
+            ...     'token=foo&backup_pwd=%s&backup_db=%s' % (SUPER_PWD, DB))
+            >>> binary_data = response.read()
 
         *Python 2:*
 
@@ -269,9 +319,12 @@ class ODOO(object):
         """Log in as the given `user` with the password `passwd` on the
         database `db`.
 
-        >>> odoo.login('db_name', 'admin', 'admin')
-        >>> odoo.env.user.name
-        'Administrator'
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.login('db_name', 'admin', 'admin')
+            >>> odoo.env.user.name
+            'Administrator'
 
         *Python 2:*
 
@@ -330,8 +383,20 @@ class ODOO(object):
         """Execute the `method` of `model`.
         `*args` parameters varies according to the `method` used.
 
-        >>> odoo.execute('res.partner', 'read', [1, 2], ['name'])
-        [{'name': 'ASUStek', 'id': 2}, {'name': 'Your Company', 'id': 1}]
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.execute('res.partner', 'read', [1], ['name'])
+            [{'id': 1, 'name': 'YourCompany'}]
+
+        .. doctest::
+            :hide:
+
+            >>> data = odoo.execute('res.partner', 'read', [1], ['name'])
+            >>> data[0]['id'] == 1
+            True
+            >>> data[0]['name'] == 'YourCompany'
+            True
 
         *Python 2:*
 
@@ -365,8 +430,20 @@ class ODOO(object):
         and `kwargs` a dictionary (named parameters). Both varies according
         to the `method` used.
 
-        >>> odoo.execute_kw('res.partner', 'read', [[1, 2]], {'fields': ['name']})
-        [{'name': 'ASUStek', 'id': 2}, {'name': 'Your Company', 'id': 1}]
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.execute_kw('res.partner', 'read', [[1]], {'fields': ['name']})
+            [{'id': 1, 'name': 'YourCompany'}]
+
+        .. doctest::
+            :hide:
+
+            >>> data = odoo.execute_kw('res.partner', 'read', [[1]], {'fields': ['name']})
+            >>> data[0]['id'] == 1
+            True
+            >>> data[0]['name'] == 'YourCompany'
+            True
 
         *Python 2:*
 
@@ -469,6 +546,9 @@ class ODOO(object):
     def load(cls, name, rc_file='~/.odoorpcrc'):
         """Return a connected :class:`ODOO` session identified by `name`:
 
+        .. doctest::
+            :options: +SKIP
+
             >>> import odoorpc
             >>> odoo = odoorpc.ODOO.load('foo')
 
@@ -505,6 +585,9 @@ class ODOO(object):
         """Return a list of all stored sessions available in the
         `rc_file` file:
 
+        .. doctest::
+            :options: +SKIP
+
             >>> import odoorpc
             >>> odoorpc.ODOO.list()
             ['foo', 'bar']
@@ -529,6 +612,9 @@ class ODOO(object):
     @classmethod
     def remove(cls, name, rc_file='~/.odoorpcrc'):
         """Remove the session identified by `name` from the `rc_file` file:
+
+        .. doctest::
+            :options: +SKIP
 
             >>> import odoorpc
             >>> odoorpc.ODOO.remove('foo')

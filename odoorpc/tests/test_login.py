@@ -2,7 +2,7 @@
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
-from odoorpc.service.model import Model
+from odoorpc.models import Model
 
 
 class TestLogin(BaseTestCase):

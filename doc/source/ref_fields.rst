@@ -4,8 +4,8 @@ Browse object fields
 ====================
 
 The table below presents the Python types returned by `OdooRPC`
-for each `Odoo` fields used by :class:`Recordset <odoorpc.service.model.Model>`
-objects (see the :func:`browse <odoorpc.service.model.Model.browse>` method):
+for each `Odoo` fields used by :class:`Recordset <odoorpc.models.Model>`
+objects (see the :func:`browse <odoorpc.models.Model.browse>` method):
 
 ================  ==============================
 `Odoo` fields     Python types used in `OdooRPC`

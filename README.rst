@@ -1,4 +1,3 @@
-=======
 OdooRPC
 =======
 
@@ -10,13 +9,13 @@ OdooRPC
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Latest Version
 
+.. image:: https://travis-ci.org/osiell/odoorpc.svg?branch=master
+    :target: https://travis-ci.org/osiell/odoorpc
+    :alt: Build Status
+
 .. image:: https://pypip.in/py_versions/OdooRPC/badge.svg
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Supported Python versions
-
-.. image:: https://pypip.in/implementation/OdooRPC/badge.svg
-    :target: https://pypi.python.org/pypi/OdooRPC/
-    :alt: Supported Python implementations
 
 .. image:: https://pypip.in/license/OdooRPC/badge.svg
     :target: https://pypi.python.org/pypi/OdooRPC/

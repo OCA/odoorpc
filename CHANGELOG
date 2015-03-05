@@ -1,0 +1,11 @@
+0.2.0
+=====
+- IMP: Sphinx Doctest integration (with Travis CI)
+- IMP: Internal Python modules reorganized
+- FIX: The recordset environment/context was not taken into account when
+  calling a RPC method from it ('ODOO.env' was used instead)
+- FIX: Missing the MANIFEST.in file (issue #6)
+
+0.1.0
+=====
+- Initial release

@@ -37,7 +37,7 @@ class Config(collections.MutableMapping):
         property.
 
     >>> import odoorpc
-    >>> odoo = odoorpc.ODOO('localhost')
+    >>> odoo = odoorpc.ODOO('localhost')    # doctest: +SKIP
     >>> type(odoo.config)
     <class 'odoorpc.tools.Config'>
     """

@@ -26,8 +26,7 @@ import sys
 import datetime
 
 #from odoorpc import error
-from odoorpc.service.model import Model
-from odoorpc.service.model.model import IncrementalRecords
+from odoorpc.models import Model, IncrementalRecords
 
 
 def is_int(value):

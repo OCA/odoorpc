@@ -33,6 +33,9 @@ class RPCError(Error):
     Error details (like the `Odoo` server traceback) are available through the
     `info` attribute:
 
+    .. doctest::
+        :options: +SKIP
+
         >>> from pprint import pprint as pp
         >>> try:
         ...     odoo.execute('res.users', 'wrong_method')
@@ -41,10 +44,31 @@ class RPCError(Error):
         ...
         {'code': 200,
          'data': {'arguments': ["'res.users' object has no attribute 'wrong_method'"],
-                  'debug': 'Traceback (most recent call last):\\n  File "/home/odoo/odoo/server/openerp/http.py", line 499, in [...]',
+                  'debug': 'Traceback (most recent call last):\\n  File ...',
                   'message': "'res.users' object has no attribute 'wrong_method'",
-                  'name': 'exceptions.AttributeError'},
+                  'name': 'exceptions.AttributeError'}
          'message': 'OpenERP Server Error'}
+
+    .. doctest::
+        :hide:
+
+        >>> from pprint import pprint as pp
+        >>> try:
+        ...     odoo.execute('res.users', 'wrong_method')
+        ... except odoorpc.error.RPCError as exc:
+        ...     exc.info['code'] == 200
+        ...     'message' in exc.info
+        ...     exc.info['data']['arguments'] == ["'res.users' object has no attribute 'wrong_method'"]
+        ...     exc.info['data']['debug'].startswith('Traceback (most recent call last):\\n  File')
+        ...     exc.info['data']['message'] == "'res.users' object has no attribute 'wrong_method'"
+        ...     exc.info['data']['name'] == 'exceptions.AttributeError'
+        ...
+        True
+        True
+        True
+        True
+        True
+        True
     """
     def __init__(self, message, info=False):
         super(Error, self).__init__(message, info)
