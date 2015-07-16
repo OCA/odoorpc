@@ -1,11 +1,7 @@
 OdooRPC
 =======
 
-.. image:: https://pypip.in/download/OdooRPC/badge.svg
-    :target: https://pypi.python.org/pypi/OdooRPC/
-    :alt: Downloads
-
-.. image:: https://pypip.in/version/OdooRPC/badge.svg
+.. image:: https://img.shields.io/pypi/v/OdooRPC.svg
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Latest Version
 
@@ -13,11 +9,11 @@ OdooRPC
     :target: https://travis-ci.org/osiell/odoorpc
     :alt: Build Status
 
-.. image:: https://pypip.in/py_versions/OdooRPC/badge.svg
+.. image:: https://img.shields.io/pypi/pyversions/OdooRPC.svg
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Supported Python versions
 
-.. image:: https://pypip.in/license/OdooRPC/badge.svg
+.. image:: https://img.shields.io/pypi/l/OdooRPC.svg
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: License
 
