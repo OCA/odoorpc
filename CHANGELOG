@@ -1,3 +1,9 @@
+0.3.0
+=====
+- FIX: 'ODOO.exec_workflow()' method now works correctly (issue #7)
+- FIX: .travis.yml - URL of wkhtmltox has changed (issue #9)
+- FIX: README.rst - Fixed shields (pypip.in replaced by shields.io)
+
 0.2.0
 =====
 - IMP: Sphinx Doctest integration (with Travis CI)
