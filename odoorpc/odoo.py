@@ -491,7 +491,7 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the workflow query
-        args_to_send = [self._db, self._uid, self._password,
+        args_to_send = [self.env.db, self.env.uid, self._password,
                         model, signal, record_id]
         data = self.json(
             '/jsonrpc',
