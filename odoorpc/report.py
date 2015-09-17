@@ -128,7 +128,10 @@ class Report(object):
             :options: +SKIP
 
             >>> odoo.report.list()['account.invoice']
-            [{'name': 'Invoices',
+            [{'name': u'Duplicates',
+              'report_name': u'account.account_invoice_report_duplicate_main',
+              'report_type': u'qweb-pdf'},
+             {'name': 'Invoices',
               'report_type': 'qweb-pdf',
               'report_name': 'account.report_invoice'}]
 
@@ -136,10 +139,9 @@ class Report(object):
             :hide:
 
             >>> from pprint import pprint as pp
-            >>> pp(odoo.report.list()['account.invoice'])
-            [{'name': 'Invoices',
-              'report_name': 'account.report_invoice',
-              'report_type': 'qweb-pdf'}]
+            >>> any(data['report_name'] == 'account.report_invoice'
+            ...     for data in odoo.report.list()['account.invoice'])
+            True
 
         *Python 2:*
 

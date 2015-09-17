@@ -7,20 +7,20 @@ from odoorpc.models import Model
 class TestFieldReference(LoginTestCase):
 
     def test_field_reference_read(self):
-        Lead = self.odoo.env['crm.lead']
-        lead_id = Lead.search([])[0]
+        Claim = self.odoo.env['crm.claim']
+        claim_id = Claim.search([])[0]
         # Test field containing a value
         self.odoo.execute(
-            'crm.lead', 'write', [lead_id], {'ref': 'res.partner,1'})
-        lead = Lead.browse(lead_id)
-        self.assertIsInstance(lead.ref, Model)
-        self.assertEqual(lead.ref._name, 'res.partner')
-        self.assertEqual(lead.ref.id, 1)
+            'crm.claim', 'write', [claim_id], {'ref': 'res.partner,1'})
+        claim = Claim.browse(claim_id)
+        self.assertIsInstance(claim.ref, Model)
+        self.assertEqual(claim.ref._name, 'res.partner')
+        self.assertEqual(claim.ref.id, 1)
         # Test if empty field returns False (unable to guess the model to use)
         self.odoo.execute(
-            'crm.lead', 'write', [lead_id], {'ref': None})
-        lead = Lead.browse(lead_id)
-        self.assertEqual(lead.ref, False)
+            'crm.claim', 'write', [claim_id], {'ref': None})
+        claim = Claim.browse(claim_id)
+        self.assertEqual(claim.ref, False)
 
     def test_field_reference_write(self):
         # TODO
