@@ -125,6 +125,9 @@ class ODOO(object):
           be sent automatically to every call of a
           :class:`model <odoorpc.models.Model>` method (default: `True`):
 
+        .. doctest::
+            :options: +SKIP
+
             >>> odoo.env.context['lang'] = 'fr_FR'
             >>> Product = odoo.env['product.product']
             >>> Product.name_get([2])   # Context sent by default ('lang': 'fr_FR' here)
@@ -145,8 +148,11 @@ class ODOO(object):
     def version(self):
         """The version of the server.
 
-        >>> odoo.version
-        '8.0'
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.version
+            '8.0'
         """
         return self._connector.version
 
@@ -261,7 +267,7 @@ class ODOO(object):
                 data['error'])
         return data
 
-    def http(self, url, data, headers=None):
+    def http(self, url, data=None, headers=None):
         """Low level method to execute raw HTPP queries.
 
         .. note::
@@ -278,19 +284,8 @@ class ODOO(object):
         E.g., the HTTP raw query to backup a database on `Odoo 8.0`:
 
         .. doctest::
-            :options: +SKIP
 
-            >>> response = odoo.http(
-            ...     'web/database/backup',
-            ...     'token=foo&backup_pwd=admin&backup_db=db_name')
-            >>> binary_data = response.read()
-
-        .. doctest::
-            :hide:
-
-            >>> response = odoo.http(
-            ...     'web/database/backup',
-            ...     'token=foo&backup_pwd=%s&backup_db=%s' % (SUPER_PWD, DB))
+            >>> response = odoo.http('web/binary/company_logo')
             >>> binary_data = response.read()
 
         *Python 2:*

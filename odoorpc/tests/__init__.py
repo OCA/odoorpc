@@ -45,7 +45,7 @@ class LoginTestCase(BaseTestCase):
         # Install 'sale' and 'crm' modules
         self.odoo.config['timeout'] = 600
         module_obj = self.odoo.env['ir.module.module']
-        module_ids = module_obj.search([('name', 'in', ['sale', 'crm'])])
+        module_ids = module_obj.search([('name', 'in', ['sale', 'crm_claim'])])
         module_obj.button_immediate_install(module_ids)
         self.odoo.config['timeout'] = 120
         # Get user record and model after the installation of modules

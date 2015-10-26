@@ -12,6 +12,7 @@ class TestWorkflow(LoginTestCase):
         self.product_obj = self.odoo.env['product.product']
         self.partner_obj = self.odoo.env['res.partner']
         self.sale_order_obj = self.odoo.env['sale.order']
+        self.uom_obj = self.odoo.env['product.uom']
         self.p_id = self.partner_obj.create({'name': "Child 1"})
         prod_vals = {
             'name': "PRODUCT TEST WORKFLOW",
@@ -20,6 +21,7 @@ class TestWorkflow(LoginTestCase):
         sol_vals = {
             'name': "TEST WORKFLOW",
             'product_id': self.product_id,
+            'product_uom': self.uom_obj.search([])[0],
         }
         so_vals = {
             'partner_id': self.p_id,

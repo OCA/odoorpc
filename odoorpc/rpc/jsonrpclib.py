@@ -98,9 +98,13 @@ class ProxyHTTP(Proxy):
     """The :class:`ProxyHTTP` class provides a dynamic access
     to all HTTP methods.
     """
-    def __call__(self, url, data, headers=None):
-        request = Request(url='/'.join([self._root_url, url]),
-                          data=encode_data(data))
+    def __call__(self, url, data=None, headers=None):
+        kwargs = {
+            'url': '/'.join([self._root_url, url]),
+        }
+        if data:
+            kwargs['data'] = encode_data(data)
+        request = Request(**kwargs)
         if headers:
             for hkey in headers:
                 hvalue = headers[hkey]
