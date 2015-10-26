@@ -42,13 +42,15 @@ class LoginTestCase(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
-        self.user = self.odoo.env.user
-        self.user_obj = self.odoo.env['res.users']
-        # Install 'sale' module
+        # Install 'sale' and 'crm' modules
         self.odoo.config['timeout'] = 600
         module_obj = self.odoo.env['ir.module.module']
-        module_ids = module_obj.search([('name', 'in', ['sale', 'crm'])])
+        module_ids = module_obj.search([('name', 'in', ['sale', 'crm_claim'])])
         module_obj.button_immediate_install(module_ids)
         self.odoo.config['timeout'] = 120
+        # Get user record and model after the installation of modules
+        # to get all available fields (avoiding test failures)
+        self.user = self.odoo.env.user
+        self.user_obj = self.odoo.env['res.users']
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

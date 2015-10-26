@@ -32,6 +32,7 @@ else:
         return bytes(data, 'ascii')
 
 from odoorpc import error
+from odoorpc.tools import v
 
 
 class DB(object):
@@ -52,7 +53,7 @@ class DB(object):
     def __init__(self, odoo):
         self._odoo = odoo
 
-    def dump(self, password, db):
+    def dump(self, password, db, format_='zip'):
         """Backup the `db` database. Returns the dump as a binary ZIP file
         containing the SQL dump file alongside the filestore directory (if any).
 
@@ -120,11 +121,14 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
+        args = [password, db]
+        if v(self._odoo.version)[0] >= 9:
+            args.append(format_)
         data = self._odoo.json(
             '/jsonrpc',
             {'service': 'db',
              'method': 'dump',
-             'args': [password, db]})
+             'args': args})
         # Encode to bytes forced to be compatible with Python 3.2
         # (its 'base64.standard_b64decode()' function only accepts bytes)
         result = encode2bytes(data['result'])

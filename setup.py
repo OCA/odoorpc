@@ -4,7 +4,7 @@ import os
 from distutils.core import setup
 
 name = 'OdooRPC'
-version = '0.3.0'
+version = '0.4.0'
 description = ("OdooRPC is a Python module providing an easy way to "
                "pilot your Odoo servers through RPC.")
 keywords = ("openerp odoo server rpc client xml-rpc xmlrpc jsonrpc json-rpc "
@@ -62,6 +62,7 @@ setup(name=name,
           "Programming Language :: Python :: 3.2",
           "Programming Language :: Python :: 3.3",
           "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: Implementation :: CPython",
           "Programming Language :: Python :: Implementation :: PyPy",
           "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",

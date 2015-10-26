@@ -4,20 +4,31 @@ python:
   - "3.2"
   - "3.3"
   - "3.4"
+  - "3.5"
   - "pypy"
 
-install:
+env:
+  - ODOO_BRANCH=8.0 ORPC_TEST_VERSION=$ODOO_BRANCH
+  - ODOO_BRANCH=9.0 ORPC_TEST_VERSION=$ODOO_BRANCH
+
+before_install:
+  # Install wkhtmltox
   - "wget http://download.gna.org/wkhtmltopdf/0.12/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb"
   - "sudo dpkg -i wkhtmltox-0.12.1_linux-precise-amd64.deb || true"
-  - "wget http://nightly.odoo.com/8.0/nightly/deb/odoo_8.0.latest_all.deb"
-  - "sudo dpkg -i odoo_8.0.latest_all.deb || true"
   - "sudo apt-get update && sudo apt-get install -f -y"
-  - "sudo invoke-rc.d odoo stop"
-  - pip install sphinx
+  # Install Odoo on the system (outside the virtualenv)
+  - "sudo git clone --depth=1 -b $ODOO_BRANCH https://github.com/odoo/odoo.git /opt/odoo"
+  - "sudo apt-get install python-pip"
+  - "sudo /usr/bin/pip install -r /opt/odoo/requirements.txt"
+  - "echo $PWD"
+  - "cd /opt/odoo && sudo /usr/bin/python setup.py install"
+  - "cd $TRAVIS_BUILD_DIR"
+  # Start Odoo
+  - "nohup /usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons &"
 
-before_script:
-  - nohup /usr/bin/openerp-server -r $USER --addons-path=/usr/lib/python2.7/dist-packages/openerp/addons &
-  - sleep 5
+install:
+  # OdooRPC dependencies
+  - pip install sphinx
 
 script:
   - python -m unittest discover -v

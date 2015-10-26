@@ -32,7 +32,9 @@ class TestReport(LoginTestCase):
     def test_report_list(self):
         res = self.odoo.report.list()
         self.assertIsInstance(res, dict)
-        self.assertIn('res.company', res)
-        self.assertIn('preview.report', res['res.company'][0]['report_name'])
+        self.assertIn('account.invoice', res)
+        self.assertTrue(
+            any('account.report_invoice' in data['report_name']
+                for data in res['account.invoice']))
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
