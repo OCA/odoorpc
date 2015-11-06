@@ -41,7 +41,7 @@ def is_int(value):
 
 
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     def is_string(value):
         """Return `True` if ``value`` is a string."""
         return isinstance(value, basestring)

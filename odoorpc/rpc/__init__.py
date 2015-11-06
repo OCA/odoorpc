@@ -26,7 +26,7 @@ These methods can be accessed from the connectors of this module.
 """
 import sys
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     from urllib2 import build_opener, HTTPCookieProcessor
     from cookielib import CookieJar
 # Python >= 3

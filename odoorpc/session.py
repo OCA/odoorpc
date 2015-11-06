@@ -25,7 +25,7 @@ import os
 import stat
 import sys
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     from ConfigParser import SafeConfigParser as ConfigParser
 # Python >= 3
 else:

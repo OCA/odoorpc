@@ -288,7 +288,7 @@ class Environment(object):
         """
         cls_name = model.replace('.', '_')
         # Hack for Python 2 (no need to do this for Python 3)
-        if sys.version_info.major < 3:
+        if sys.version_info[0] < 3:
             if isinstance(cls_name, unicode):
                 cls_name = cls_name.encode('utf-8')
         # Retrieve server fields info and generate corresponding local fields

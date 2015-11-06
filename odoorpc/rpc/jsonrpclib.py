@@ -23,7 +23,7 @@ import json
 import random
 import sys
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     from urllib2 import build_opener, HTTPCookieProcessor, Request
     from cookielib import CookieJar
 
