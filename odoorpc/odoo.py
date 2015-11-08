@@ -417,7 +417,7 @@ class ODOO(object):
             {'service': 'object',
              'method': 'execute',
              'args': args_to_send})
-        return data['result']
+        return data.get('result')
 
     def execute_kw(self, model, method, args=None, kwargs=None):
         """Execute the `method` of `model`.
@@ -466,7 +466,7 @@ class ODOO(object):
             {'service': 'object',
              'method': 'execute_kw',
              'args': args_to_send})
-        return data['result']
+        return data.get('result')
 
     def exec_workflow(self, model, record_id, signal):
         """Execute the workflow `signal` on
@@ -493,7 +493,7 @@ class ODOO(object):
             {'service': 'object',
              'method': 'exec_workflow',
              'args': args_to_send})
-        return data['result']
+        return data.get('result')
 
     # ---------------------- #
     # -- Session methods  -- #
