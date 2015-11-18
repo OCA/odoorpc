@@ -72,4 +72,8 @@ class TestEnvironment(LoginTestCase):
         self.assertEqual(record._name, 'res.lang')
         self.assertEqual(record.code, 'en_US')
 
+    def test_env_contains(self):
+        self.assertIn('res.partner', self.odoo.env)
+        self.assertNotIn('does.not.exist', self.odoo.env)
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

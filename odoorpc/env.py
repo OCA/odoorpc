@@ -281,6 +281,12 @@ class Environment(object):
         env._registry = self._registry
         return env
 
+    def __contains__(self, model):
+        """Check if the given `model` exists on the server."""
+        model_exists = self._odoo.execute('ir.model', 'search',
+                                          [('model', '=', model)])
+        return bool(model_exists)
+
     def _create_model_class(self, model):
         """Generate the model proxy class.
 
