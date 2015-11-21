@@ -57,12 +57,13 @@ How does it work? See below:
     print(user_data)
 
     # Use all methods of a model
-    Order = odoo.env['sale.order']
-    order_ids = Order.search([])
-    for order in Order.browse(order_ids):
-        print(order.name)
-        products = [line.product_id.name for line in order.order_line]
-        print(products)
+    if 'sale.order' in odoo.env:
+        Order = odoo.env['sale.order']
+        order_ids = Order.search([])
+        for order in Order.browse(order_ids):
+            print(order.name)
+            products = [line.product_id.name for line in order.order_line]
+            print(products)
 
     # Update data through a record
     user.name = "Brian Jones"

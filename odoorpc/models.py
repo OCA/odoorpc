@@ -29,7 +29,7 @@ import sys
 from odoorpc import error
 
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     NORMALIZED_TYPES = (int, long, str, unicode)
 # Python >= 3
 else:

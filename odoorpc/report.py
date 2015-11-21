@@ -25,7 +25,7 @@ import base64
 import io
 import sys
 # Python 2
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     def encode2bytes(data):
         return data
 # Python >= 3
