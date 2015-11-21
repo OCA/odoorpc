@@ -282,7 +282,13 @@ class Environment(object):
         return env
 
     def __contains__(self, model):
-        """Check if the given `model` exists on the server."""
+        """Check if the given `model` exists on the server.
+
+        >>> 'res.partner' in odoo.env
+        True
+
+        :return: `True` or `False`
+        """
         model_exists = self._odoo.execute('ir.model', 'search',
                                           [('model', '=', model)])
         return bool(model_exists)
