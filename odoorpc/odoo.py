@@ -268,7 +268,7 @@ class ODOO(object):
         return data
 
     def http(self, url, data=None, headers=None):
-        """Low level method to execute raw HTPP queries.
+        """Low level method to execute raw HTTP queries.
 
         .. note::
 
