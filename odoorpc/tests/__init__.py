@@ -23,7 +23,7 @@ class BaseTestCase(unittest.TestCase):
             'db': os.environ.get('ORPC_TEST_DB', 'odoorpc_test'),
             'user': os.environ.get('ORPC_TEST_USER', 'admin'),
             'pwd': os.environ.get('ORPC_TEST_PWD', 'admin'),
-            'version': os.environ.get('ORPC_TEST_VERSION', '8.0'),
+            'version': os.environ.get('ORPC_TEST_VERSION', None),
             'super_pwd': os.environ.get('ORPC_TEST_SUPER_PWD', 'admin'),
         }
         self.odoo = odoorpc.ODOO(
