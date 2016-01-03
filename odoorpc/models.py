@@ -63,6 +63,8 @@ class MetaModel(type):
 
     def __getattr__(cls, method):
         """Provide a dynamic access to a RPC method."""
+        if method.startswith('_'):
+            return super(MetaModel, cls).__getattr__(method)
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
             if cls._odoo.config['auto_context'] \
@@ -325,6 +327,8 @@ class Model(BaseModel):
             True
 
         """
+        if method.startswith('_'):
+            return super(Model, self).__getattr__(method)
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
             args = tuple([self.ids]) + args
