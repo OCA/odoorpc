@@ -1,3 +1,11 @@
+0.4.2
+=====
+- IMP: Unit tests:
+    - autodetect server version
+    - tests added for binary fields
+- IMP: The timeout can be set to 'None' (infinite timeout)
+- FIX: Underscore prefixed methods are not forwarded to the server
+
 0.4.1
 =====
 - IMP: New feature, check if a model exists in the Odoo database (see the

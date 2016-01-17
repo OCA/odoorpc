@@ -96,7 +96,7 @@ Bugs or suggestions
 -------------------
 
 Please, feel free to report bugs or suggestions in the `Bug Tracker
-<TODO>`_!
+<https://github.com/osiell/odoorpc/issues>`_!
 
 Make a donation
 ---------------
