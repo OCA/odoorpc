@@ -73,9 +73,10 @@ class ODOO(object):
         except ValueError:
             raise ValueError("The port must be an integer")
         try:
-            timeout = int(timeout)
+            if timeout is not None:
+                timeout = float(timeout)
         except ValueError:
-            raise ValueError("The timeout must be an integer")
+            raise ValueError("The timeout must be a float")
         self._host = host
         self._port = port
         self._protocol = protocol
@@ -268,7 +269,7 @@ class ODOO(object):
         return data
 
     def http(self, url, data=None, headers=None):
-        """Low level method to execute raw HTPP queries.
+        """Low level method to execute raw HTTP queries.
 
         .. note::
 
