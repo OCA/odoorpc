@@ -40,7 +40,7 @@ and ``datetime.datetime``::
 
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
-    >>> order.minimum_planned_date
+    >>> order.date_planned
     datetime.date(2014, 10, 8)
     >>> order.date_order
     datetime.datetime(2014, 10, 7, 20, 54, 21)

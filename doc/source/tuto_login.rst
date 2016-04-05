@@ -10,10 +10,10 @@ account of your choice::
 
 .. note::
 
-    Underhood the login method create a cookie, and all requests thereafter
-    which need a user authentication are cookie-based.
+    Under the hood the login method creates a cookie, and all requests
+    thereafter which need a user authentication are cookie-based.
 
-Once logged, you can check some information through the
+Once logged in, you can check some information through the
 :class:`environment <odoorpc.ODOO.env>`::
 
     >>> odoo.env.db

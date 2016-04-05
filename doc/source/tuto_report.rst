@@ -3,7 +3,7 @@
 Download reports
 ****************
 
-Another nice functionnality is the reports generation with the
+Another nice feature is the reports generation with the
 :attr:`report <odoorpc.ODOO.report>` property.
 The :func:`list <odoorpc.report.Report.list>` method allows you to list
 all reports available on your `Odoo` server (classified by models), while the
@@ -20,7 +20,7 @@ To download a report::
     >>> report = odoo.report.download('preview.report', [1])
 
 The method will return a file-like object, you will have to read its content
-in order to save it on your filesystem::
+in order to save it on your file-system::
 
     >>> with open('company_preview_report.pdf', 'w') as report_file:
     ...     report_file.write(report.read())

@@ -46,7 +46,7 @@ It was a tough decision, but several reasons motivated the `OdooRPC` project:
   confusing for newcomers in the `Odoo` world. So, `OdooRPC` speaks for
   itself.
 
-**Maintening cost, code cleanup**
+**Maintenance cost, code cleanup**
   `OpenERP` has evolved a lot since the version 5.0 (2009), making `OERPLib`
   hard to maintain (write tests for all versions before each `OERPLib` and
   `OpenERP` release is very time consuming). All the compatibility code for

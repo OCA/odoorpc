@@ -10,7 +10,7 @@ Introduction
 ------------
 
 **OdooRPC** is a Python module providing an easy way to
-pilot your **Odoo** servers through `RPC`.
+pilot your `Odoo <https://www.odoo.com>`_ servers through `RPC`.
 
 Features supported:
     - access to all data model methods (even ``browse``) with an API similar
