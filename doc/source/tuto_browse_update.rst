@@ -175,12 +175,12 @@ With ``datetime.date`` and ``datetime.datetime`` objects::
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
     >>> order.date_order = datetime.date(2011, 9, 20)
-    >>> order.minimum_planned_date = datetime.datetime(2011, 9, 20, 12, 31, 24)
+    >>> order.date_planned = datetime.datetime(2011, 9, 20, 12, 31, 24)
 
 With formated strings::
 
     >>> order.date_order = "2011-09-20"                     # %Y-%m-%d
-    >>> order.minimum_planned_date = "2011-09-20 12:31:24"  # %Y-%m-%d %H:%M:%S
+    >>> order.date_planned = "2011-09-20 12:31:24"  # %Y-%m-%d %H:%M:%S
 
 As always, a wrong type will raise an exception::
 
