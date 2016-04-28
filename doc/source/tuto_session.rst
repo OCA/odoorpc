@@ -5,7 +5,7 @@ Save your credentials (session)
 
 Once you are authenticated with your :class:`ODOO <odoorpc.ODOO>` instance, you
 can :func:`save <odoorpc.ODOO.save>` your credentials under a code name and use
-this one to quickly instanciate a new :class:`ODOO <odoorpc.ODOO>` class::
+this one to quickly instantiate a new :class:`ODOO <odoorpc.ODOO>` class::
 
     >>> import odoorpc
     >>> odoo = odoorpc.ODOO('localhost')
