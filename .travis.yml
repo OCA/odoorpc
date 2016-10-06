@@ -8,8 +8,9 @@ python:
   - "pypy"
 
 env:
-  - ODOO_BRANCH=8.0 ORPC_TEST_VERSION=$ODOO_BRANCH
-  - ODOO_BRANCH=9.0 ORPC_TEST_VERSION=$ODOO_BRANCH
+  - ODOO_BRANCH=8.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
+  - ODOO_BRANCH=9.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
+  - ODOO_BRANCH=10.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/odoo -r $USER --addons-path=/opt/odoo/addons"
 
 before_install:
   # Install wkhtmltox
@@ -24,7 +25,9 @@ before_install:
   - "cd /opt/odoo && sudo /usr/bin/python setup.py install"
   - "cd $TRAVIS_BUILD_DIR"
   # Start Odoo
-  - "nohup /usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons &"
+  #- "/usr/bin/python2.7 $ODOO_BIN -r $USER --addons-path=/opt/odoo/addons"
+  - "nohup $ODOO_CMD &"
+  #- "$ODOO_CMD"
 
 install:
   # OdooRPC dependencies
@@ -33,3 +36,4 @@ install:
 script:
   - python -m unittest discover -v
   - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest; fi
+  - cat /home/travis/build/sebalix/odoorpc/nohup.out
