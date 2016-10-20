@@ -11,6 +11,7 @@ class TestDB(BaseTestCase):
 
     def setUp(self):
         BaseTestCase.setUp(self)
+        self.odoo.logout()
         self.databases = []     # Keep databases created during tests
 
     def test_db_dump(self):
