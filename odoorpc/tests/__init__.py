@@ -42,10 +42,14 @@ class LoginTestCase(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
-        # Install 'sale' and 'crm' modules
+        # Install 'sale' + 'crm_claim' on Odoo < 10.0,
+        # and 'sale' + 'subscription' on Odoo >= 10.0
         self.odoo.config['timeout'] = 600
         module_obj = self.odoo.env['ir.module.module']
-        module_ids = module_obj.search([('name', 'in', ['sale', 'crm_claim'])])
+        modules = ['sale', 'crm_claim']
+        if self.odoo.version == '10.0':
+            modules = ['sale', 'subscription']
+        module_ids = module_obj.search([('name', 'in', modules)])
         module_obj.button_immediate_install(module_ids)
         self.odoo.config['timeout'] = 120
         # Get user record and model after the installation of modules
