@@ -92,7 +92,7 @@ Generate the documentation
 To generate the documentation, you have to install `Sphinx` documentation
 generator::
 
-    easy_install -U sphinx
+    pip install sphinx
 
 Then, you can use the ``build_doc`` option of the ``setup.py``::
 
