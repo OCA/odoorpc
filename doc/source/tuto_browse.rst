@@ -40,10 +40,8 @@ and ``datetime.datetime``::
 
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
-    >>> order.date_planned
-    datetime.date(2014, 10, 8)
     >>> order.date_order
-    datetime.datetime(2014, 10, 7, 20, 54, 21)
+    datetime.datetime(2016, 11, 6, 11, 23, 10)
 
 A list of data types used by records fields are available :ref:`here <fields>`.
 

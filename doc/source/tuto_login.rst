@@ -27,7 +27,7 @@ Once logged in, you can check some information through the
     >>> odoo.env.user.name              # name of the user
     'Administrator'
     >>> odoo.env.user.company_id.name   # the name of its company
-    'Your Company'
+    'YourCompany'
 
 From now, you can easily execute any kind of queries on your
 `Odoo` server (execute model methods, trigger workflow, download reports...).

@@ -30,13 +30,13 @@ context automatically::
     {'lang': 'fr_FR', 'tz': False}
     >>> Product = odoo.env['product.product']
     >>> Product.name_get([3, 4])
-    [[3, '[PC1] PC Basic'], [4, '[PC2] Basic+ PC (assembl\xe9 sur commande)']]
+    [[3, '[SERV_COST] Audit externe''], [4, '[PROD_DEL] Commutateur, 24 ports']]
 
 To stop sending the user context, use the :attr:`odoorpc.ODOO.config` property::
 
     >>> odoo.config['auto_context'] = False
     >>> Product.name_get([3, 4])    # Without context, lang 'en_US' by default
-    [[3, '[PC1] Basic PC'], [4, '[PC2] Basic+ PC (assembly on order)']]
+    [[3, '[SERV_COST] External Audit'], [4, '[PROD_DEL] Switch, 24 ports']]
 
 .. note::
 

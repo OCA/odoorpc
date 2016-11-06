@@ -46,7 +46,7 @@ class ODOO(object):
     .. doctest::
         :options: +SKIP
 
-        >>> odoo = odoorpc.ODOO('localhost', version='8.0')
+        >>> odoo = odoorpc.ODOO('localhost', version='10.0')
 
     *Python 2:*
 
@@ -153,7 +153,7 @@ class ODOO(object):
             :options: +SKIP
 
             >>> odoo.version
-            '8.0'
+            '10.0'
         """
         return self._connector.version
 
@@ -282,7 +282,7 @@ class ODOO(object):
         URL parameters (with :func:`urllib.urlencode` function for simple
         parameters, or multipart/form-data structure to handle file upload).
 
-        E.g., the HTTP raw query to backup a database on `Odoo 8.0`:
+        E.g., the HTTP raw query to get the company logo on `Odoo 10.0`:
 
         .. doctest::
 

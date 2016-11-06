@@ -13,16 +13,16 @@ retrieve a report as a file (in PDF, HTML... depending of the report).
 To list available reports::
 
     >>> odoo.report.list()
-    {u'ir.module.module': [{u'name': u'Technical guide', u'report_type': u'pdf', u'report_name': u'ir.module.reference'}], u'ir.model': [{u'name': u'Model Overview', u'report_type': u'sxw', u'report_name': u'ir.model.overview'}], u'res.partner': [{u'name': u'Labels', u'report_type': u'pdf', u'report_name': u'res.partner'}], u'res.company': [{u'name': u'Preview Report', u'report_type': u'pdf', u'report_name': u'preview.report'}]}
+    {u'account.invoice': [{u'name': u'Duplicates', u'report_type': u'qweb-pdf', u'report_name': u'account.account_invoice_report_duplicate_main'}, {u'name': u'Invoices', u'report_type': u'qweb-pdf', u'report_name': u'account.report_invoice'}], u'res.partner': [{u'name': u'Aged Partner Balance', u'report_type': u'qweb-pdf', u'report_name': u'account.report_agedpartnerbalance'}, {u'name': u'Due Payments', u'report_type': u'qweb-pdf', u'report_name': u'account.report_overdue'}], ...}
 
 To download a report::
 
-    >>> report = odoo.report.download('preview.report', [1])
+    >>> report = odoo.report.download('account.report_invoice', [1])
 
 The method will return a file-like object, you will have to read its content
 in order to save it on your file-system::
 
-    >>> with open('company_preview_report.pdf', 'w') as report_file:
+    >>> with open('invoice.pdf', 'w') as report_file:
     ...     report_file.write(report.read())
     ...
 

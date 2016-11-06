@@ -41,7 +41,7 @@ PORT = os.environ.get('ORPC_TEST_PORT', 8069)
 DB = os.environ.get('ORPC_TEST_DB', 'odoorpc_doctest')
 USER = os.environ.get('ORPC_TEST_USER', 'admin')
 PWD = os.environ.get('ORPC_TEST_PWD', 'admin')
-VERSION = os.environ.get('ORPC_TEST_VERSION', '8.0')
+VERSION = os.environ.get('ORPC_TEST_VERSION', '10.0')
 SUPER_PWD = os.environ.get('ORPC_TEST_SUPER_PWD', 'admin')
 import odoorpc
 odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
