@@ -27,9 +27,7 @@ before_install:
   - "cd /opt/odoo && sudo /usr/bin/python setup.py install"
   - "cd $TRAVIS_BUILD_DIR"
   # Start Odoo
-  #- "/usr/bin/python2.7 $ODOO_BIN -r $USER --addons-path=/opt/odoo/addons"
   - "nohup $ODOO_CMD &"
-  #- "$ODOO_CMD"
 
 install:
   # OdooRPC dependencies
@@ -38,4 +36,3 @@ install:
 script:
   - python -m unittest discover -v
   - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest; fi
-  - cat /home/travis/build/sebalix/odoorpc/nohup.out
