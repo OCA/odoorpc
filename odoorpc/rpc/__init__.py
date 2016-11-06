@@ -92,24 +92,47 @@ class ConnectorJSONRPC(Connector):
         :options: +SKIP
 
         >>> cnt.proxy_json.web.session.authenticate(db='db_name', login='admin', password='password')
-        {'jsonrpc': '2.0', 'id': 202516757,
-         'result': {'username': 'admin', 'user_context': {'lang': 'fr_FR', 'tz': 'Europe/Brussels', 'uid': 1},
-         'db': 'db_name', 'company_id': 1, 'uid': 1, 'session_id': '308816f081394a9c803613895b988540'}}
+        {'id': 51373612,
+         'jsonrpc': '2.0',
+         'result': {'company_id': 1,
+                    'currencies': {'1': {'digits': [69, 2],
+                                         'position': 'after',
+                                         'symbol': '\u20ac'},
+                                   '3': {'digits': [69, 2],
+                                         'position': 'before',
+                                         'symbol': '$'}},
+                    'db': 'odoorpc_test',
+                    'is_admin': True,
+                    'is_superuser': True,
+                    'name': 'Administrator',
+                    'partner_id': 3,
+                    'server_version': '10.0',
+                    'server_version_info': [10, 0, 0, 'final', 0, ''],
+                    'session_id': '6dd7a34f16c1c67b38bfec413cca4962d5c01d53',
+                    'uid': 1,
+                    'user_companies': False,
+                    'user_context': {'lang': 'en_US',
+                                     'tz': 'Europe/Brussels',
+                                     'uid': 1},
+                    'username': 'admin',
+                    'web.base.url': 'http://localhost:8069',
+                    'web_tours': []}}
 
     .. doctest::
         :hide:
         :options: +NORMALIZE_WHITESPACE
 
-        >>> from pprint import pprint as pp
-        >>> pp(cnt.proxy_json.web.session.authenticate(db=DB, login=USER, password=PWD))
-        {'id': ...,
-         'jsonrpc': '2.0',
-         'result': {'company_id': 1,
-                    'db': ...,
-                    'session_id': ...,
-                    'uid': 1,
-                    'user_context': ...,
-                    'username': 'admin'}}
+        >>> from odoorpc.tools import v
+        >>> data = cnt.proxy_json.web.session.authenticate(db=DB, login=USER, password=PWD)
+        >>> keys = ['company_id', 'db', 'session_id', 'uid', 'user_context', 'username']
+        >>> if v(VERSION) >= v('10.0'):
+        ...     keys.extend([
+        ...         'currencies', 'is_admin', 'is_superuser', 'name',
+        ...         'partner_id', 'server_version', 'server_version_info',
+        ...         'user_companies', 'web.base.url', 'web_tours',
+        ...     ])
+        >>> all([key in data['result'] for key in keys])
+        True
 
     Read data of a partner:
 
