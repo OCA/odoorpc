@@ -101,7 +101,7 @@ class ConnectorJSONRPC(Connector):
                                    '3': {'digits': [69, 2],
                                          'position': 'before',
                                          'symbol': '$'}},
-                    'db': 'odoorpc_test',
+                    'db': 'db_name',
                     'is_admin': True,
                     'is_superuser': True,
                     'name': 'Administrator',
