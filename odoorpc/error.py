@@ -43,11 +43,12 @@ class RPCError(Error):
         ...     pp(exc.info)
         ...
         {'code': 200,
-         'data': {'arguments': ["'res.users' object has no attribute 'wrong_method'"],
+         'data': {'arguments': ["type object 'res.users' has no attribute 'wrong_method'"],
                   'debug': 'Traceback (most recent call last):\\n  File ...',
+                  'exception_type': 'internal_error',
                   'message': "'res.users' object has no attribute 'wrong_method'",
                   'name': 'exceptions.AttributeError'}
-         'message': 'OpenERP Server Error'}
+         'message': 'Odoo Server Error'}
 
     .. doctest::
         :hide:
@@ -58,9 +59,15 @@ class RPCError(Error):
         ... except odoorpc.error.RPCError as exc:
         ...     exc.info['code'] == 200
         ...     'message' in exc.info
-        ...     exc.info['data']['arguments'] == ["'res.users' object has no attribute 'wrong_method'"]
+        ...     exc.info['data']['arguments'] in [
+        ...         ["'res.users' object has no attribute 'wrong_method'"],         # >= 8.0
+        ...         ["type object 'res.users' has no attribute 'wrong_method'"],    # >= 10.0
+        ...     ]
         ...     exc.info['data']['debug'].startswith('Traceback (most recent call last):\\n  File')
-        ...     exc.info['data']['message'] == "'res.users' object has no attribute 'wrong_method'"
+        ...     exc.info['data']['message'] in [
+        ...         "'res.users' object has no attribute 'wrong_method'",           # >= 8.0
+        ...         "type object 'res.users' has no attribute 'wrong_method'",      # >= 10.0
+        ...     ]
         ...     exc.info['data']['name'] == 'exceptions.AttributeError'
         ...
         True

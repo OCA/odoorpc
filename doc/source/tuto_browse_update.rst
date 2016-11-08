@@ -1,29 +1,30 @@
 .. _tuto-update-browse-records:
 
-Update data through browsable records
-*************************************
+Update data through records
+***************************
 
 By default when updating values of a record, the change is automatically sent
 to the server.
 Let's update the name of a partner::
 
     >>> Partner = odoo.env['res.partner']
-    >>> partner = Partner.browse(1)
-    >>> partner.name = "MyCompany"
+    >>> partner_id = Partner.create({'name': "Contact Test"})
+    >>> partner = Partner.browse(partner_id)
+    >>> partner.name = "MyContact"
 
 This is equivalent to::
 
-    >>> Partner.write([partner.id], {'name': "MyCompany"})
+    >>> Partner.write([partner.id], {'name': "MyContact"})
 
 As one update is equivalent to one RPC query, if you need to update several
 fields for one record it is encouraged to use the `write` method as above ::
 
-    >>> partner.write({'name': "MyCompany", 'website': 'http://example.net'})    # one RPC query
+    >>> partner.write({'name': "MyContact", 'website': 'http://example.net'})    # one RPC query
 
 Or, deactivate the ``auto_commit`` option and commit the changes manually::
 
     >>> odoo.config['auto_commit'] = False
-    >>> partner.name = "MyCompany"
+    >>> partner.name = "MyContact"
     >>> partner.website = 'http://example.net'
     >>> partner.env.commit()    # one RPC by record modified
 
@@ -41,15 +42,15 @@ Same as above, except there is a check about the value assigned. For instance,
 the field ``type`` of the ``res.partner`` model accept values contains
 in ``['default', 'invoice', 'delivery', 'contact', 'other']``::
 
-    >>> partner.type = 'default' # Ok
-    >>> partner.type = 'foobar'  # Error!
+    >>> partner.type = 'delivery'   # Ok
+    >>> partner.type = 'foobar'     # Error!
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "odoorpc/service/model/fields.py", line 148, in __set__
         value = self.check_value(value)
       File "odoorpc/service/model/fields.py", line 160, in check_value
         field_name=self.name,
-    ValueError: The value 'foobar' supplied doesn't match with the possible values '['default', 'invoice', 'delivery', 'contact', 'other']' for the 'type' field
+    ValueError: The value 'foobar' supplied doesn't match with the possible values '['contact', 'invoice', 'delivery', 'other']' for the 'type' field
 
 Many2one
 ''''''''
@@ -57,7 +58,7 @@ Many2one
 You can also update a ``many2one`` field, with either an ID or a record::
 
     >>> partner.parent_id = 1                   # with an ID
-    >>> partner.parent_id = Partner.browse(1)   # with a browsable record
+    >>> partner.parent_id = Partner.browse(1)   # with a record object
 
 You can't put any ID or record, a check is made on the relationship
 to ensure data integrity::
@@ -78,8 +79,9 @@ One2many and Many2many
 ''''''''''''''''''''''
 
 ``one2many`` and ``many2many`` fields can be updated by providing
-a list of tuple as specified in the `OpenERP/Odoo` documentation, a list of
-records, a list of record IDs or an empty list or ``False``:
+a list of tuple as specified in the `Odoo` documentation
+(`link <https://github.com/odoo/odoo/blob/10.0/odoo/models.py#L3479>`_),
+a list of records, a list of record IDs, an empty list or ``False``:
 
 With a tuple (as documented), no magic here::
 
@@ -142,13 +144,13 @@ With a record only::
 Reference
 '''''''''
 
-To update a ``reference`` field, you have to use either a string or a browsable
-record as below::
+To update a ``reference`` field, you have to use either a string or a record
+object as below::
 
     >>> IrActionServer = odoo.env['ir.actions.server']
-    >>> action_server = IrActionServer.browse(7)
-    >>> action_server.ref_object = 'res.partner,1'  # with a string with the format '{relation},{id}'
-    >>> action_server.ref_object = Partner.browse(1)    # with a browsable record
+    >>> action_server = IrActionServer.browse(8)
+    >>> action_server.ref_object = 'res.partner,1'      # with a string with the format '{relation},{id}'
+    >>> action_server.ref_object = Partner.browse(1)    # with a record object
 
 A check is made on the relation name::
 
@@ -174,13 +176,12 @@ With ``datetime.date`` and ``datetime.datetime`` objects::
     >>> import datetime
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
-    >>> order.date_order = datetime.date(2011, 9, 20)
-    >>> order.date_planned = datetime.datetime(2011, 9, 20, 12, 31, 24)
+    >>> order.date_order = datetime.datetime(2016, 11, 7, 11, 23, 10)
 
 With formated strings::
 
-    >>> order.date_order = "2011-09-20"                     # %Y-%m-%d
-    >>> order.date_planned = "2011-09-20 12:31:24"  # %Y-%m-%d %H:%M:%S
+    >>> order.date_order = "2016-11-07"             # %Y-%m-%d
+    >>> order.date_order = "2016-11-07 12:31:24"    # %Y-%m-%d %H:%M:%S
 
 As always, a wrong type will raise an exception::
 
@@ -191,6 +192,6 @@ As always, a wrong type will raise an exception::
         value = self.check_value(value)
       File "odoorpc/fields.py", line 203, in check_value
         self.pattern))
-    ValueError: Value not well formatted, expecting '%Y-%m-%d' format
+    ValueError: Value not well formatted, expecting '%Y-%m-%d %H:%M:%S' format
 
 :ref:`Next step: Download reports <tuto-download-report>`

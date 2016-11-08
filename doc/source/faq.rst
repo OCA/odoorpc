@@ -33,10 +33,10 @@ It was a tough decision, but several reasons motivated the `OdooRPC` project:
 **New server API**
   One goal of `OERPLib` was to give an API not too different from the server
   side API to reduce the learning gap between server-side development and
-  client-side with an `RPC` library. With the new 8.0 API which appears in
-  `Odoo` 8.0 this is another brake (the old API will be removed one day), so
-  the current API of `OERPLib` will not be consistent for the next years.
-  As such, `OdooRPC` mimics A LOT the new API 8.0 of Odoo, for more
+  client-side with an `RPC` library. With the new API which appears in
+  `Odoo` 8.0 this is another brake (the old API has even been removed
+  since Odoo 10.0), so the current API of `OERPLib` is not anymore consistent.
+  As such, `OdooRPC` mimics A LOT the new API of Odoo, for more
   consistency (see the :ref:`tutorials <tutorials>`).
 
 **New brand Odoo**
@@ -126,7 +126,7 @@ for instance::
 
     for session in odoorpc.ODOO.list():
         odoo = odoorpc.ODOO.load(session)
-        if v(odoo.version) > v('8.0'):
+        if v(odoo.version) < v('10.0'):
             pass  # do some stuff
         else:
             pass  # do something else
