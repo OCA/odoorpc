@@ -30,4 +30,4 @@ This is a behaviour `by design`: `OdooRPC` has no way to make the difference
 between a `class` or an `instance` method through RPC, this is why it differs
 from the `Odoo` API.
 
-:ref:`Next step: Update data through browsable records <tuto-update-browse-records>`
+:ref:`Next step: Update data through records <tuto-update-browse-records>`

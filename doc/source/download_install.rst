@@ -45,7 +45,7 @@ available::
     $ export ORPC_TEST_DB=odoorpc_test
     $ export ORPC_TEST_USER=admin
     $ export ORPC_TEST_PWD=admin
-    $ export ORPC_TEST_VERSION=8.0
+    $ export ORPC_TEST_VERSION=10.0
     $ export ORPC_TEST_SUPER_PWD=admin
     $ python -m unittest discover -v
 

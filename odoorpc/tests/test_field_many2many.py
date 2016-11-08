@@ -11,10 +11,17 @@ class TestFieldMany2many(LoginTestCase):
     def setUp(self):
         LoginTestCase.setUp(self)
         self.group_obj = self.odoo.env['res.groups']
-        self.u0_id = self.user_obj.create(
-            {'name': "TestMany2many", 'login': 'test_m2m_%s' % time.time()})
+        self.u0_id = self.user_obj.create({
+            'name': "TestMany2many User 1",
+            'login': 'test_m2m_u1_%s' % time.time(),
+        })
         self.g1_id = self.group_obj.create({'name': "Group 1"})
         self.g2_id = self.group_obj.create({'name': "Group 2"})
+        self.u1_id = self.user_obj.create({
+            'name': "TestMany2many User 2",
+            'login': 'test_m2m_u2_%s' % time.time(),
+            'groups_id': [(4, self.g1_id), (4, self.g2_id)],
+        })
 
     def test_field_many2many_read(self):
         self.assertIsInstance(self.user.company_ids, Model)
@@ -123,30 +130,28 @@ class TestFieldMany2many(LoginTestCase):
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_isub_id(self):
-        user = self.user_obj.browse(self.u0_id)
-        group_id = user.read(['groups_id'])[0]['groups_id'][0]
+        user = self.user_obj.browse(self.u1_id)
+        self.assertIn(self.g1_id, user.groups_id.ids)
         # -= ID
-        user.groups_id -= group_id
+        user.groups_id -= self.g1_id
         data = user.read(['groups_id'])[0]
-        self.assertNotIn(group_id, data['groups_id'])
+        self.assertNotIn(self.g1_id, data['groups_id'])
         group_ids = [grp.id for grp in user.groups_id]
-        self.assertNotIn(group_id, group_ids)
+        self.assertNotIn(self.g1_id, group_ids)
 
     def test_field_many2many_write_isub_record(self):
-        user = self.user_obj.browse(self.u0_id)
-        group = user.groups_id[0]
+        user = self.user_obj.browse(self.u1_id)
+        self.assertIn(self.g1_id, user.groups_id.ids)
         # -= Record
-        data = user.read(['groups_id'])[0]
-        self.assertIn(group.id, data['groups_id'])
+        group = self.group_obj.browse(self.g1_id)
         user.groups_id -= group
         data = user.read(['groups_id'])[0]
         self.assertNotIn(group.id, data['groups_id'])
-        group_ids = [grp.id for grp in user.groups_id]
-        self.assertNotIn(group.id, group_ids)
+        self.assertNotIn(group.id, user.groups_id.ids)
 
     def test_field_many2many_write_isub_recordset(self):
-        user = self.user_obj.browse(self.u0_id)
-        groups = user.groups_id
+        user = self.user_obj.browse(self.u1_id)
+        groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= Recordset
         data = user.read(['groups_id'])[0]
         self.assertIn(groups.ids[0], data['groups_id'])
@@ -160,8 +165,8 @@ class TestFieldMany2many(LoginTestCase):
         self.assertNotIn(groups.ids[1], group_ids)
 
     def test_field_many2many_write_isub_list_ids(self):
-        user = self.user_obj.browse(self.u0_id)
-        groups = user.groups_id
+        user = self.user_obj.browse(self.u1_id)
+        groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= List of IDs
         data = user.read(['groups_id'])[0]
         self.assertIn(groups.ids[0], data['groups_id'])
@@ -175,8 +180,8 @@ class TestFieldMany2many(LoginTestCase):
         self.assertNotIn(groups.ids[1], group_ids)
 
     def test_field_many2many_write_isub_list_records(self):
-        user = self.user_obj.browse(self.u0_id)
-        groups = user.groups_id
+        user = self.user_obj.browse(self.u1_id)
+        groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= List of records
         data = user.read(['groups_id'])[0]
         self.assertIn(groups.ids[0], data['groups_id'])
@@ -190,8 +195,8 @@ class TestFieldMany2many(LoginTestCase):
         self.assertNotIn(groups.ids[1], group_ids)
 
     def test_field_many2many_write_isub_id_and_list_ids(self):
-        user = self.user_obj.browse(self.u0_id)
-        groups = user.groups_id
+        user = self.user_obj.browse(self.u1_id)
+        groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= ID and -= [ID]
         data = user.read(['groups_id'])[0]
         self.assertIn(groups.ids[0], data['groups_id'])

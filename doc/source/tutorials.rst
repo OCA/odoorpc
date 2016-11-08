@@ -3,6 +3,11 @@
 Tutorials
 =========
 
+.. note::
+
+    The tutorial is based on `Odoo 10.0`, the examples must be adapted
+    following the version of `Odoo` you are using.
+
 .. toctree::
     :maxdepth: 2
 
