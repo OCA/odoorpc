@@ -30,17 +30,19 @@ class BaseTestCase(unittest.TestCase):
             self.env['host'], protocol=self.env['protocol'],
             port=self.env['port'], version=self.env['version'])
         # Create the database
+        default_timeout = self.odoo.config['timeout']
         self.odoo.config['timeout'] = 600
         if self.env['db'] not in self.odoo.db.list():
             self.odoo.db.create(
                 self.env['super_pwd'], self.env['db'], True)
-        self.odoo.config['timeout'] = 120
+        self.odoo.config['timeout'] = default_timeout
 
 
 class LoginTestCase(BaseTestCase):
     """Instanciates an ``odoorpc.ODOO`` object and perform the user login."""
     def setUp(self):
         BaseTestCase.setUp(self)
+        default_timeout = self.odoo.config['timeout']
         self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
         # Install 'sale' + 'crm_claim' on Odoo < 10.0,
         # and 'sale' + 'subscription' on Odoo >= 10.0
@@ -51,7 +53,7 @@ class LoginTestCase(BaseTestCase):
             modules = ['sale', 'subscription']
         module_ids = module_obj.search([('name', 'in', modules)])
         module_obj.button_immediate_install(module_ids)
-        self.odoo.config['timeout'] = 120
+        self.odoo.config['timeout'] = default_timeout
         # Get user record and model after the installation of modules
         # to get all available fields (avoiding test failures)
         self.user = self.odoo.env.user
