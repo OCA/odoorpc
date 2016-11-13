@@ -1,3 +1,7 @@
+0.5.1
+=====
+- FIX: Session file loading, read the `timeout` value as a float
+
 0.5.0
 =====
 - IMP: Support added for Odoo 10.0
