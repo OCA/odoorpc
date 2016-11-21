@@ -3,10 +3,11 @@
 import sys
 # Python 2
 if sys.version_info.major < 3:
-    from urllib2 import URLError
+    from urllib2 import BaseHandler, URLError, build_opener
 # Python >= 3
 else:
     from urllib.error import URLError
+    from urllib.request import BaseHandler, build_opener
 
 from odoorpc.tests import BaseTestCase
 import odoorpc
@@ -34,6 +35,17 @@ class TestInit(BaseTestCase):
         self.assertEqual(odoo.protocol, self.env['protocol'])
         self.assertEqual(odoo.port, self.env['port'])
         self.assertEqual(odoo.config['timeout'], 42)
+
+    def test_init_opener(self):
+        # Opener
+        opener = build_opener(BaseHandler)
+        odoo = odoorpc.ODOO(
+            self.env['host'], self.env['protocol'], self.env['port'],
+            opener=opener)
+        connector = odoo._connector
+        self.assertIs(connector._opener, opener)
+        self.assertIs(connector._proxy_http._opener, opener)
+        self.assertIs(connector._proxy_json._opener, opener)
 
     def test_init_timeout_none(self):
         odoo = odoorpc.ODOO(
