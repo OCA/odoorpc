@@ -62,7 +62,7 @@ class ODOO(object):
     """
 
     def __init__(self, host='localhost', protocol='jsonrpc',
-                 port=8069, timeout=120, version=None):
+                 port=8069, timeout=120, version=None, opener=None):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = ("The protocol '{0}' is not supported by the ODOO class. "
                    "Please choose a protocol among these ones: {1}")
@@ -88,7 +88,7 @@ class ODOO(object):
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._host, self._port, timeout, version)
+                self._host, self._port, timeout, version, opener=opener)
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)
         # Dictionary of configuration options
