@@ -6,6 +6,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
   - "pypy"
 
 env:
@@ -35,4 +36,4 @@ install:
 
 script:
   - python -m unittest discover -v
-  - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" != "3.2" && "$TRAVIS_PYTHON_VERSION" != "3.3" ]]; then PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest; fi

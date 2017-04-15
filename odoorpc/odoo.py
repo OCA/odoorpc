@@ -48,6 +48,20 @@ class ODOO(object):
 
         >>> odoo = odoorpc.ODOO('localhost', version='10.0')
 
+    You can also define a custom URL opener to handle HTTP requests. A use
+    case is to manage a basic HTTP authentication in front of `Odoo`:
+
+    .. doctest::
+        :options: +SKIP
+
+        >>> import urllib.request
+        >>> import odoorpc
+        >>> pwd_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+        >>> pwd_mgr.add_password(None, "http://example.net", "userName", "passWord")
+        >>> auth_handler = urllib.request.HTTPBasicAuthHandler(pwd_mgr)
+        >>> opener = urllib.request.build_opener(auth_handler)
+        >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener)
+
     *Python 2:*
 
     :raise: :class:`odoorpc.error.InternalError`
@@ -62,7 +76,7 @@ class ODOO(object):
     """
 
     def __init__(self, host='localhost', protocol='jsonrpc',
-                 port=8069, timeout=120, version=None):
+                 port=8069, timeout=120, version=None, opener=None):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = ("The protocol '{0}' is not supported by the ODOO class. "
                    "Please choose a protocol among these ones: {1}")
@@ -88,7 +102,7 @@ class ODOO(object):
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._host, self._port, timeout, version)
+                self._host, self._port, timeout, version, opener=opener)
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)
         # Dictionary of configuration options

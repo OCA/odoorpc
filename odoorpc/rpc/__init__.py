@@ -183,14 +183,16 @@ class ConnectorJSONRPC(Connector):
         True
     """
     def __init__(self, host, port=8069, timeout=120, version=None,
-                 deserialize=True):
+                 deserialize=True, opener=None):
         super(ConnectorJSONRPC, self).__init__(host, port, timeout, version)
         self.deserialize = deserialize
         # One URL opener (with cookies handling) shared between
         # JSON and HTTP requests
-        cookie_jar = CookieJar()
-        self._opener = build_opener(
-            HTTPCookieProcessor(cookie_jar))
+        if opener is None:
+            cookie_jar = CookieJar()
+            opener = build_opener(
+                HTTPCookieProcessor(cookie_jar))
+        self._opener = opener
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     def _get_proxies(self):
@@ -250,8 +252,9 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         ...     cnt = rpc.ConnectorJSONRPCSSL(HOST, port=PORT)
     """
     def __init__(self, host, port=8069, timeout=120, version=None,
-                 deserialize=True):
-        super(ConnectorJSONRPCSSL, self).__init__(host, port, timeout, version)
+                 deserialize=True, opener=None):
+        super(ConnectorJSONRPCSSL, self).__init__(
+            host, port, timeout, version, opener=opener)
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     @property
