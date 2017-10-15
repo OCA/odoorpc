@@ -9,7 +9,7 @@ Welcome to OdooRPC's documentation!
 Introduction
 ------------
 
-**OdooRPC** is a Python module providing an easy way to
+**OdooRPC** is a Python package providing an easy way to
 pilot your `Odoo <https://www.odoo.com>`_ servers through `RPC`.
 
 Features supported:
@@ -92,28 +92,36 @@ License
 
 This software is made available under the `LGPL v3` license.
 
-Bugs or suggestions
--------------------
+Bug Tracker
+-----------
 
-Please, feel free to report bugs or suggestions in the `Bug Tracker
-<https://github.com/osiell/odoorpc/issues>`_!
+Bugs are tracked on `GitHub Issues
+<https://github.com/OCA/odoorpc/issues>`_. In case of trouble, please
+check there if your issue has already been reported. If you spotted it first,
+help us smash it by providing detailed and welcomed feedback.
 
-Make a donation
----------------
+Credits
+-------
 
-`OdooRPC` is mainly developed on free time. To show your appreciation and
-support this project, it is possible to make a donation through `PayPal`:
+Contributors
+____________
 
-.. raw:: html
+* Sébastien Alix <sebastien.alix@osiell.com>
 
-    <div style="padding-left: 5em; text-align: left;">
-        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-            <input type="hidden" name="cmd" value="_s-xclick">
-            <input type="hidden" name="hosted_button_id" value="RCVMUNS5LK5K6">
-            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-            <img alt="" border="0" src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" width="1" height="1">
-        </form>
-    </div>
+Do not contact contributors directly about support or help with technical issues.
+
+Maintainer
+__________
+
+.. image:: https://odoo-community.org/logo.png
+   :alt: Odoo Community Association
+   :target: https://odoo-community.org
+
+This package is maintained by the OCA.
+
+OCA, or the Odoo Community Association, is a nonprofit organization whose
+mission is to support the collaborative development of Odoo features and
+promote its widespread use.
 
 Indices and tables
 ==================
@@ -121,4 +129,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
