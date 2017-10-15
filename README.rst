@@ -1,3 +1,4 @@
+=======
 OdooRPC
 =======
 
@@ -5,8 +6,8 @@ OdooRPC
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Latest Version
 
-.. image:: https://travis-ci.org/osiell/odoorpc.svg?branch=master
-    :target: https://travis-ci.org/osiell/odoorpc
+.. image:: https://travis-ci.org/OCA/odoorpc.svg?branch=master
+    :target: https://travis-ci.org/OCA/odoorpc
     :alt: Build Status
 
 .. image:: https://img.shields.io/pypi/pyversions/OdooRPC.svg
@@ -17,7 +18,7 @@ OdooRPC
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: License
 
-**OdooRPC** is a Python module providing an easy way to
+**OdooRPC** is a Python package providing an easy way to
 pilot your **Odoo** servers through `RPC`.
 
 Features supported:
@@ -71,23 +72,23 @@ How does it work? See below:
 See the documentation for more details and features.
 
 Supported Odoo server versions
-------------------------------
+==============================
 
 `OdooRPC` has been tested on `Odoo` 8.0, 9.0 and 10.0.
 It should work on next versions if `Odoo` keeps a stable API.
 
 Supported Python versions
--------------------------
+=========================
 
 `OdooRPC` support Python 2.7, 3.2, 3.3, 3.4, 3.5 and 3.6.
 
 License
--------
+=======
 
 This software is made available under the `LGPL v3` license.
 
 Generate the documentation
---------------------------
+==========================
 
 To generate the documentation, you have to install `Sphinx` documentation
 generator::
@@ -100,13 +101,38 @@ Then, you can use the ``build_doc`` option of the ``setup.py``::
 
 The generated documentation will be in the ``./doc/build/html`` directory.
 
-Bugs or suggestions
--------------------
-
-Please, feel free to report bugs or suggestions in the `Bug Tracker
-<https://github.com/osiell/odoorpc/issues>`_!
-
 Changes in this version
------------------------
+=======================
 
 Consult the ``CHANGELOG`` file.
+
+Bug Tracker
+===========
+
+Bugs are tracked on `GitHub Issues
+<https://github.com/OCA/odoorpc/issues>`_. In case of trouble, please
+check there if your issue has already been reported. If you spotted it first,
+help us smash it by providing detailed and welcomed feedback.
+
+Credits
+=======
+
+Contributors
+------------
+
+* Sébastien Alix <sebastien.alix@osiell.com>
+
+Do not contact contributors directly about support or help with technical issues.
+
+Maintainer
+----------
+
+.. image:: https://odoo-community.org/logo.png
+   :alt: Odoo Community Association
+   :target: https://odoo-community.org
+
+This package is maintained by the OCA.
+
+OCA, or the Odoo Community Association, is a nonprofit organization whose
+mission is to support the collaborative development of Odoo features and
+promote its widespread use.

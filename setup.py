@@ -5,7 +5,7 @@ from distutils.core import setup
 
 name = 'OdooRPC'
 version = '0.6.0'
-description = ("OdooRPC is a Python module providing an easy way to "
+description = ("OdooRPC is a Python package providing an easy way to "
                "pilot your Odoo servers through RPC.")
 keywords = ("openerp odoo server rpc client xml-rpc xmlrpc jsonrpc json-rpc "
             "odoorpc oerplib communication lib library python "

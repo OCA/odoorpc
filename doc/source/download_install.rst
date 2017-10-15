@@ -15,10 +15,10 @@ No dependency is required.
 Source code
 -----------
 
-The project is hosted on `GitHub <https://github.com/osiell/odoorpc>`_.
+The project is hosted on `GitHub <https://github.com/OCA/odoorpc>`_.
 To get the current development branch (``master``), just type::
 
-    $ git clone https://github.com/osiell/odoorpc.git
+    $ git clone https://github.com/OCA/odoorpc.git
 
 For the last version of a stable branch (replace `X.Y` accordingly)::
 
