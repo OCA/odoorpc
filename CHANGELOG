@@ -2,6 +2,7 @@
 =====
 - IMP: OCA rebranding
 - IMP: Drop support for Python 3.2 and 3.3
+- IMP: Support added for Odoo 11.0
 
 0.6.0
 =====

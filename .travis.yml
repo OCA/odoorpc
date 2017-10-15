@@ -14,6 +14,7 @@ env:
   - ORPC_TEST_VERSION=8.0"
   - ORPC_TEST_VERSION=9.0"
   - ORPC_TEST_VERSION=10.0"
+  - ORPC_TEST_VERSION=11.0"
 
 before_install:
   - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo --name db postgres:9.4

@@ -131,6 +131,11 @@ class ConnectorJSONRPC(Connector):
         ...         'partner_id', 'server_version', 'server_version_info',
         ...         'user_companies', 'web.base.url', 'web_tours',
         ...     ])
+        >>> if v(VERSION) >= v('11.0'):
+        ...     keys.extend([
+        ...         'is_system',
+        ...     ])
+        ...     keys.remove('is_admin')
         >>> all([key in data['result'] for key in keys])
         True
 

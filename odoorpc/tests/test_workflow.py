@@ -2,7 +2,7 @@
 
 
 from odoorpc.tests import LoginTestCase
-from odoorpc import error
+from odoorpc import error, tools
 
 
 class TestWorkflow(LoginTestCase):
@@ -30,9 +30,21 @@ class TestWorkflow(LoginTestCase):
         self.so_id = self.sale_order_obj.create(so_vals)
 
     def test_exec_workflow(self):
+        if tools.v(self.odoo.version)[0] >= 11:
+            self.assertRaises(
+                DeprecationWarning,
+                self.odoo.exec_workflow,
+                'sale.order', self.so_id, 'order_confirm')
+            return
         self.odoo.exec_workflow('sale.order', self.so_id, 'order_confirm')
 
     def test_exec_workflow_wrong_model(self):
+        if tools.v(self.odoo.version)[0] >= 11:
+            self.assertRaises(
+                DeprecationWarning,
+                self.odoo.exec_workflow,
+                'sale.order2', self.so_id, 'order_confirm')
+            return
         self.assertRaises(
             error.RPCError,
             self.odoo.exec_workflow,
