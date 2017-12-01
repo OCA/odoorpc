@@ -1,3 +1,6 @@
+sudo: required
+services:
+  - docker
 language: python
 cache: pip
 python:
@@ -10,25 +13,13 @@ python:
   - "pypy"
 
 env:
-  - ODOO_BRANCH=8.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
-  - ODOO_BRANCH=9.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
-  - ODOO_BRANCH=10.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/odoo -r $USER --addons-path=/opt/odoo/addons"
+  - ORPC_TEST_VERSION=8.0"
+  - ORPC_TEST_VERSION=9.0"
+  - ORPC_TEST_VERSION=10.0"
 
 before_install:
-  # Upgrade pip
-  - "sudo pip install pip --upgrade"
-  # Install wkhtmltox
-  - "wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb"
-  - "sudo dpkg -i wkhtmltox-0.12.1_linux-precise-amd64.deb || true"
-  - "sudo apt-get update && sudo apt-get install -f -y"
-  # Install Odoo on the system (outside the virtualenv)
-  - "sudo git clone --depth=1 -b $ODOO_BRANCH https://github.com/odoo/odoo.git /opt/odoo"
-  - "sudo pip install -r /opt/odoo/requirements.txt"
-  - "echo $PWD"
-  - "cd /opt/odoo && sudo /usr/bin/python setup.py install"
-  - "cd $TRAVIS_BUILD_DIR"
-  # Start Odoo
-  - "nohup $ODOO_CMD &"
+  - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo --name db postgres:9.4
+  - docker run -d -p 8069:8069 --name odoo --link db:db -t "odoo:$ORPC_TEST_VERSION"
 
 install:
   # OdooRPC dependencies
