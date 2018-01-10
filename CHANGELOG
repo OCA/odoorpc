@@ -1,3 +1,9 @@
+0.6.1
+=====
+- IMP: OCA rebranding
+- IMP: Drop support for Python 3.2 and 3.3
+- IMP: Support added for Odoo 11.0
+
 0.6.0
 =====
 - IMP: Adds support for passing a custom URL opener

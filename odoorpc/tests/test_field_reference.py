@@ -25,7 +25,7 @@ class TestFieldReference(LoginTestCase):
             claim = Claim.browse(claim_id)
             self.assertEqual(claim.ref, False)
         # 10.0
-        else:
+        elif v(self.odoo.version) < v('11'):
             Subscription = self.odoo.env['subscription.subscription']
             fields_list = list(Subscription.fields_get([]))
             vals = Subscription.default_get(fields_list)
@@ -37,6 +37,20 @@ class TestFieldReference(LoginTestCase):
             self.assertIsInstance(subscription.doc_source, Model)
             self.assertEqual(subscription.doc_source._name, 'res.partner')
             self.assertEqual(subscription.doc_source.id, 1)
+        # 11.0
+        else:
+            Menu = self.odoo.env['ir.ui.menu']
+            fields_list = list(Menu.fields_get([]))
+            vals = Menu.default_get(fields_list)
+            vals['name'] = "ODOORPC TEST (fields.Reference)"
+            action = self.odoo.env.ref('base.action_partner_form')
+            vals['action'] = '%s,%s' % (action._name, action.id)
+            menu_id = Menu.create(vals)
+            # Test field containing a value
+            menu = Menu.browse(menu_id)
+            self.assertIsInstance(menu.action, Model)
+            self.assertEqual(menu.action._name, action._name)
+            self.assertEqual(menu.action.id, action.id)
 
     def test_field_reference_write(self):
         # TODO

@@ -23,15 +23,17 @@ to generate/download them.
 """
 import base64
 import io
-import sys
-# Python 2
-if sys.version_info[0] < 3:
-    def encode2bytes(data):
-        return data
-# Python >= 3
-else:
-    def encode2bytes(data):
-        return bytes(data, 'ascii')
+
+from odoorpc.tools import v, get_encodings
+
+
+def encode2bytes(data):
+    for encoding in get_encodings():
+        try:
+            return data.decode(encoding)
+        except Exception:
+            pass
+    return data
 
 
 class Report(object):
@@ -104,21 +106,48 @@ class Report(object):
         """
         if context is None:
             context = self._odoo.env.context
-        args_to_send = [self._odoo.env.db,
-                        self._odoo.env.uid, self._odoo._password,
-                        name, ids, datas, context]
-        data = self._odoo.json(
-            '/jsonrpc',
-            {'service': 'report',
-             'method': 'render_report',
-             'args': args_to_send})
-        if 'result' not in data and not data['result'].get('result'):
-            raise ValueError("Received invalid data.")
-        # Encode to bytes forced to be compatible with Python 3.2
-        # (its 'base64.standard_b64decode()' function only accepts bytes)
-        result = encode2bytes(data['result']['result'])
-        content = base64.standard_b64decode(result)
-        return io.BytesIO(content)
+
+        def check_report(name):
+            report_model = 'ir.actions.report'
+            if v(self._odoo.version)[0] < 11:
+                report_model = 'ir.actions.report.xml'
+            IrReport = self._odoo.env[report_model]
+            report_ids = IrReport.search([('report_name', '=', name)])
+            report_id = report_ids and report_ids[0] or False
+            if not report_id:
+                raise ValueError("The report '%s' does not exist." % name)
+            return report_id
+
+        report_id = check_report(name)
+
+        # Odoo >= 11.0
+        if v(self._odoo.version)[0] >= 11:
+            IrReport = self._odoo.env['ir.actions.report']
+            report = IrReport.browse(report_id)
+            response = report.with_context(context).render(ids, data=datas)
+            content = response[0]
+            # On the server the result is a bytes string,
+            # but the RPC layer of Odoo returns it as a unicode string,
+            # so we encode it again as bytes
+            result = content.encode('latin1')
+            return io.BytesIO(result)
+        # Odoo < 11.0
+        else:
+            args_to_send = [self._odoo.env.db,
+                            self._odoo.env.uid, self._odoo._password,
+                            name, ids, datas, context]
+            data = self._odoo.json(
+                '/jsonrpc',
+                {'service': 'report',
+                 'method': 'render_report',
+                 'args': args_to_send})
+            if 'result' not in data and not data['result'].get('result'):
+                raise ValueError("Received invalid data.")
+            # Encode to bytes forced to be compatible with Python 3.2
+            # (its 'base64.standard_b64decode()' function only accepts bytes)
+            result = encode2bytes(data['result']['result'])
+            content = base64.standard_b64decode(result)
+            return io.BytesIO(content)
 
     def list(self):
         """List available reports from the server by returning a dictionary
@@ -153,9 +182,12 @@ class Report(object):
         :return: `list` of dictionaries
         :raise: `urllib.error.URLError` (connection error)
         """
-        Report = self._odoo.env['ir.actions.report.xml']
-        report_ids = Report.search([])
-        reports = Report.read(
+        report_model = 'ir.actions.report'
+        if v(self._odoo.version)[0] < 11:
+            report_model = 'ir.actions.report.xml'
+        IrReport = self._odoo.env[report_model]
+        report_ids = IrReport.search([])
+        reports = IrReport.read(
             report_ids, ['name', 'model', 'report_name', 'report_type'])
         result = {}
         for report in reports:

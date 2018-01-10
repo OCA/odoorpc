@@ -74,13 +74,13 @@ See the documentation for more details and features.
 Supported Odoo server versions
 ==============================
 
-`OdooRPC` has been tested on `Odoo` 8.0, 9.0 and 10.0.
+`OdooRPC` has been tested on `Odoo` 8.0, 9.0, 10.0 and 11.0.
 It should work on next versions if `Odoo` keeps a stable API.
 
 Supported Python versions
 =========================
 
-`OdooRPC` support Python 2.7, 3.2, 3.3, 3.4, 3.5 and 3.6.
+`OdooRPC` support Python 2.7, 3.4, 3.5 and 3.6.
 
 License
 =======
