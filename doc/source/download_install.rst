@@ -15,19 +15,21 @@ No dependency is required.
 Source code
 -----------
 
-The project is hosted on `GitHub <https://github.com/osiell/odoorpc>`_.
-To get the current development branch (``master``), just type::
+The project is hosted on `GitHub <https://github.com/OCA/odoorpc>`_.
+To get the last stable release (``master`` branch), just type::
 
-    $ git clone https://github.com/osiell/odoorpc.git
+    $ git clone https://github.com/OCA/odoorpc.git
 
-For the last version of a stable branch (replace `X.Y` accordingly)::
-
-    $ git checkout X.Y
+Also, the project uses the
+`Git Flow extension <https://danielkummer.github.io/git-flow-cheatsheet/>`_
+to manage its branches and releases. If you want to contribute, make sure to
+make your Pull Request against the `develop` branch.
 
 Run tests
 ---------
 
-Unit tests depend on the standard module `unittest` (Python 2.7 and 3.x).
+Unit tests depend on the standard module `unittest` (Python 2.7 and 3.x) and
+on a running Odoo instance.
 To run all unit tests from the project directory, run the following command::
 
     $ python -m unittest discover -v

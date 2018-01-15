@@ -1,34 +1,24 @@
+sudo: required
+services:
+  - docker
 language: python
 cache: pip
 python:
   - "2.7"
-  - "3.2"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
   - "pypy"
 
 env:
-  - ODOO_BRANCH=8.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
-  - ODOO_BRANCH=9.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/openerp-server -r $USER --addons-path=/opt/odoo/addons"
-  - ODOO_BRANCH=10.0 ORPC_TEST_VERSION=$ODOO_BRANCH ODOO_CMD="/usr/bin/python2.7 /usr/local/bin/odoo -r $USER --addons-path=/opt/odoo/addons"
+  - ORPC_TEST_VERSION=8.0"
+  - ORPC_TEST_VERSION=9.0"
+  - ORPC_TEST_VERSION=10.0"
+  - ORPC_TEST_VERSION=11.0"
 
 before_install:
-  # Upgrade pip
-  - "sudo pip install pip --upgrade"
-  # Install wkhtmltox
-  - "wget http://download.gna.org/wkhtmltopdf/0.12/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb"
-  - "sudo dpkg -i wkhtmltox-0.12.1_linux-precise-amd64.deb || true"
-  - "sudo apt-get update && sudo apt-get install -f -y"
-  # Install Odoo on the system (outside the virtualenv)
-  - "sudo git clone --depth=1 -b $ODOO_BRANCH https://github.com/odoo/odoo.git /opt/odoo"
-  - "sudo pip install -r /opt/odoo/requirements.txt"
-  - "echo $PWD"
-  - "cd /opt/odoo && sudo /usr/bin/python setup.py install"
-  - "cd $TRAVIS_BUILD_DIR"
-  # Start Odoo
-  - "nohup $ODOO_CMD &"
+  - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo --name db postgres:9.4
+  - docker run -d -p 8069:8069 --name odoo --link db:db -t "odoo:$ORPC_TEST_VERSION"
 
 install:
   # OdooRPC dependencies
@@ -36,4 +26,12 @@ install:
 
 script:
   - python -m unittest discover -v
-  - if [[ "$TRAVIS_PYTHON_VERSION" != "3.2" && "$TRAVIS_PYTHON_VERSION" != "3.3" ]]; then PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest; fi
+  - PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest
+
+deploy:
+  provider: pypi
+  user: OCA
+  password:
+    secure: SY6C05pC8L34WESUeZTgi1B8isQox3IwFl1NX5fViDSYEGHLQNwbrzXIn9naUhbiJMIDn6zQuj5i6in7/GFcooWn764UzIMvY3ve2xKbIuGVIO6O8tdNm+zu6B582Ok7X7LzRPRRnmVn2NDEymmiZm/wKwRBXmIR2bIEEXdBEqXbqevsHCN2oVQZ+og68Gv0uj/W6oNyFCOZhB9ZB9sMqD12j40lSy5HKPdTb5n0ANdo3wnzCU6hU+Vpg91GXp6A5AXhxikeM9FMMnDR+tTleRFum86MvBl2Zke3mCrmCn2HQ7/kb8xWXk8rya8iKISFET+lD0XqbBnyqEVqjArMoxFXmAVEijonykdM2nm1ep6k/8bhrqej86S6bXktilv3AZ2B5apgUMqtRQDucfiSiZOvPqQXgpez3bgsAGlP/5A9VxLhSF1IdwZ/h5I3g4lMDb2E8H2IsXFtLmrLacVTDvWOkxga4AYtPwmX3IISZ1eQtE2iWdaz8ZC7Wf+S5ItS/i6ssjOvPRA+zA8+fkFOHJg9QvpYD9noZpfYbQZCm7qqcK/cO+0HwZp2VEQgnOYq4F5uwWCS7EYfvfNqGARRRxS3MEhsc9XuqS/lSFwgJvyp//VDykbQ2fTiQ4SQFtNWQmMxJNgNLMlGUOdymnlJW2IdIYk+2PSAfxr+S+XS2Pc=
+  on:
+    tags: true

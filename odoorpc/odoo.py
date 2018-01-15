@@ -499,6 +499,9 @@ class ODOO(object):
         :raise: :class:`odoorpc.error.InternalError` (if not logged)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if tools.v(self.version)[0] >= 11:
+            raise DeprecationWarning(
+                u"Workflows have been removed in Odoo >= 11.0")
         self._check_logged_user()
         # Execute the workflow query
         args_to_send = [self.env.db, self.env.uid, self._password,

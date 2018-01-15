@@ -4,13 +4,16 @@ import tempfile
 
 from odoorpc.tests import LoginTestCase
 from odoorpc import error
+from odoorpc.tools import v
 
 
 class TestReport(LoginTestCase):
 
     def test_report_download_pdf(self):
         model = 'res.company'
-        report_name = 'preview.report'
+        report_name = 'web.preview_internalreport'
+        if v(self.odoo.version)[0] < 11:
+            report_name = 'preview.report'
         ids = self.odoo.env[model].search([])[:20]
         report = self.odoo.report.download(report_name, ids)
         with tempfile.TemporaryFile(mode='wb', suffix='.pdf') as file_:
@@ -26,7 +29,7 @@ class TestReport(LoginTestCase):
 
     def test_report_download_wrong_report_name(self):
         self.assertRaises(
-            error.RPCError,
+            ValueError,
             self.odoo.report.download, 'wrong_report', [1])
 
     def test_report_list(self):

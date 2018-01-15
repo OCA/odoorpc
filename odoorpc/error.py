@@ -68,7 +68,10 @@ class RPCError(Error):
         ...         "'res.users' object has no attribute 'wrong_method'",           # >= 8.0
         ...         "type object 'res.users' has no attribute 'wrong_method'",      # >= 10.0
         ...     ]
-        ...     exc.info['data']['name'] == 'exceptions.AttributeError'
+        ...     exc.info['data']['name'] in [
+        ...         'exceptions.AttributeError',
+        ...         'builtins.AttributeError',
+        ...     ]
         ...
         True
         True
