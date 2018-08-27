@@ -99,6 +99,8 @@ class ProxyHTTP(Proxy):
     to all HTTP methods.
     """
     def __call__(self, url, data=None, headers=None):
+        if url.startswith('/'):
+            url = url[1:]
         kwargs = {
             'url': '/'.join([self._root_url, url]),
         }
