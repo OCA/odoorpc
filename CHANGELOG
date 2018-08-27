@@ -1,3 +1,9 @@
+0.6.2
+=====
+- FIX: Perform HTTP requests with or without a leading slash in the URL
+- FIX: Handle RPCError exceptions with either bytes or unicode message
+- FIX: Sphinx doc: could not import extension sphinx_ext.doctest_custom
+
 0.6.1
 =====
 - IMP: OCA rebranding
