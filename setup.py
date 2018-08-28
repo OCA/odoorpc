@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import os
-from distutils.core import setup
+import setuptools
 
 name = 'OdooRPC'
 version = '0.6.2'
 description = ("OdooRPC is a Python package providing an easy way to "
                "pilot your Odoo servers through RPC.")
+with open("README.rst", "r") as readme:
+    long_description = readme.read()
 keywords = ("openerp odoo server rpc client xml-rpc xmlrpc jsonrpc json-rpc "
             "odoorpc oerplib communication lib library python "
             "service web webservice")
-author = "ABF Osiell - Sebastien Alix"
-author_email = 'sebastien.alix@osiell.com'
-url = 'http://pythonhosted.org/OdooRPC/'
-download_url = 'http://pypi.python.org/packages/source/O/OdoORPC/OdooRPC-%s.tar.gz' % version
+author = "Sebastien Alix"
+author_email = 'seb@usr-src.org'
+url = 'https://github.com/OCA/odoorpc'
 license = 'LGPL v3'
 doc_build_dir = 'doc/build'
 doc_source_dir = 'doc/source'
@@ -39,15 +40,15 @@ except Exception:
     print("No Sphinx module found. You have to install Sphinx "
           "to be able to generate the documentation.")
 
-setup(name=name,
+setuptools.setup(name=name,
       version=version,
       description=description,
-      long_description=open('README.rst').read(),
+      long_description=long_description,
+      long_description_content_type="text/x-rst",
       keywords=keywords,
       author=author,
       author_email=author_email,
       url=url,
-      download_url=download_url,
       packages=['odoorpc',
                 'odoorpc.rpc'],
       license=license,
