@@ -11,10 +11,30 @@ python:
   - "pypy"
 
 env:
-  - ORPC_TEST_VERSION=8.0"
-  - ORPC_TEST_VERSION=9.0"
-  - ORPC_TEST_VERSION=10.0"
-  - ORPC_TEST_VERSION=11.0"
+  - ORPC_TEST_VERSION="8.0"
+  - ORPC_TEST_VERSION="9.0"
+  - ORPC_TEST_VERSION="10.0"
+  - ORPC_TEST_VERSION="11.0"
+
+stages:
+  - name: test
+  - name: deploy
+    if: tag IS present
+
+jobs:
+  include:
+    - stage: deploy
+      script: echo "Deploy to PyPi"
+      deploy:
+        provider: pypi
+        user: OCA
+        password:
+          secure: "SY6C05pC8L34WESUeZTgi1B8isQox3IwFl1NX5fViDSYEGHLQNwbrzXIn9naUhbiJMIDn6zQuj5i6in7/GFcooWn764UzIMvY3ve2xKbIuGVIO6O8tdNm+zu6B582Ok7X7LzRPRRnmVn2NDEymmiZm/wKwRBXmIR2bIEEXdBEqXbqevsHCN2oVQZ+og68Gv0uj/W6oNyFCOZhB9ZB9sMqD12j40lSy5HKPdTb5n0ANdo3wnzCU6hU+Vpg91GXp6A5AXhxikeM9FMMnDR+tTleRFum86MvBl2Zke3mCrmCn2HQ7/kb8xWXk8rya8iKISFET+lD0XqbBnyqEVqjArMoxFXmAVEijonykdM2nm1ep6k/8bhrqej86S6bXktilv3AZ2B5apgUMqtRQDucfiSiZOvPqQXgpez3bgsAGlP/5A9VxLhSF1IdwZ/h5I3g4lMDb2E8H2IsXFtLmrLacVTDvWOkxga4AYtPwmX3IISZ1eQtE2iWdaz8ZC7Wf+S5ItS/i6ssjOvPRA+zA8+fkFOHJg9QvpYD9noZpfYbQZCm7qqcK/cO+0HwZp2VEQgnOYq4F5uwWCS7EYfvfNqGARRRxS3MEhsc9XuqS/lSFwgJvyp//VDykbQ2fTiQ4SQFtNWQmMxJNgNLMlGUOdymnlJW2IdIYk+2PSAfxr+S+XS2Pc="
+        distributions: "sdist bdist_wheel"
+        on:
+          repo: OCA/odoorpc
+          branch: master
+          tags: true
 
 before_install:
   - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo --name db postgres:9.4
@@ -27,11 +47,3 @@ install:
 script:
   - python -m unittest discover -v
   - PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest
-
-deploy:
-  provider: pypi
-  user: OCA
-  password:
-    secure: SY6C05pC8L34WESUeZTgi1B8isQox3IwFl1NX5fViDSYEGHLQNwbrzXIn9naUhbiJMIDn6zQuj5i6in7/GFcooWn764UzIMvY3ve2xKbIuGVIO6O8tdNm+zu6B582Ok7X7LzRPRRnmVn2NDEymmiZm/wKwRBXmIR2bIEEXdBEqXbqevsHCN2oVQZ+og68Gv0uj/W6oNyFCOZhB9ZB9sMqD12j40lSy5HKPdTb5n0ANdo3wnzCU6hU+Vpg91GXp6A5AXhxikeM9FMMnDR+tTleRFum86MvBl2Zke3mCrmCn2HQ7/kb8xWXk8rya8iKISFET+lD0XqbBnyqEVqjArMoxFXmAVEijonykdM2nm1ep6k/8bhrqej86S6bXktilv3AZ2B5apgUMqtRQDucfiSiZOvPqQXgpez3bgsAGlP/5A9VxLhSF1IdwZ/h5I3g4lMDb2E8H2IsXFtLmrLacVTDvWOkxga4AYtPwmX3IISZ1eQtE2iWdaz8ZC7Wf+S5ItS/i6ssjOvPRA+zA8+fkFOHJg9QvpYD9noZpfYbQZCm7qqcK/cO+0HwZp2VEQgnOYq4F5uwWCS7EYfvfNqGARRRxS3MEhsc9XuqS/lSFwgJvyp//VDykbQ2fTiQ4SQFtNWQmMxJNgNLMlGUOdymnlJW2IdIYk+2PSAfxr+S+XS2Pc=
-  on:
-    tags: true
