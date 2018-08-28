@@ -28,7 +28,7 @@ automated jobs that communicate with a `Odoo` server.
 __author__ = 'ABF Osiell - Sebastien Alix'
 __email__ = 'sebastien.alix@osiell.com'
 __licence__ = 'LGPL v3'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 __all__ = ['ODOO', 'error']
 
