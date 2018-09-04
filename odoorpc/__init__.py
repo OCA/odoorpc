@@ -32,7 +32,11 @@ __version__ = '0.6.2'
 
 __all__ = ['ODOO', 'error']
 
+import logging
+
 from odoorpc.odoo import ODOO
 from odoorpc import error
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

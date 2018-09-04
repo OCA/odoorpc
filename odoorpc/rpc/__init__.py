@@ -221,7 +221,7 @@ class ConnectorJSONRPC(Connector):
             ssl=self.ssl, opener=self._opener)
         # Detect the server version
         if self.version is None:
-            result = proxy_json.web.webclient.version_info()['result']
+            result = proxy_json('/web/webclient/version_info')['result']
             if 'server_version' in result:
                 self.version = result['server_version']
         return proxy_json, proxy_http
