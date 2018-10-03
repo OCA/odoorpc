@@ -79,8 +79,7 @@ Contents
 Supported Odoo server versions
 ------------------------------
 
-`OdooRPC` has been tested on `Odoo` 8.0, 9.0, 10.0 and 11.0.
-It should work on next versions if `Odoo` keeps a stable API.
+`OdooRPC` is tested on all major releases of `Odoo` (starting from  8.0).
 
 Supported Python versions
 -------------------------
