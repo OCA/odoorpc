@@ -9,6 +9,11 @@ class TestWorkflow(LoginTestCase):
 
     def setUp(self):
         LoginTestCase.setUp(self)
+        if tools.v(self.odoo.version)[0] >= 11:
+            # Value doesn't matter for Odoo >= 11, we only test the
+            # DeprecationWarning exception for workflow methods
+            self.so_id = 1
+            return
         self.product_obj = self.odoo.env['product.product']
         self.partner_obj = self.odoo.env['res.partner']
         self.sale_order_obj = self.odoo.env['sale.order']
