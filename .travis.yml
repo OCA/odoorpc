@@ -40,6 +40,8 @@ jobs:
 before_install:
   - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -e POSTGRES_DB=postgres --name db $DOCKER_PG_IMAGE
   - docker run -d -p 8069:8069 --name odoo --link db:db -t "odoo:$ORPC_TEST_VERSION"
+  - docker cp ./travis/docker_odoo_fix.sh odoo:/docker_odoo_fix.sh
+  - docker exec -it -u root odoo sh /docker_odoo_fix.sh
 
 install:
   # OdooRPC dependencies
