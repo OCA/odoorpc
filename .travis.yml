@@ -8,7 +8,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "pypy"
 
 env:
   - ORPC_TEST_VERSION="8.0" DOCKER_PG_IMAGE="postgres:9.4"
