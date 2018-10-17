@@ -103,17 +103,19 @@ class ConnectorJSONRPC(Connector):
                                          'symbol': '$'}},
                     'db': 'db_name',
                     'is_admin': True,
-                    'is_superuser': True,
-                    'name': 'Administrator',
+                    'is_system': True,
+                    'name': 'Mitchell Admin',
+                    'partner_display_name': 'YourCompany, Mitchell Admin',
                     'partner_id': 3,
-                    'server_version': '10.0',
-                    'server_version_info': [10, 0, 0, 'final', 0, ''],
+                    'server_version': '12.0',
+                    'server_version_info': [12, 0, 0, 'final', 0, ''],
                     'session_id': '6dd7a34f16c1c67b38bfec413cca4962d5c01d53',
-                    'uid': 1,
+                    'show_effect': True,
+                    'uid': 2,
                     'user_companies': False,
                     'user_context': {'lang': 'en_US',
                                      'tz': 'Europe/Brussels',
-                                     'uid': 1},
+                                     'uid': 2},
                     'username': 'admin',
                     'web.base.url': 'http://localhost:8069',
                     'web_tours': []}}
@@ -136,6 +138,12 @@ class ConnectorJSONRPC(Connector):
         ...         'is_system',
         ...     ])
         ...     keys.remove('is_admin')
+        >>> if v(VERSION) >= v('12.0'):
+        ...     keys.extend([
+        ...         'partner_display_name',
+        ...         'show_effect',
+        ...     ])
+        ...     keys.remove('is_superuser')
         >>> all([key in data['result'] for key in keys])
         True
 

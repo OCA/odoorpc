@@ -71,8 +71,14 @@ class Report(object):
         identified by the IDs ``[2, 3]``:
 
         .. doctest::
+            :options: +SKIP
 
             >>> report = odoo.report.download('sale.report_saleorder', [2, 3])
+
+        .. doctest::
+            :hide:
+
+            >>> report = odoo.report.download('sale.report_saleorder', [2])
 
         Write it on the file system:
 

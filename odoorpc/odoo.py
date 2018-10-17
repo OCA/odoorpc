@@ -244,22 +244,25 @@ class ODOO(object):
             ...     {'db': DB, 'login': USER, 'password': PWD})
             >>> data['result']['db'] == DB
             True
-            >>> data['result']['uid'] == 1
+            >>> data['result']['uid'] in [1, 2]
             True
             >>> data['result']['username'] == USER
             True
 
         And a call to the ``read`` method of the ``res.users`` model:
 
-        >>> data = odoo.json(
-        ...     '/web/dataset/call',
-        ...     {'model': 'res.users', 'method': 'read',
-        ...      'args': [[1], ['name']]})
-        >>> from pprint import pprint
-        >>> pprint(data)
-        {'id': ...,
-         'jsonrpc': '2.0',
-         'result': [{'id': 1, 'name': 'Administrator'}]}
+        .. doctest::
+            :options: +SKIP
+
+            >>> data = odoo.json(
+            ...     '/web/dataset/call',
+            ...     {'model': 'res.users', 'method': 'read',
+            ...      'args': [[2], ['name']]})
+            >>> from pprint import pprint
+            >>> pprint(data)
+            {'id': ...,
+             'jsonrpc': '2.0',
+             'result': [{'id': 2, 'name': 'Mitchell Admin'}]}
 
         *Python 2:*
 

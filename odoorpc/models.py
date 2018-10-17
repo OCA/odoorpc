@@ -120,25 +120,58 @@ class Model(BaseModel):
     Use this data model proxy to call any method:
 
     .. doctest::
+        :options: +SKIP
 
-        >>> User.name_get([1])  # Use any methods from the model class
-        [[1, 'Administrator']]
+        >>> User.name_get([2])  # Use any methods from the model class
+        [[1, 'Mitchell Admin']]
+
+    .. doctest::
+        :hide:
+
+        >>> from odoorpc.tools import v
+        >>> uid = 1
+        >>> if v(VERSION) >= v('12.0'):
+        ...     uid = 2
+        >>> data = User.name_get([uid])
+        >>> 'Admin' in data[0][1]
+        True
 
     Get a recordset:
 
     .. doctest::
+        :options: +SKIP
 
-        >>> user = User.browse(1)
+        >>> user = User.browse(2)
         >>> user.name
-        'Administrator'
+        'Mitchell Admin'
+
+    .. doctest::
+        :hide:
+
+        >>> from odoorpc.tools import v
+        >>> uid = 1
+        >>> if v(VERSION) >= v('12.0'):
+        ...     uid = 2
+        >>> user = User.browse(uid)
+        >>> 'Admin' in user.name
+        True
 
     And call any method from it, it will be automatically applied on the
     current record:
 
     .. doctest::
+        :options: +SKIP
 
         >>> user.name_get()     # No IDs in parameter, the method is applied on the current recordset
-        [[1, 'Administrator']]
+        [[1, 'Mitchell Admin']]
+
+
+    .. doctest::
+        :hide:
+
+        >>> data = user.name_get()
+        >>> 'Admin' in data[0][1]
+        True
 
     .. warning::
 
@@ -221,9 +254,19 @@ class Model(BaseModel):
             Recordset('res.partner', [1])
 
         .. doctest::
+            :options: +SKIP
 
             >>> [partner.name for partner in odoo.env['res.partner'].browse([1, 3])]
-            ['YourCompany', 'Administrator']
+            ['YourCompany', 'Mitchell Admin']
+
+        .. doctest::
+            :hide:
+
+            >>> names = [partner.name for partner in odoo.env['res.partner'].browse([1, 3])]
+            >>> 'YourCompany' in names[0]
+            True
+            >>> 'Admin' in names[1]
+            True
 
         A list of data types returned by such record fields are
         available :ref:`here <fields>`.
