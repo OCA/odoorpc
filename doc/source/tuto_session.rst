@@ -34,3 +34,5 @@ them with :func:`odoorpc.ODOO.remove`::
     >>> odoorpc.ODOO.remove('tutorial')
     >>> 'tutorial' not in odoorpc.ODOO.list()
     True
+
+:ref:`Next step: Configure logging with OdooRPC <tuto-logging>`
