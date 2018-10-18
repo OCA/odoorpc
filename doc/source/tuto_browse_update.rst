@@ -80,7 +80,7 @@ One2many and Many2many
 
 ``one2many`` and ``many2many`` fields can be updated by providing
 a list of tuple as specified in the `Odoo` documentation
-(`link <https://github.com/odoo/odoo/blob/10.0/odoo/models.py#L3479>`_),
+(`link <https://github.com/odoo/odoo/blob/12.0/odoo/models.py#L3178>`_),
 a list of records, a list of record IDs, an empty list or ``False``:
 
 With a tuple (as documented), no magic here::
@@ -176,12 +176,12 @@ With ``datetime.date`` and ``datetime.datetime`` objects::
     >>> import datetime
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
-    >>> order.date_order = datetime.datetime(2016, 11, 7, 11, 23, 10)
+    >>> order.date_order = datetime.datetime(2018, 10, 18, 8, 18, 56)
 
 With formated strings::
 
-    >>> order.date_order = "2016-11-07"             # %Y-%m-%d
-    >>> order.date_order = "2016-11-07 12:31:24"    # %Y-%m-%d %H:%M:%S
+    >>> order.date_order = "2018-11-07"             # %Y-%m-%d
+    >>> order.date_order = "2018-11-07 12:31:24"    # %Y-%m-%d %H:%M:%S
 
 As always, a wrong type will raise an exception::
 

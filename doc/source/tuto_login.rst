@@ -25,7 +25,7 @@ Once logged in, you can check some information through the
     >>> odoo.env.lang
     'fr_FR'
     >>> odoo.env.user.name              # name of the user
-    'Administrator'
+    'Mitchell Admin'
     >>> odoo.env.user.company_id.name   # the name of its company
     'YourCompany'
 

@@ -22,7 +22,7 @@ To get one or more records (a recordset), you will use the
     >>>     print(partner.name)
     ...
     YourCompany
-    Administrator
+    Mitchell Admin
 
 
 From such objects, it is possible to easily explore relationships. The related
@@ -32,8 +32,8 @@ records are generated on the fly::
     >>> for child in partner.child_ids:
     ...     print("%s (%s)" % (child.name, child.parent_id.name))
     ...
-    Mark Davis (YourCompany)
-    Roger Scott (YourCompany)
+    Chester Reed (YourCompany)
+    Dwayne Newman (YourCompany)
 
 Outside relation fields, `Python` data types are used, like ``datetime.date``
 and ``datetime.datetime``::
@@ -41,7 +41,7 @@ and ``datetime.datetime``::
     >>> Purchase = odoo.env['purchase.order']
     >>> order = Purchase.browse(1)
     >>> order.date_order
-    datetime.datetime(2016, 11, 6, 11, 23, 10)
+    datetime.datetime(2018, 10, 18, 8, 18, 56)
 
 A list of data types used by records fields are available :ref:`here <fields>`.
 

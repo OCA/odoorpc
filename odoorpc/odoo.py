@@ -46,7 +46,7 @@ class ODOO(object):
     .. doctest::
         :options: +SKIP
 
-        >>> odoo = odoorpc.ODOO('localhost', version='10.0')
+        >>> odoo = odoorpc.ODOO('localhost', version='12.0')
 
     You can also define a custom URL opener to handle HTTP requests. A use
     case is to manage a basic HTTP authentication in front of `Odoo`:
@@ -167,7 +167,7 @@ class ODOO(object):
             :options: +SKIP
 
             >>> odoo.version
-            '10.0'
+            '12.0'
         """
         return self._connector.version
 
@@ -244,22 +244,25 @@ class ODOO(object):
             ...     {'db': DB, 'login': USER, 'password': PWD})
             >>> data['result']['db'] == DB
             True
-            >>> data['result']['uid'] == 1
+            >>> data['result']['uid'] in [1, 2]
             True
             >>> data['result']['username'] == USER
             True
 
         And a call to the ``read`` method of the ``res.users`` model:
 
-        >>> data = odoo.json(
-        ...     '/web/dataset/call',
-        ...     {'model': 'res.users', 'method': 'read',
-        ...      'args': [[1], ['name']]})
-        >>> from pprint import pprint
-        >>> pprint(data)
-        {'id': ...,
-         'jsonrpc': '2.0',
-         'result': [{'id': 1, 'name': 'Administrator'}]}
+        .. doctest::
+            :options: +SKIP
+
+            >>> data = odoo.json(
+            ...     '/web/dataset/call',
+            ...     {'model': 'res.users', 'method': 'read',
+            ...      'args': [[2], ['name']]})
+            >>> from pprint import pprint
+            >>> pprint(data)
+            {'id': ...,
+             'jsonrpc': '2.0',
+             'result': [{'id': 2, 'name': 'Mitchell Admin'}]}
 
         *Python 2:*
 
@@ -296,7 +299,7 @@ class ODOO(object):
         URL parameters (with :func:`urllib.urlencode` function for simple
         parameters, or multipart/form-data structure to handle file upload).
 
-        E.g., the HTTP raw query to get the company logo on `Odoo 10.0`:
+        E.g., the HTTP raw query to get the company logo on `Odoo 12.0`:
 
         .. doctest::
 

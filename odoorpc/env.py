@@ -47,7 +47,7 @@ class Environment(object):
         :hide:
 
         >>> odoo.env
-        Environment(db=..., uid=1, context=...)
+        Environment(db=..., uid=..., context=...)
     """
 
     def __init__(self, odoo, db, uid, context):
@@ -84,14 +84,14 @@ class Environment(object):
             :options: +SKIP
 
             >>> odoo.env.context
-            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': 1}
+            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': 2}
 
         .. doctest::
             :hide:
 
             >>> from pprint import pprint as pp
             >>> pp(odoo.env.context)
-            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': 1}
+            {'lang': 'en_US', 'tz': 'Europe/Brussels', 'uid': ...}
         """
         return self._context
 
@@ -200,9 +200,16 @@ class Environment(object):
         """The user ID currently logged.
 
         .. doctest::
+            :options: +SKIP
 
             >>> odoo.env.uid
             1
+
+        .. doctest::
+            :hide:
+
+            >>> odoo.env.uid in [1, 2]
+            True
         """
         return self._uid
 
@@ -211,12 +218,22 @@ class Environment(object):
         """Return the current user (as a record).
 
         .. doctest::
+            :options: +SKIP
 
             >>> user = odoo.env.user
             >>> user
-            Recordset('res.users', [1])
+            Recordset('res.users', [2])
             >>> user.name
-            'Administrator'
+            'Mitchell Admin'
+
+        .. doctest::
+            :hide:
+
+            >>> user = odoo.env.user
+            >>> user.id in [1, 2]
+            True
+            >>> 'Admin' in user.name
+            True
 
         :return: a :class:`odoorpc.models.Model` instance
         :raise: :class:`odoorpc.error.RPCError`
