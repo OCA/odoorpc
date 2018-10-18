@@ -20,23 +20,23 @@ However there is a more efficient way to perform methods of a model by getting
 a proxy of it with the
 :func:`model registry <odoorpc.env.Environment.__getitem__>`, which
 provides an API almost syntactically identical to the `Odoo` server side API
-(see :class:`odoorpc.models.Model`), and which is able to send the user
-context automatically::
+(see :class:`odoorpc.models.Model`), and which is able to set the user
+context automatically (both for read and write operations)::
 
     >>> User = odoo.env['res.users']
-    >>> User.write([1], {'name': "Dupont D."})
+    >>> User.write([6], {'name': "Dupont D."})
     True
     >>> odoo.env.context
     {'lang': 'fr_FR', 'tz': False}
-    >>> Product = odoo.env['product.product']
-    >>> Product.name_get([3, 4])
-    [[3, '[SERV_COST] Audit externe''], [4, '[PROD_DEL] Commutateur, 24 ports']]
+    >>> Product = odoo.env['product.template']
+    >>> Product.name_get([25])
+    [[25, '[FURN_8220] Bureau Quatre Personnes']]
 
 To stop sending the user context, use the :attr:`odoorpc.ODOO.config` property::
 
     >>> odoo.config['auto_context'] = False
-    >>> Product.name_get([3, 4])    # Without context, lang 'en_US' by default
-    [[3, '[SERV_COST] External Audit'], [4, '[PROD_DEL] Switch, 24 ports']]
+    >>> Product.name_get([25])   # Without context, lang 'en_US' by default
+    [[25, '[FURN_8220] Four Person Desk']]
 
 .. note::
 
@@ -46,7 +46,7 @@ Here is another example of how to install a module (you have to be logged
 as an administrator to perform this task)::
 
     >>> Module = odoo.env['ir.module.module']
-    >>> module_id = Module.search([('name', '=', 'purchase')])
-    >>> Module.button_immediate_install(module_id)
+    >>> module_ids = Module.search([('name', '=', 'purchase')])
+    >>> Module.button_immediate_install(module_ids)
 
 :ref:`Next step: Browse records <tuto-browse-records>`

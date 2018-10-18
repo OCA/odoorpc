@@ -8,10 +8,12 @@ Unlike the `Odoo` API, there is a difference between class methods
 existing records (`write`, `read`, ...)::
 
     >>> User = odoo.env['res.users']
-    >>> User.write([1], {'name': "Dupont D."})  # Using the class method
+    >>> User.write([6], {'name': "Dupont D."})  # Using the class method
     True
-    >>> user = User.browse(1)
+    >>> user = User.browse(6)
     >>> user.write({'name': "Dupont D."})       # Using the instance method
+    >>> user.mapped('company_id.partner_id.child_ids.name') # Another use of instance method 
+    ['Chester Reed', 'Dwayne Newman']
 
 When a method is called directly on records, their `ids` (here `user.ids`) is
 simply passed as the first parameter.
