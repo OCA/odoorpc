@@ -194,4 +194,4 @@ As always, a wrong type will raise an exception::
         self.pattern))
     ValueError: Value not well formatted, expecting '%Y-%m-%d %H:%M:%S' format
 
-:ref:`Next step: Download reports <tuto-download-report>`
+:ref:`Next step: Change the user's context <tuto-context>`

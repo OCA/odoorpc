@@ -69,7 +69,7 @@ class MetaModel(type):
             """Return the result of the RPC request."""
             if cls._odoo.config['auto_context'] \
                     and 'context' not in kwargs:
-                kwargs['context'] = cls._odoo.env.context
+                kwargs['context'] = cls.env.context
             result = cls._odoo.execute_kw(
                 cls._name, method, args, kwargs)
             return result
@@ -196,6 +196,8 @@ class Model(BaseModel):
         for field in self._columns:
             self._values[field] = {}
             self._values_to_write[field] = {}
+        self.with_context = self._with_context
+        self.with_env = self._with_env
 
     @property
     def env(self):
@@ -277,28 +279,35 @@ class Model(BaseModel):
         """
         return cls._browse(cls.env, ids)
 
-    def with_context(self, *args, **kwargs):
-        """Return an instance equivalent to `self` attached to an environment
-        based on `self.env` with another context. The context is taken from
-        `self.env` or from the positional argument if given, and modified by
-        `kwargs`.
+    @classmethod
+    def with_context(cls, *args, **kwargs):
+        """Return a model (or recordset) equivalent to the current model
+        (or recordet) attached to an environment with another context.
+        The context is taken from the current environment or from the
+        positional arguments `args` if given, and modified by `kwargs`.
 
         Thus, the following two examples are equivalent:
 
         .. doctest::
 
             >>> Product = odoo.env['product.product']
-            >>> product = Product.browse(1)
-            >>> product.with_context(lang='fr_FR')
-            Recordset('product.product', [1])
+            >>> Product.with_context(lang='fr_FR')
+            Model('product.product')
 
         .. doctest::
 
-            >>> context = product.env.context
-            >>> product.with_context(context, lang='fr_FR')
-            Recordset('product.product', [1])
+            >>> context = Product.env.context
+            >>> Product.with_context(context, lang='fr_FR')
+            Model('product.product')
 
-        This method is very convenient to update translations:
+        This method is very convenient for example to search records
+        whatever their active status are (active/inactive):
+
+        .. doctest::
+
+            >>> all_product_ids = Product.with_context(active_test=False).search([])
+
+        Or to update translations of a recordset:
 
         .. doctest::
 
@@ -311,11 +320,25 @@ class Model(BaseModel):
             'fr_FR'
             >>> product_fr.name = "Mon produit" # Update the french translation
         """
+        context = dict(args[0] if args else cls.env.context, **kwargs)
+        return cls.with_env(cls.env(context=context))
+
+    def _with_context(self, *args, **kwargs):
+        """As the `with_context` class method but for recordset."""
         context = dict(args[0] if args else self.env.context, **kwargs)
         return self.with_env(self.env(context=context))
 
-    def with_env(self, env):
-        """Return an instance equivalent to `self` attached to `env`."""
+    @classmethod
+    def with_env(cls, env):
+        """Return a model (or recordset) equivalent to the current model
+        (or recordset) attached to `env`.
+        """
+        new_cls = type(cls.__name__, cls.__bases__, dict(cls.__dict__))
+        new_cls._env = env
+        return new_cls
+
+    def _with_env(self, env):
+        """As the `with_env` class method but for recordset."""
         res = self._browse(env, self._ids)
         return res
 

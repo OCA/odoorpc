@@ -78,6 +78,18 @@ class TestModel(LoginTestCase):
             user_obj.search,
             False)  # Wrong arg
 
+    def test_model_with_context(self):
+        Product = self.odoo.env['product.product']
+        product_id = Product.create(
+            {'name': u"Product invisible", 'active': False})
+        product_ids = Product.search([])
+        self.assertNotIn(product_id, product_ids)
+        product_ids = Product.with_context(active_test=False).search([])
+        self.assertIn(product_id, product_ids)
+        # Check that the previous environment has not been impacted
+        product_ids = Product.search([])
+        self.assertNotIn(product_id, product_ids)
+
     def test_record_getitem_field(self):
         partner = self.partner_obj.browse(1)
         self.assertEqual(partner['id'], 1)
