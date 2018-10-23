@@ -17,6 +17,7 @@ Tutorials
     tuto_browse
     tuto_browse_methods
     tuto_browse_update
+    tuto_context
     tuto_report
     tuto_session
 
