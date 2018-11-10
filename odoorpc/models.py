@@ -282,7 +282,7 @@ class Model(BaseModel):
     @classmethod
     def with_context(cls, *args, **kwargs):
         """Return a model (or recordset) equivalent to the current model
-        (or recordet) attached to an environment with another context.
+        (or recordset) attached to an environment with another context.
         The context is taken from the current environment or from the
         positional arguments `args` if given, and modified by `kwargs`.
 
