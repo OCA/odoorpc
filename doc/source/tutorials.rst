@@ -20,4 +20,5 @@ Tutorials
     tuto_context
     tuto_report
     tuto_session
+    tuto_logging
 

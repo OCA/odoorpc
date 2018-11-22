@@ -19,7 +19,9 @@
 #
 ##############################################################################
 """Provides the :class:`ProxyJSON` class for JSON-RPC requests."""
+import copy
 import json
+import logging
 import random
 import sys
 # Python 2
@@ -47,6 +49,27 @@ else:
     def decode_data(data):
         return io.StringIO(data.read().decode('utf-8'))
 
+LOG_HIDDEN_JSON_PARAMS = ['password']
+LOG_JSON_SEND_MSG = u"(JSON,send) %(url)s %(data)s"
+LOG_JSON_RECV_MSG = u"(JSON,recv) %(url)s %(data)s => %(result)s"
+LOG_HTTP_SEND_MSG = u"(HTTP,send) %(url)s%(data)s"
+LOG_HTTP_RECV_MSG = u"(HTTP,recv) %(url)s%(data)s => %(result)s"
+
+logger = logging.getLogger(__name__)
+
+
+def get_json_log_data(data):
+    """Returns a new `data` dictionary with hidden params
+    for log purpose.
+    """
+    log_data = data
+    for param in LOG_HIDDEN_JSON_PARAMS:
+        if param in data['params']:
+            if log_data is data:
+                log_data = copy.deepcopy(data)
+            log_data['params'][param] = "**********"
+    return log_data
+
 
 class Proxy(object):
     """Base class to implement a proxy to perform requests."""
@@ -66,6 +89,9 @@ class Proxy(object):
     def __getitem__(self, url):
         return self._builder[url]
 
+    def _get_full_url(self, url):
+        return '/'.join([self._root_url, url])
+
 
 class ProxyJSON(Proxy):
     """The :class:`ProxyJSON` class provides a dynamic access
@@ -76,22 +102,33 @@ class ProxyJSON(Proxy):
         Proxy.__init__(self, host, port, timeout, ssl, opener)
         self._deserialize = deserialize
 
-    def __call__(self, url, params):
-        data = json.dumps({
+    def __call__(self, url, params=None):
+        if params is None:
+            params = {}
+        data = {
             "jsonrpc": "2.0",
             "method": "call",
             "params": params,
             "id": random.randint(0, 1000000000),
-        })
+        }
         if url.startswith('/'):
             url = url[1:]
-        request = Request(url='/'.join([self._root_url, url]),
-                          data=encode_data(data))
+        full_url = self._get_full_url(url)
+        log_data = get_json_log_data(data)
+        logger.debug(
+            LOG_JSON_SEND_MSG,
+            {'url': full_url, 'data': log_data})
+        data_json = json.dumps(data)
+        request = Request(url=full_url, data=encode_data(data_json))
         request.add_header('Content-Type', 'application/json')
         response = self._opener.open(request, timeout=self._timeout)
         if not self._deserialize:
             return response
-        return json.load(decode_data(response))
+        result = json.load(decode_data(response))
+        logger.debug(
+            LOG_JSON_RECV_MSG,
+            {'url': full_url, 'data': log_data, 'result': result})
+        return result
 
 
 class ProxyHTTP(Proxy):
@@ -101,8 +138,12 @@ class ProxyHTTP(Proxy):
     def __call__(self, url, data=None, headers=None):
         if url.startswith('/'):
             url = url[1:]
+        full_url = self._get_full_url(url)
+        logger.debug(
+            LOG_HTTP_SEND_MSG,
+            {'url': full_url, 'data': data and u" (%s)" % data or u""})
         kwargs = {
-            'url': '/'.join([self._root_url, url]),
+            'url': full_url,
         }
         if data:
             kwargs['data'] = encode_data(data)
@@ -111,7 +152,13 @@ class ProxyHTTP(Proxy):
             for hkey in headers:
                 hvalue = headers[hkey]
                 request.add_header(hkey, hvalue)
-        return self._opener.open(request, timeout=self._timeout)
+        response = self._opener.open(request, timeout=self._timeout)
+        logger.debug(
+            LOG_HTTP_RECV_MSG,
+            {'url': full_url,
+             'data': data and u" (%s)" % data or u"",
+             'result': response})
+        return response
 
 
 class URLBuilder(object):
