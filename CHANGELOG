@@ -1,3 +1,12 @@
+0.7.0
+=====
+- IMP: Support added for Odoo 12.0
+- IMP: Convenient script 'run_tests_docker.sh' to run tests locally against
+       the official Odoo Docker image
+- IMP: Implement 'with_context(...)' and 'with_env(...)' methods on the Model
+       class (they were only available on recordset until now)
+- IMP: Logger added (all requests, params + response) + Documentation
+
 0.6.2
 =====
 - FIX: Perform HTTP requests with or without a leading slash in the URL
