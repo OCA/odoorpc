@@ -4,7 +4,7 @@ import os
 import setuptools
 
 name = 'OdooRPC'
-version = '0.6.2'
+version = '0.7.0'
 description = ("OdooRPC is a Python package providing an easy way to "
                "pilot your Odoo servers through RPC.")
 with open("README.rst", "r") as readme:
