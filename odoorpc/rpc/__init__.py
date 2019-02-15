@@ -46,7 +46,7 @@ class Connector(object):
         self.host = host
         try:
             int(port)
-        except ValueError:
+        except (ValueError, TypeError):
             txt = "The port '{0}' is invalid. An integer is required."
             txt = txt.format(port)
             raise error.ConnectorError(txt)

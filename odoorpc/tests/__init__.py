@@ -14,7 +14,7 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         try:
             port = int(os.environ.get('ORPC_TEST_PORT', 8069))
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("The port must be an integer")
         self.env = {
             'protocol': os.environ.get('ORPC_TEST_PROTOCOL', 'jsonrpc'),
