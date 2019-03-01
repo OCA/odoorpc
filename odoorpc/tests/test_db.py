@@ -125,6 +125,17 @@ class TestDB(BaseTestCase):
             self.odoo.db.restore,
             'wrong_password', new_database, dump)
 
+    def test_db_drop_with_session_opened(self):
+        date = datetime.strftime(datetime.today(), '%Y%m%d_%Hh%Mm%S')
+        new_database = "%s_%s" % (self.env['db'], date)
+        self.databases.append(new_database)
+        self.odoo.db.duplicate(
+            self.env['super_pwd'], self.env['db'], new_database)
+        self.odoo.login(new_database, self.env['user'], self.env['pwd'])
+        res = self.odoo.db.drop(self.env['super_pwd'], new_database)
+        self.assertTrue(res)
+        self.assertNotIn(new_database, self.odoo.db.list())
+
     def tearDown(self):
         """Clean up databases created during tests."""
         for db in self.databases:

@@ -220,6 +220,9 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if self._odoo._env and self._odoo._env.db == db:
+            # Remove the existing session to avoid HTTP session error
+            self._odoo.logout()
         data = self._odoo.json(
             '/jsonrpc',
             {'service': 'db',
