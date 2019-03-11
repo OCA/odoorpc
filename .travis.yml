@@ -5,8 +5,6 @@ language: python
 cache: pip
 python:
   - "2.7"
-  - "3.4"
-  - "3.5"
   - "3.6"
 
 env:
@@ -37,6 +35,8 @@ jobs:
           tags: true
 
 before_install:
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.6" ] ; then pip install -q pre-commit ; fi
+  # Odoo instance
   - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -e POSTGRES_DB=postgres --name db $DOCKER_PG_IMAGE
   - docker run -d -p 8069:8069 --name odoo --link db:db -t "odoo:$ORPC_TEST_VERSION"
   - docker cp ./travis/docker_odoo_fix.sh odoo:/docker_odoo_fix.sh
@@ -47,5 +47,6 @@ install:
   - pip install sphinx
 
 script:
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.6" ] ; then pre-commit run --all-files ; fi
   - python -m unittest discover -v
   - PYTHONPATH=.:$PYTHONPATH sphinx-build -b doctest -d doc/build/doctrees doc/source build/doctest
