@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import datetime
 
@@ -6,7 +6,6 @@ from odoorpc.tests import LoginTestCase
 
 
 class TestFieldDate(LoginTestCase):
-
     def test_field_date_read(self):
         self.assertIsInstance(self.user.login_date, datetime.date)
 
@@ -38,5 +37,3 @@ class TestFieldDate(LoginTestCase):
         data = partner.read(['date'])[0]
         self.assertEqual(data['date'], backup and backup.strftime('%Y-%m-%d'))
         self.assertEqual(partner.date, backup)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

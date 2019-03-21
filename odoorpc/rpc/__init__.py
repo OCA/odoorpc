@@ -1,23 +1,6 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module provides `Connector` classes to communicate with an `Odoo`
 server with the `JSON-RPC` protocol or through simple HTTP requests.
 
@@ -25,6 +8,9 @@ Web controllers of `Odoo` expose two kinds of methods: `json` and `http`.
 These methods can be accessed from the connectors of this module.
 """
 import sys
+
+from odoorpc.rpc import error, jsonrpclib
+
 # Python 2
 if sys.version_info[0] < 3:
     from urllib2 import build_opener, HTTPCookieProcessor
@@ -34,14 +20,12 @@ else:
     from urllib.request import build_opener, HTTPCookieProcessor
     from http.cookiejar import CookieJar
 
-from odoorpc.rpc import error, jsonrpclib
-from odoorpc.tools import v
-
 
 class Connector(object):
     """Connector base class defining the interface used
     to interact with a server.
     """
+
     def __init__(self, host, port=8069, timeout=120, version=None):
         self.host = host
         try:
@@ -195,16 +179,23 @@ class ConnectorJSONRPC(Connector):
         >>> 'jsonrpc' in data and 'id' in data and 'result' in data
         True
     """
-    def __init__(self, host, port=8069, timeout=120, version=None,
-                 deserialize=True, opener=None):
+
+    def __init__(
+        self,
+        host,
+        port=8069,
+        timeout=120,
+        version=None,
+        deserialize=True,
+        opener=None,
+    ):
         super(ConnectorJSONRPC, self).__init__(host, port, timeout, version)
         self.deserialize = deserialize
         # One URL opener (with cookies handling) shared between
         # JSON and HTTP requests
         if opener is None:
             cookie_jar = CookieJar()
-            opener = build_opener(
-                HTTPCookieProcessor(cookie_jar))
+            opener = build_opener(HTTPCookieProcessor(cookie_jar))
         self._opener = opener
         self._proxy_json, self._proxy_http = self._get_proxies()
 
@@ -214,11 +205,20 @@ class ConnectorJSONRPC(Connector):
         corresponding to the server version used.
         """
         proxy_json = jsonrpclib.ProxyJSON(
-            self.host, self.port, self._timeout,
-            ssl=self.ssl, deserialize=self.deserialize, opener=self._opener)
+            self.host,
+            self.port,
+            self._timeout,
+            ssl=self.ssl,
+            deserialize=self.deserialize,
+            opener=self._opener,
+        )
         proxy_http = jsonrpclib.ProxyHTTP(
-            self.host, self.port, self._timeout,
-            ssl=self.ssl, opener=self._opener)
+            self.host,
+            self.port,
+            self._timeout,
+            ssl=self.ssl,
+            opener=self._opener,
+        )
         # Detect the server version
         if self.version is None:
             result = proxy_json('/web/webclient/version_info')['result']
@@ -264,10 +264,19 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         ...     from odoorpc import rpc
         ...     cnt = rpc.ConnectorJSONRPCSSL(HOST, port=PORT)
     """
-    def __init__(self, host, port=8069, timeout=120, version=None,
-                 deserialize=True, opener=None):
+
+    def __init__(
+        self,
+        host,
+        port=8069,
+        timeout=120,
+        version=None,
+        deserialize=True,
+        opener=None,
+    ):
         super(ConnectorJSONRPCSSL, self).__init__(
-            host, port, timeout, version, opener=opener)
+            host, port, timeout, version, opener=opener
+        )
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     @property
@@ -275,9 +284,4 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         return True
 
 
-PROTOCOLS = {
-    'jsonrpc': ConnectorJSONRPC,
-    'jsonrpc+ssl': ConnectorJSONRPCSSL,
-}
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+PROTOCOLS = {'jsonrpc': ConnectorJSONRPC, 'jsonrpc+ssl': ConnectorJSONRPCSSL}

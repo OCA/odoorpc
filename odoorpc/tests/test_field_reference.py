@@ -1,12 +1,11 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
-from odoorpc.tests import LoginTestCase
 from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 from odoorpc.tools import v
 
 
 class TestFieldReference(LoginTestCase):
-
     def test_field_reference_read(self):
         # 8.0 and 9.0
         if v(self.odoo.version) < v('10'):
@@ -14,14 +13,14 @@ class TestFieldReference(LoginTestCase):
             claim_id = Claim.search([])[0]
             # Test field containing a value
             self.odoo.execute(
-                'crm.claim', 'write', [claim_id], {'ref': 'res.partner,1'})
+                'crm.claim', 'write', [claim_id], {'ref': 'res.partner,1'}
+            )
             claim = Claim.browse(claim_id)
             self.assertIsInstance(claim.ref, Model)
             self.assertEqual(claim.ref._name, 'res.partner')
             self.assertEqual(claim.ref.id, 1)
             # Test if empty field returns False (unable to guess the model to use)
-            self.odoo.execute(
-                'crm.claim', 'write', [claim_id], {'ref': None})
+            self.odoo.execute('crm.claim', 'write', [claim_id], {'ref': None})
             claim = Claim.browse(claim_id)
             self.assertEqual(claim.ref, False)
         # 10.0
@@ -44,7 +43,7 @@ class TestFieldReference(LoginTestCase):
             vals = Menu.default_get(fields_list)
             vals['name'] = "ODOORPC TEST (fields.Reference)"
             action = self.odoo.env.ref('base.action_partner_form')
-            vals['action'] = '%s,%s' % (action._name, action.id)
+            vals['action'] = '{},{}'.format(action._name, action.id)
             menu_id = Menu.create(vals)
             # Test field containing a value
             menu = Menu.browse(menu_id)
@@ -55,5 +54,3 @@ class TestFieldReference(LoginTestCase):
     def test_field_reference_write(self):
         # TODO
         pass
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

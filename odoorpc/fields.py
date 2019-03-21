@@ -1,32 +1,15 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module contains classes representing the fields supported by Odoo.
 A field is a Python descriptor which defines getter/setter methods for
 its related attribute.
 """
-import sys
 import datetime
+import sys
 
-#from odoorpc import error
-from odoorpc.models import Model, IncrementalRecords
+# from odoorpc import error
+from odoorpc.models import IncrementalRecords, Model
 
 
 def is_int(value):
@@ -42,11 +25,16 @@ def is_int(value):
 
 # Python 2
 if sys.version_info[0] < 3:
+
     def is_string(value):
         """Return `True` if ``value`` is a string."""
-        return isinstance(value, basestring)
+        # noqa: F821
+        return isinstance(value, basestring)  # noqa: F821
+
+
 # Python >= 3
 else:
+
     def is_string(value):
         """Return `True` if ``value`` is a string."""
         return isinstance(value, str)
@@ -65,13 +53,19 @@ def odoo_tuple_in(iterable):
     """
     if not iterable:
         return False
+
     def is_odoo_tuple(elt):
         """Return `True` if `elt` is a Odoo special tuple."""
         try:
-            return elt[:1][0] in [1, 2, 3, 4, 5] \
-                    or elt[:2] in [(6, 0), [6, 0], (0, 0), [0, 0]]
+            return elt[:1][0] in [1, 2, 3, 4, 5] or elt[:2] in [
+                (6, 0),
+                [6, 0],
+                (0, 0),
+                [0, 0],
+            ]
         except (TypeError, IndexError):
             return False
+
     return any(is_odoo_tuple(elt) for elt in iterable)
 
 
@@ -96,11 +90,13 @@ def records2ids(iterable):
         >>> records2ids(groups)
         [1, 2, 3, 14, 17, 18, 19, 7, 8, 9, 5, 20, 21, 22, 23]
     """
+
     def record2id(elt):
         """If `elt` is a record, return its ID."""
         if isinstance(elt, Model):
             return elt.id
         return elt
+
     return [record2id(elt) for elt in iterable]
 
 
@@ -108,6 +104,7 @@ class BaseField(object):
     """Field which all other fields inherit.
     Manage common metadata.
     """
+
     def __init__(self, name, data):
         self.name = name
         self.type = 'type' in data and data['type'] or False
@@ -131,22 +128,29 @@ class BaseField(object):
 
     def __str__(self):
         """Return a human readable string representation of the field."""
-        attrs = ['string', 'relation', 'required', 'readonly', 'size', 'domain']
+        attrs = [
+            'string',
+            'relation',
+            'required',
+            'readonly',
+            'size',
+            'domain',
+        ]
         attrs_rep = []
         for attr in attrs:
             if hasattr(self, attr):
                 value = getattr(self, attr)
                 if value:
                     if is_string(value):
-                        attrs_rep.append("{0}='{1}'".format(attr, value))
+                        attrs_rep.append("{}='{}'".format(attr, value))
                     else:
-                        attrs_rep.append("{0}={1}".format(attr, value))
+                        attrs_rep.append("{}={}".format(attr, value))
         attrs_rep = ", ".join(attrs_rep)
-        return "{0}({1})".format(self.type, attrs_rep)
+        return "{}({})".format(self.type, attrs_rep)
 
     def check_value(self, value):
         """Check the validity of a value for the field."""
-        #if self.readonly:
+        # if self.readonly:
         #    raise error.Error(
         #        "'{field_name}' field is readonly".format(
         #            field_name=self.name))
@@ -155,10 +159,12 @@ class BaseField(object):
                 raise ValueError("Value supplied has to be a string")
             if len(value) > self.size:
                 raise ValueError(
-                    "Lenght of the '{0}' is limited to {1}".format(
-                        self.name, self.size))
+                    "Lenght of the '{}' is limited to {}".format(
+                        self.name, self.size
+                    )
+                )
         if not value and self.required:
-            raise ValueError("'{0}' field is required".format(self.name))
+            raise ValueError("'{}' field is required".format(self.name))
         return value
 
     def store(self, record, value):
@@ -168,6 +174,7 @@ class BaseField(object):
 
 class Binary(BaseField):
     """Equivalent of the `fields.Binary` class."""
+
     def __init__(self, name, data):
         super(Binary, self).__init__(name, data)
 
@@ -187,6 +194,7 @@ class Binary(BaseField):
 
 class Boolean(BaseField):
     """Equivalent of the `fields.Boolean` class."""
+
     def __init__(self, name, data):
         super(Boolean, self).__init__(name, data)
 
@@ -205,6 +213,7 @@ class Boolean(BaseField):
 
 class Char(BaseField):
     """Equivalent of the `fields.Char` class."""
+
     def __init__(self, name, data):
         super(Char, self).__init__(name, data)
 
@@ -224,6 +233,7 @@ class Char(BaseField):
 
 class Date(BaseField):
     """Represent the OpenObject 'fields.data'"""
+
     pattern = "%Y-%m-%d"
 
     def __init__(self, name, data):
@@ -249,22 +259,17 @@ class Date(BaseField):
         if isinstance(value, datetime.date):
             value = value.strftime("%Y-%m-%d")
         elif is_string(value):
-            try:
-                datetime.datetime.strptime(value, self.pattern)
-            except:
-                raise ValueError(
-                    "String not well formatted, expecting '{0}' format".format(
-                        self.pattern))
+            datetime.datetime.strptime(value, self.pattern)
         elif isinstance(value, bool) or value is None:
             return value
         else:
-            raise ValueError(
-                "Expecting a datetime.date object or string")
+            raise ValueError("Expecting a datetime.date object or string")
         return value
 
 
 class Datetime(BaseField):
     """Represent the OpenObject 'fields.datetime'"""
+
     pattern = "%Y-%m-%d %H:%M:%S"
 
     def __init__(self, name, data):
@@ -290,22 +295,17 @@ class Datetime(BaseField):
         if isinstance(value, datetime.datetime):
             value = value.strftime("%Y-%m-%d %H:%M:%S")
         elif is_string(value):
-            try:
-                datetime.datetime.strptime(value, self.pattern)
-            except:
-                raise ValueError(
-                    "Value not well formatted, expecting '{0}' format".format(
-                        self.pattern))
+            datetime.datetime.strptime(value, self.pattern)
         elif isinstance(value, bool):
             return value
         else:
-            raise ValueError(
-                "Expecting a datetime.datetime object or string")
+            raise ValueError("Expecting a datetime.datetime object or string")
         return value
 
 
 class Float(BaseField):
     """Equivalent of the `fields.Float` class."""
+
     def __init__(self, name, data):
         super(Float, self).__init__(name, data)
 
@@ -349,6 +349,7 @@ class Integer(BaseField):
 
 class Selection(BaseField):
     """Represent the OpenObject 'fields.selection'"""
+
     def __init__(self, name, data):
         super(Selection, self).__init__(name, data)
         self.selection = 'selection' in data and data['selection'] or False
@@ -371,15 +372,17 @@ class Selection(BaseField):
         selection = [val[0] for val in self.selection]
         if value and value not in selection:
             raise ValueError(
-                "The value '{0}' supplied doesn't match with the possible "
-                "values '{1}' for the '{2}' field".format(
-                    value, selection, self.name,
-                ))
+                "The value '{}' supplied doesn't match with the possible "
+                "values '{}' for the '{}' field".format(
+                    value, selection, self.name
+                )
+            )
         return value
 
 
 class Many2many(BaseField):
     """Represent the OpenObject 'fields.many2many'"""
+
     def __init__(self, name, data):
         super(Many2many, self).__init__(name, data)
         self.relation = 'relation' in data and data['relation'] or False
@@ -396,7 +399,8 @@ class Many2many(BaseField):
             args = [[instance.id], [self.name]]
             kwargs = {'context': self.context, 'load': '_classic_write'}
             orig_ids = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs)[0][self.name]
+                instance._name, 'read', args, kwargs
+            )[0][self.name]
             instance._values[self.name][instance.id] = orig_ids
             ids = orig_ids and orig_ids[:] or []
         # Take updated values into account
@@ -411,8 +415,7 @@ class Many2many(BaseField):
             context = instance.env.context.copy()
             context.update(self.context)
             env = instance.env(context=context)
-        return Relation._browse(
-            env, ids, from_record=(instance, self))
+        return Relation._browse(env, ids, from_record=(instance, self))
 
     def __set__(self, instance, value):
         value = self.check_value(value)
@@ -422,18 +425,21 @@ class Many2many(BaseField):
             if value and not odoo_tuple_in(value):
                 value = [(6, 0, records2ids(value))]
             elif not value:
-                value = [(5, )]
+                value = [(5,)]
         instance._values_to_write[self.name][instance.id] = value
         super(Many2many, self).__set__(instance, value)
 
     def check_value(self, value):
         if value:
-            if not isinstance(value, list) \
-                    and not isinstance(value, Model) \
-                    and not isinstance(value, IncrementalRecords):
+            if (
+                not isinstance(value, list)
+                and not isinstance(value, Model)
+                and not isinstance(value, IncrementalRecords)
+            ):
                 raise ValueError(
                     "The value supplied has to be a list, a recordset "
-                    "or 'False'")
+                    "or 'False'"
+                )
         return super(Many2many, self).check_value(value)
 
     def store(self, record, value):
@@ -446,6 +452,7 @@ class Many2many(BaseField):
 
 class Many2one(BaseField):
     """Represent the OpenObject 'fields.many2one'"""
+
     def __init__(self, name, data):
         super(Many2one, self).__init__(name, data)
         self.relation = 'relation' in data and data['relation'] or False
@@ -461,7 +468,8 @@ class Many2one(BaseField):
             args = [[instance.id], [self.name]]
             kwargs = {'context': self.context, 'load': '_classic_write'}
             id_ = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs)[0][self.name]
+                instance._name, 'read', args, kwargs
+            )[0][self.name]
             instance._values[self.name][instance.id] = id_
         Relation = instance.env[self.relation]
         if id_:
@@ -470,8 +478,7 @@ class Many2one(BaseField):
                 context = instance.env.context.copy()
                 context.update(self.context)
                 env = instance.env(context=context)
-            return Relation._browse(
-                env, id_, from_record=(instance, self))
+            return Relation._browse(env, id_, from_record=(instance, self))
         return Relation.browse(False)
 
     def __set__(self, instance, value):
@@ -483,29 +490,37 @@ class Many2one(BaseField):
         elif value in [None, False]:
             o_rel = False
         else:
-            raise ValueError("Value supplied has to be an integer, "
-                             "a record object or 'None/False'.")
+            raise ValueError(
+                "Value supplied has to be an integer, "
+                "a record object or 'None/False'."
+            )
         o_rel = self.check_value(o_rel)
-        #instance.__data__['updated_values'][self.name] = \
+        # instance.__data__['updated_values'][self.name] = \
         #    o_rel and [o_rel.id, False]
-        instance._values_to_write[self.name][instance.id] = \
+        instance._values_to_write[self.name][instance.id] = (
             o_rel and o_rel.id or False
+        )
         super(Many2one, self).__set__(instance, value)
 
     def check_value(self, value):
         super(Many2one, self).check_value(value)
         if value and value._name != self.relation:
             raise ValueError(
-                ("Instance of '{model}' supplied doesn't match with the " +
-                 "relation '{relation}' of the '{field_name}' field.").format(
-                     model=value._name,
-                     relation=self.relation,
-                     field_name=self.name))
+                (
+                    "Instance of '{model}' supplied doesn't match with the "
+                    + "relation '{relation}' of the '{field_name}' field."
+                ).format(
+                    model=value._name,
+                    relation=self.relation,
+                    field_name=self.name,
+                )
+            )
         return value
 
 
 class One2many(BaseField):
     """Represent the OpenObject 'fields.one2many'"""
+
     def __init__(self, name, data):
         super(One2many, self).__init__(name, data)
         self.relation = 'relation' in data and data['relation'] or False
@@ -522,7 +537,8 @@ class One2many(BaseField):
             args = [[instance.id], [self.name]]
             kwargs = {'context': self.context, 'load': '_classic_write'}
             orig_ids = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs)[0][self.name]
+                instance._name, 'read', args, kwargs
+            )[0][self.name]
             instance._values[self.name][instance.id] = orig_ids
             ids = orig_ids and orig_ids[:] or []
         # Take updated values into account
@@ -536,8 +552,7 @@ class One2many(BaseField):
             context = instance.env.context.copy()
             context.update(self.context)
             env = instance.env(context=context)
-        return Relation._browse(
-            env, ids, from_record=(instance, self))
+        return Relation._browse(env, ids, from_record=(instance, self))
 
     def __set__(self, instance, value):
         value = self.check_value(value)
@@ -547,18 +562,21 @@ class One2many(BaseField):
             if value and not odoo_tuple_in(value):
                 value = [(6, 0, records2ids(value))]
             elif not value:
-                value = [(5, )]
+                value = [(5,)]
         instance._values_to_write[self.name][instance.id] = value
         super(One2many, self).__set__(instance, value)
 
     def check_value(self, value):
         if value:
-            if not isinstance(value, list) \
-                    and not isinstance(value, Model) \
-                    and not isinstance(value, IncrementalRecords):
+            if (
+                not isinstance(value, list)
+                and not isinstance(value, Model)
+                and not isinstance(value, IncrementalRecords)
+            ):
                 raise ValueError(
                     "The value supplied has to be a list, a recordset "
-                    "or 'False'")
+                    "or 'False'"
+                )
         return super(One2many, self).check_value(value)
 
     def store(self, record, value):
@@ -571,6 +589,7 @@ class One2many(BaseField):
 
 class Reference(BaseField):
     """Represent the OpenObject 'fields.reference'."""
+
     def __init__(self, name, data):
         super(Reference, self).__init__(name, data)
         self.context = 'context' in data and data['context'] or {}
@@ -586,7 +605,8 @@ class Reference(BaseField):
             args = [[instance.id], [self.name]]
             kwargs = {'context': self.context, 'load': '_classic_write'}
             value = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs)[0][self.name]
+                instance._name, 'read', args, kwargs
+            )[0][self.name]
             instance._values_to_write[self.name][instance.id] = value
         if value:
             parts = value.rpartition(',')
@@ -601,7 +621,8 @@ class Reference(BaseField):
                     context.update(self.context)
                     env = instance.env(context=context)
                 return Relation._browse(
-                    env, o_id, from_record=(instance, self))
+                    env, o_id, from_record=(instance, self)
+                )
         return False
 
     def __set__(self, instance, value):
@@ -616,19 +637,20 @@ class Reference(BaseField):
         selection = [val[0] for val in self.selection]
         if relation not in selection:
             raise ValueError(
-                ("The value '{value}' supplied doesn't match with the possible"
-                 " values '{selection}' for the '{field_name}' field").format(
-                     value=relation,
-                     selection=selection,
-                     field_name=self.name,
-                 ))
+                (
+                    "The value '{value}' supplied doesn't match with the possible"
+                    " values '{selection}' for the '{field_name}' field"
+                ).format(
+                    value=relation, selection=selection, field_name=self.name
+                )
+            )
         return relation
 
     def check_value(self, value):
         if isinstance(value, Model):
             relation = value.__class__.__osv__['name']
             self._check_relation(relation)
-            value = "%s,%s" % (relation, value.id)
+            value = "{},{}".format(relation, value.id)
             super(Reference, self).check_value(value)
         elif is_string(value):
             super(Reference, self).check_value(value)
@@ -636,19 +658,24 @@ class Reference(BaseField):
             relation, o_id = parts[0], parts[2]
             relation = relation.strip()
             o_id = o_id.strip()
-            #o_rel = instance.__class__.__odoo__.browse(relation, o_id)
+            # o_rel = instance.__class__.__odoo__.browse(relation, o_id)
             if not relation or not is_int(o_id):
-                raise ValueError("String not well formatted, expecting "
-                                 "'{relation},{id}' format")
+                raise ValueError(
+                    "String not well formatted, expecting "
+                    "'{relation},{id}' format"
+                )
             self._check_relation(relation)
         else:
-            raise ValueError("Value supplied has to be a string or"
-                             " a browse_record object.")
+            raise ValueError(
+                "Value supplied has to be a string or"
+                " a browse_record object."
+            )
         return value
 
 
 class Text(BaseField):
     """Equivalent of the `fields.Text` class."""
+
     def __init__(self, name, data):
         super(Text, self).__init__(name, data)
 
@@ -668,6 +695,7 @@ class Text(BaseField):
 
 class Html(Text):
     """Equivalent of the `fields.Html` class."""
+
     def __init__(self, name, data):
         super(Html, self).__init__(name, data)
 
@@ -676,6 +704,7 @@ class Unknown(BaseField):
     """Represent an unknown field. This should not happen but this kind of
     field only exists to avoid a blocking situation from a RPC point of view.
     """
+
     def __init__(self, name, data):
         super(Unknown, self).__init__(name, data)
 
@@ -716,5 +745,3 @@ def generate_field(name, data):
     assert 'type' in data
     field = TYPES_TO_FIELDS.get(data['type'], Unknown)(name, data)
     return field
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

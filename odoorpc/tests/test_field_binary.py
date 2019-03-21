@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import base64
 
@@ -6,7 +6,6 @@ from odoorpc.tests import LoginTestCase
 
 
 class TestFieldBinary(LoginTestCase):
-
     def test_field_binary_read(self):
         img = self.user.image
         base64.b64decode(img.encode('ascii'))
@@ -33,6 +32,3 @@ class TestFieldBinary(LoginTestCase):
         data = self.user.read(['image'])[0]
         self.assertEqual(data['image'], backup)
         self.assertEqual(self.user.image, backup)
-
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

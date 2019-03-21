@@ -1,15 +1,14 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import time
 
-from odoorpc.tests import LoginTestCase
 from odoorpc import error
-from odoorpc.models import Model
 from odoorpc.env import Environment
+from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 
 
 class TestModel(LoginTestCase):
-
     def setUp(self):
         LoginTestCase.setUp(self)
         self.partner_obj = self.odoo.env['res.partner']
@@ -18,7 +17,8 @@ class TestModel(LoginTestCase):
         self.p2_id = self.partner_obj.create({'name': "Child 2"})
         self.group_obj = self.odoo.env['res.groups']
         self.u0_id = self.user_obj.create(
-            {'name': "TestOdooRPC", 'login': 'test_%s' % time.time()})
+            {'name': "TestOdooRPC", 'login': 'test_%s' % time.time()}
+        )
         self.g1_id = self.group_obj.create({'name': "Group 1"})
         self.g2_id = self.group_obj.create({'name': "Group 2"})
 
@@ -47,13 +47,11 @@ class TestModel(LoginTestCase):
 
     def test_model_browse_wrong_id(self):
         self.assertRaises(
-            ValueError,
-            self.partner_obj.browse,
-            9999999)    # Wrong ID
+            ValueError, self.partner_obj.browse, 9999999
+        )  # Wrong ID
         self.assertRaises(
-            error.RPCError,
-            self.partner_obj.browse,
-            "1")  # Wrong ID type
+            error.RPCError, self.partner_obj.browse, "1"
+        )  # Wrong ID type
 
     def test_model_browse_without_arg(self):
         self.assertRaises(TypeError, self.partner_obj.browse)
@@ -66,22 +64,18 @@ class TestModel(LoginTestCase):
     def test_model_rpc_method_error_no_arg(self):
         # Handle exception (execute a 'name_get' with without args)
         user_obj = self.odoo.env['res.users']
-        self.assertRaises(
-            error.RPCError,
-            user_obj.name_get)  # No arg
+        self.assertRaises(error.RPCError, user_obj.name_get)  # No arg
 
     def test_model_rpc_method_error_wrong_args(self):
         # Handle exception (execute a 'search' with wrong args)
         user_obj = self.odoo.env['res.users']
-        self.assertRaises(
-            error.RPCError,
-            user_obj.search,
-            False)  # Wrong arg
+        self.assertRaises(error.RPCError, user_obj.search, False)  # Wrong arg
 
     def test_model_with_context(self):
         Product = self.odoo.env['product.product']
         product_id = Product.create(
-            {'name': u"Product invisible", 'active': False})
+            {'name': u"Product invisible", 'active': False}
+        )
         product_ids = Product.search([])
         self.assertNotIn(product_id, product_ids)
         product_ids = Product.with_context(active_test=False).search([])
@@ -106,7 +100,7 @@ class TestModel(LoginTestCase):
     def test_record_iter(self):
         ids = self.partner_obj.search([])[:5]
         partners = self.partner_obj.browse(ids)
-        self.assertEqual(set([partner.id for partner in partners]), set(ids))
+        self.assertEqual({partner.id for partner in partners}, set(ids))
         partner = partners[0]
         self.assertIn(partner.id, partners.ids)
         self.assertEqual(id(partner._values), id(partners._values))
@@ -146,5 +140,3 @@ class TestModel(LoginTestCase):
         product_fr.name = new_name_fr
         product_fr = product_fr.with_context()  # Refresh the recordset
         self.assertEqual(product_fr.name, new_name_fr)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

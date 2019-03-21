@@ -1,31 +1,13 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """Supply the :class:`Environment` class to manage records more efficiently."""
 
 import sys
 import weakref
 
-from odoorpc.models import Model
 from odoorpc import fields
-
+from odoorpc.models import Model
 
 FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
 
@@ -56,11 +38,12 @@ class Environment(object):
         self._uid = uid
         self._context = context
         self._registry = {}
-        self._dirty = weakref.WeakSet()      # set of records updated locally
+        self._dirty = weakref.WeakSet()  # set of records updated locally
 
     def __repr__(self):
-        return "Environment(db=%s, uid=%s, context=%s)" % (
-            repr(self._db), self._uid, self._context)
+        return "Environment(db={}, uid={}, context={})".format(
+            repr(self._db), self._uid, self._context
+        )
 
     @property
     def dirty(self):
@@ -192,7 +175,8 @@ class Environment(object):
         :raise: :class:`odoorpc.error.RPCError`
         """
         model, id_ = self._odoo.execute(
-            'ir.model.data', 'xmlid_to_res_model_res_id', xml_id, True)
+            'ir.model.data', 'xmlid_to_res_model_res_id', xml_id, True
+        )
         return self[model].browse(id_)
 
     @property
@@ -284,7 +268,7 @@ class Environment(object):
         :return: a :class:`odoorpc.models.Model` class
         """
         if model not in self.registry:
-            #self.registry[model] = Model(self._odoo, self, model)
+            # self.registry[model] = Model(self._odoo, self, model)
             self.registry[model] = self._create_model_class(model)
         return self.registry[model]
 
@@ -306,8 +290,9 @@ class Environment(object):
 
         :return: `True` or `False`
         """
-        model_exists = self._odoo.execute('ir.model', 'search',
-                                          [('model', '=', model)])
+        model_exists = self._odoo.execute(
+            'ir.model', 'search', [('model', '=', model)]
+        )
         return bool(model_exists)
 
     def _create_model_class(self, model):
@@ -318,7 +303,8 @@ class Environment(object):
         cls_name = model.replace('.', '_')
         # Hack for Python 2 (no need to do this for Python 3)
         if sys.version_info[0] < 3:
-            if isinstance(cls_name, unicode):
+            # noqa: F821
+            if isinstance(cls_name, unicode):  # noqa: F821
                 cls_name = cls_name.encode('utf-8')
         # Retrieve server fields info and generate corresponding local fields
         attrs = {
@@ -341,5 +327,3 @@ class Environment(object):
             attrs['_columns']['name'] = Field
             attrs['name'] = Field
         return type(cls_name, (Model,), attrs)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

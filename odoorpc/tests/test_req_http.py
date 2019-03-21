@@ -1,10 +1,9 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from odoorpc.tests import BaseTestCase
 
 
 class TestReqHTTP(BaseTestCase):
-
     def _req_http(self, url):
         response = self.odoo.http(url)
         binary_data = response.read()

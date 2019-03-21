@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import socket
 
@@ -7,7 +7,6 @@ from odoorpc.tools import v
 
 
 class TestTimeout(LoginTestCase):
-
     def test_increased_timeout(self):
         # Set the timeout
         self.odoo.config['timeout'] = 120
@@ -25,7 +24,5 @@ class TestTimeout(LoginTestCase):
         if v(self.odoo.version)[0] < 11:
             report_name = 'preview.report'
         self.assertRaises(
-            socket.timeout,
-            self.odoo.report.download, report_name, [1])
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+            socket.timeout, self.odoo.report.download, report_name, [1]
+        )

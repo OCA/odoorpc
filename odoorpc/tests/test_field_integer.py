@@ -1,10 +1,9 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from odoorpc.tests import LoginTestCase
 
 
 class TestFieldInteger(LoginTestCase):
-
     def test_field_integer_read(self):
         self.assertIsInstance(self.user.id, int)
 
@@ -37,5 +36,3 @@ class TestFieldInteger(LoginTestCase):
         data = cron.read(['priority'])[0]
         self.assertEqual(data['priority'], backup)
         self.assertEqual(cron.priority, backup)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

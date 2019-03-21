@@ -1,30 +1,13 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module provide the :class:`Report` class to list available reports and
 to generate/download them.
 """
 import base64
 import io
 
-from odoorpc.tools import v, get_encodings
+from odoorpc.tools import get_encodings, v
 
 
 def encode2bytes(data):
@@ -62,6 +45,7 @@ class Report(object):
         >>> odoo.report
         <odoorpc.report.Report object at ...>
     """
+
     def __init__(self, odoo):
         self._odoo = odoo
 
@@ -139,14 +123,23 @@ class Report(object):
             return io.BytesIO(result)
         # Odoo < 11.0
         else:
-            args_to_send = [self._odoo.env.db,
-                            self._odoo.env.uid, self._odoo._password,
-                            name, ids, datas, context]
+            args_to_send = [
+                self._odoo.env.db,
+                self._odoo.env.uid,
+                self._odoo._password,
+                name,
+                ids,
+                datas,
+                context,
+            ]
             data = self._odoo.json(
                 '/jsonrpc',
-                {'service': 'report',
-                 'method': 'render_report',
-                 'args': args_to_send})
+                {
+                    'service': 'report',
+                    'method': 'render_report',
+                    'args': args_to_send,
+                },
+            )
             if 'result' not in data and not data['result'].get('result'):
                 raise ValueError("Received invalid data.")
             # Encode to bytes forced to be compatible with Python 3.2
@@ -194,7 +187,8 @@ class Report(object):
         IrReport = self._odoo.env[report_model]
         report_ids = IrReport.search([])
         reports = IrReport.read(
-            report_ids, ['name', 'model', 'report_name', 'report_type'])
+            report_ids, ['name', 'model', 'report_name', 'report_type']
+        )
         result = {}
         for report in reports:
             model = report.pop('model')
@@ -203,5 +197,3 @@ class Report(object):
                 result[model] = []
             result[model].append(report)
         return result
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

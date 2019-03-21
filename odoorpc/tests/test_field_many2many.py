@@ -1,27 +1,30 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import time
 
-from odoorpc.tests import LoginTestCase
 from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 
 
 class TestFieldMany2many(LoginTestCase):
-
     def setUp(self):
         LoginTestCase.setUp(self)
         self.group_obj = self.odoo.env['res.groups']
-        self.u0_id = self.user_obj.create({
-            'name': "TestMany2many User 1",
-            'login': 'test_m2m_u1_%s' % time.time(),
-        })
+        self.u0_id = self.user_obj.create(
+            {
+                'name': "TestMany2many User 1",
+                'login': 'test_m2m_u1_%s' % time.time(),
+            }
+        )
         self.g1_id = self.group_obj.create({'name': "Group 1"})
         self.g2_id = self.group_obj.create({'name': "Group 2"})
-        self.u1_id = self.user_obj.create({
-            'name': "TestMany2many User 2",
-            'login': 'test_m2m_u2_%s' % time.time(),
-            'groups_id': [(4, self.g1_id), (4, self.g2_id)],
-        })
+        self.u1_id = self.user_obj.create(
+            {
+                'name': "TestMany2many User 2",
+                'login': 'test_m2m_u2_%s' % time.time(),
+                'groups_id': [(4, self.g1_id), (4, self.g2_id)],
+            }
+        )
 
     def test_field_many2many_read(self):
         self.assertIsInstance(self.user.company_ids, Model)
@@ -108,8 +111,10 @@ class TestFieldMany2many(LoginTestCase):
     def test_field_many2many_write_iadd_list_records(self):
         user = self.user_obj.browse(self.u0_id)
         # += List of records
-        user.groups_id += [self.group_obj.browse(self.g1_id),
-                           self.group_obj.browse(self.g2_id)]
+        user.groups_id += [
+            self.group_obj.browse(self.g1_id),
+            self.group_obj.browse(self.g2_id),
+        ]
         data = user.read(['groups_id'])[0]
         self.assertIn(self.g1_id, data['groups_id'])
         self.assertIn(self.g2_id, data['groups_id'])
@@ -209,5 +214,3 @@ class TestFieldMany2many(LoginTestCase):
         group_ids = [grp.id for grp in user.groups_id]
         self.assertNotIn(groups.ids[0], group_ids)
         self.assertNotIn(groups.ids[1], group_ids)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

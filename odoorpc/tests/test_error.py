@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 try:
     import unittest2 as unittest
 except ImportError:
@@ -9,17 +9,16 @@ from odoorpc.error import RPCError
 
 
 class TestError(unittest.TestCase):
-
     def test_rpcerror_unicode_message(self):
         message = u"é"
         exc = RPCError(message)
         str(exc)
         if sys.version_info[0] < 3:
-            unicode(exc)
+            unicode(exc)  # noqa: F821
 
     def test_rpcerror_str_message(self):
         message = "é"
         exc = RPCError(message)
         str(exc)
         if sys.version_info[0] < 3:
-            unicode(exc)
+            unicode(exc)  # noqa: F821

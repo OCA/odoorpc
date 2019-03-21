@@ -1,11 +1,10 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
-from odoorpc.tests import LoginTestCase
 from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 
 
 class TestFieldMany2one(LoginTestCase):
-
     def test_field_many2one_read(self):
         User = self.odoo.env['res.users']
         user = User.browse(1)
@@ -34,5 +33,3 @@ class TestFieldMany2one(LoginTestCase):
         self.assertIsInstance(self.user.action_id, Model)
         self.assertEqual(self.user.action_id.id, None)
         self.assertFalse(bool(self.user.action_id))
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,29 +1,13 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module contains some helper functions used to save and load sessions
 in `OdooRPC`.
 """
 import os
 import stat
 import sys
+
 # Python 2
 if sys.version_info[0] < 3:
     from ConfigParser import SafeConfigParser as ConfigParser
@@ -131,7 +115,8 @@ def get(name, rc_file='~/.odoorpcrc'):
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise ValueError(
-            "'%s' session does not exist in %s" % (name, rc_file))
+            "'{}' session does not exist in {}".format(name, rc_file)
+        )
     return {
         'type': conf.get(name, 'type'),
         'host': conf.get(name, 'host'),
@@ -198,9 +183,8 @@ def remove(name, rc_file='~/.odoorpcrc'):
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
         raise ValueError(
-            "'%s' session does not exist in %s" % (name, rc_file))
+            "'{}' session does not exist in {}".format(name, rc_file)
+        )
     conf.remove_section(name)
     with open(os.path.expanduser(rc_file), 'wb') as file_:
         conf.write(file_)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import re
 from doctest import OutputChecker
 
-from sphinx.ext.doctest import *
+from sphinx.ext.doctest import SphinxDocTestRunner, setup  # noqa: F401
 
 
 class Py23OutputChecker(OutputChecker):
     """OutputChecker to ignore unicode literals when checking outputs."""
+
     def check_output(self, want, got, optionflags):
         if got:
             got = re.sub("u'(.*?)'", "'\\1'", got)
@@ -25,5 +25,3 @@ def custom_init(self, checker=None, verbose=None, optionflags=0):
 
 
 SphinxDocTestRunner.__init__ = custom_init
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

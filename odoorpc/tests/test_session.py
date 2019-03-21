@@ -1,14 +1,13 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
-import tempfile
 import os
+import tempfile
 
-from odoorpc.tests import LoginTestCase
 import odoorpc
+from odoorpc.tests import LoginTestCase
 
 
 class TestSession(LoginTestCase):
-
     def setUp(self):
         LoginTestCase.setUp(self)
         self.session_name = self.env['db']
@@ -53,8 +52,7 @@ class TestSession(LoginTestCase):
             'passwd': self.odoo._password,
             'database': self.odoo.env.db,
         }
-        result = odoorpc.session.get(
-            self.session_name, rc_file=self.file_path)
+        result = odoorpc.session.get(self.session_name, rc_file=self.file_path)
         self.assertEqual(data, result)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
 
@@ -76,5 +74,3 @@ class TestSession(LoginTestCase):
         self.assertIn(self.session_name, result)
         self.assertEqual(data, result)
         odoorpc.ODOO.remove(self.session_name, rc_file=self.file_path)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
