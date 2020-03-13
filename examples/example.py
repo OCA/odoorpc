@@ -15,7 +15,8 @@ PASSWORD = 'password'
 try:
     # Login
     oerp = oerplib.OERP(
-        server=SERVER, database=DATABASE, protocol=PROTOCOL, port=PORT)
+        server=SERVER, database=DATABASE, protocol=PROTOCOL, port=PORT
+    )
     oerp.login(USER, PASSWORD)
 
     # ----------------------- #
@@ -62,7 +63,7 @@ try:
         print(order.name)
         print(order.partner_id.name)
         for line in order.order_line:
-            print('\t{0}'.format(line.name))
+            print('\t{}'.format(line.name))
 
     # ----------------------- #
     # -- Download a report -- #
@@ -79,9 +80,12 @@ try:
     print(oerp.db.list())
     # Create a database in background
     oerp.db.create(
-        'super_admin_passwd', 'my_db',
-        demo_data=True, lang='fr_FR',
-        admin_passwd='admin_passwd')
+        'super_admin_passwd',
+        'my_db',
+        demo_data=True,
+        lang='fr_FR',
+        admin_passwd='admin_passwd',
+    )
     # ... after a while, dump it
     my_dump = oerp.db.dump('super_admin_password', 'my_db')
     # Create a new database from the dump

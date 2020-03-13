@@ -1,23 +1,6 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module contains all exceptions raised by `OdooRPC` when an error
 occurred.
 """
@@ -26,6 +9,7 @@ import sys
 
 class Error(Exception):
     """Base class for exception."""
+
     pass
 
 
@@ -81,6 +65,7 @@ class RPCError(Error):
         True
         True
     """
+
     def __init__(self, message, info=False):
         # Ensure that the message is in unicode,
         # to be compatible both with Python2 and 3
@@ -102,13 +87,10 @@ class RPCError(Error):
         return self.args and self.args[0] or u''
 
     def __repr__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            repr(self.args[0]))
+        return "{}({})".format(self.__class__.__name__, repr(self.args[0]))
 
 
 class InternalError(Error):
     """Exception raised for errors occurring during an internal operation."""
-    pass
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+    pass

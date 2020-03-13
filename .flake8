@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 79
+max-doc-length = 1000
+# E203: whitespace before ':' (black behaviour)
+# E501: flake8 line length (covered by bugbear B950)
+# W503: line break before binary operator (black behaviour)
+# W504: line break after binary operator (black behaviour)
+ignore = E203,E501,W503,W504

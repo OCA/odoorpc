@@ -1,11 +1,10 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
-from odoorpc.tests import LoginTestCase
 from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 
 
 class TestFieldOne2many(LoginTestCase):
-
     def setUp(self):
         LoginTestCase.setUp(self)
         self.partner_obj = self.odoo.env['res.partner']
@@ -111,8 +110,10 @@ class TestFieldOne2many(LoginTestCase):
         data = partner.read(['child_ids'])[0]
         self.assertNotIn(self.p1_id, data['child_ids'])
         self.assertNotIn(self.p2_id, data['child_ids'])
-        partner.child_ids += [self.partner_obj.browse(self.p1_id),
-                              self.partner_obj.browse(self.p2_id)]
+        partner.child_ids += [
+            self.partner_obj.browse(self.p1_id),
+            self.partner_obj.browse(self.p2_id),
+        ]
         data = partner.read(['child_ids'])[0]
         self.assertIn(self.p1_id, data['child_ids'])
         self.assertIn(self.p2_id, data['child_ids'])
@@ -203,8 +204,10 @@ class TestFieldOne2many(LoginTestCase):
     def test_field_one2many_write_isub_list_records(self):
         partner = self.partner_obj.browse(self.p0_id)
         partner.child_ids = [self.p1_id, self.p2_id]
-        childs = [self.partner_obj.browse(self.p1_id),
-                  self.partner_obj.browse(self.p2_id)]
+        childs = [
+            self.partner_obj.browse(self.p1_id),
+            self.partner_obj.browse(self.p2_id),
+        ]
         # -= List of records
         data = partner.read(['child_ids'])[0]
         self.assertIn(self.p1_id, data['child_ids'])
@@ -232,5 +235,3 @@ class TestFieldOne2many(LoginTestCase):
         partner_ids = [pt.id for pt in partner.child_ids]
         self.assertNotIn(self.p1_id, partner_ids)
         self.assertNotIn(self.p2_id, partner_ids)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

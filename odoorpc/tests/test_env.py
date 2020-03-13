@@ -1,14 +1,13 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import time
 
-from odoorpc.tests import LoginTestCase
-from odoorpc.models import Model
 from odoorpc.env import Environment
+from odoorpc.models import Model
+from odoorpc.tests import LoginTestCase
 
 
 class TestEnvironment(LoginTestCase):
-
     def test_env_init(self):
         self.assertIsInstance(self.odoo.env, Environment)
 
@@ -28,6 +27,7 @@ class TestEnvironment(LoginTestCase):
 
     def test_env_dirty(self):
         self.odoo.config['auto_commit'] = False
+
         def test_record_garbarge_collected():
             user_ids = self.odoo.env['res.users'].search([('id', '!=', 1)])
             user = self.user_obj.browse(user_ids[0])
@@ -36,9 +36,11 @@ class TestEnvironment(LoginTestCase):
             user.name = "Joe"
             self.assertIn(user, self.odoo.env.dirty)
             self.assertIn(user, user.env.dirty)
+
         test_record_garbarge_collected()
         # Ensure the record has been garbage collected for the next test
         import gc
+
         gc.collect()
         self.assertEqual(list(self.odoo.env.dirty), [])
 
@@ -55,7 +57,8 @@ class TestEnvironment(LoginTestCase):
         # by default and sufficiently tested in the 'test_field_*' modules.
         self.odoo.config['auto_commit'] = False
         user_id = self.user_obj.create(
-            {'name': "TestCommit", 'login': "test_commit_%s" % time.time()})
+            {'name': "TestCommit", 'login': "test_commit_%s" % time.time()}
+        )
         user = self.user_obj.browse(user_id)
         self.assertNotIn(user, self.odoo.env.dirty)
         user.name = "Bob"
@@ -75,5 +78,3 @@ class TestEnvironment(LoginTestCase):
     def test_env_contains(self):
         self.assertIn('res.partner', self.odoo.env)
         self.assertNotIn('does.not.exist', self.odoo.env)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

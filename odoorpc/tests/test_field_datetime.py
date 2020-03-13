@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import datetime
 
@@ -6,7 +6,6 @@ from odoorpc.tests import LoginTestCase
 
 
 class TestFieldDatetime(LoginTestCase):
-
     def test_field_datetime_read(self):
         SaleOrder = self.odoo.env['sale.order']
         order_id = SaleOrder.search([('date_order', '!=', False)], limit=1)
@@ -18,5 +17,3 @@ class TestFieldDatetime(LoginTestCase):
         # No common model found in every versions of OpenERP with a
         # fields.datetime writable
         pass
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

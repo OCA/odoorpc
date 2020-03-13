@@ -1,10 +1,9 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from odoorpc.tests import LoginTestCase
 
 
 class TestFieldFloat(LoginTestCase):
-
     def test_field_float_read(self):
         self.assertEqual(self.user.credit_limit, 0.0)
 
@@ -37,5 +36,3 @@ class TestFieldFloat(LoginTestCase):
         data = partner.read(['credit_limit'])[0]
         self.assertEqual(data['credit_limit'], backup)
         self.assertEqual(partner.credit_limit, backup)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -3,27 +3,43 @@
 Download and install instructions
 =================================
 
-Python Package Index (PyPI)
----------------------------
+Install from PyPI
+-----------------
 
 You can install `OdooRPC` with `pip`::
 
     $ pip install odoorpc
 
-No dependency is required.
+Install from GitHub
+-------------------
 
-Source code
------------
+To install the latest development branch with `pip`::
+
+    $ pip install git+https://github.com/OCA/odoorpc.git@master
+
+Install from sources
+--------------------
 
 The project is hosted on `GitHub <https://github.com/OCA/odoorpc>`_.
-To get the last stable release (``master`` branch), just type::
+To get the last development sources (``master`` branch), just type::
 
     $ git clone https://github.com/OCA/odoorpc.git
+    $ cd odoorpc/ && python setup.py install
 
-Also, the project uses the
-`Git Flow extension <https://danielkummer.github.io/git-flow-cheatsheet/>`_
-to manage its branches and releases. If you want to contribute, make sure to
-make your Pull Request against the `develop` branch.
+Contribute
+----------
+
+The project uses `pre-commit` to check the code. To make your life easier you
+are encouraged to install `pre-commit`::
+
+    $ pip install pre-commit
+
+And initialize it at the root of the project source tree::
+
+    $ cd ./odoorpc/ && pre-commit install
+
+`pre-commit` will now check your changes when commiting and abort the operation
+if the code is not in a good health.
 
 Run tests
 ---------
@@ -47,8 +63,17 @@ available::
     $ export ORPC_TEST_DB=odoorpc_test
     $ export ORPC_TEST_USER=admin
     $ export ORPC_TEST_PWD=admin
-    $ export ORPC_TEST_VERSION=10.0
+    $ export ORPC_TEST_VERSION=12.0
     $ export ORPC_TEST_SUPER_PWD=admin
     $ python -m unittest discover -v
 
 The database ``odoorpc_test`` will be created if it does not exist.
+
+If you have `Docker` installed, an handy script will help you to run the tests
+on a dockerized Odoo instance::
+
+    $ ./run_tests_docker.sh
+
+The same environment variables described above apply::
+
+    $ ORPC_TEST_VERSION=11.0 ./run_tests_docker.sh

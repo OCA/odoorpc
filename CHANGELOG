@@ -1,3 +1,11 @@
+Unreleased
+==========
+
+- IMP: integrate pre-commit with some hooks such as black, flake8, pyupgrade
+       and isort + reformat the whole code base
+- FIX: int, float, etc type conversion might raise TypeError, catch em all
+- FIX: odoorpc.db.drop: remove existing user session to avoid HTTP session error
+
 0.7.0
 =====
 - IMP: Support added for Odoo 12.0

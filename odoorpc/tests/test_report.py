@@ -1,14 +1,12 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import tempfile
 
 from odoorpc.tests import LoginTestCase
-from odoorpc import error
 from odoorpc.tools import v
 
 
 class TestReport(LoginTestCase):
-
     def test_report_download_pdf(self):
         model = 'res.company'
         report_name = 'web.preview_internalreport'
@@ -29,15 +27,16 @@ class TestReport(LoginTestCase):
 
     def test_report_download_wrong_report_name(self):
         self.assertRaises(
-            ValueError,
-            self.odoo.report.download, 'wrong_report', [1])
+            ValueError, self.odoo.report.download, 'wrong_report', [1]
+        )
 
     def test_report_list(self):
         res = self.odoo.report.list()
         self.assertIsInstance(res, dict)
         self.assertIn('account.invoice', res)
         self.assertTrue(
-            any('account.report_invoice' in data['report_name']
-                for data in res['account.invoice']))
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+            any(
+                'account.report_invoice' in data['report_name']
+                for data in res['account.invoice']
+            )
+        )

@@ -1,38 +1,26 @@
-# -*- coding: UTF-8 -*-
-##############################################################################
-#
-#    OdooRPC
-#    Copyright (C) 2014 Sébastien Alix.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2014 Sébastien Alix
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """Provide the :class:`DB` class to manage the server databases."""
 import base64
 import io
 import sys
-# Python 2
-if sys.version_info[0] < 3:
-    def encode2bytes(data):
-        return data
-# Python >= 3
-else:
-    def encode2bytes(data):
-        return bytes(data, 'ascii')
 
 from odoorpc import error
 from odoorpc.tools import v
+
+# Python 2
+if sys.version_info[0] < 3:
+
+    def encode2bytes(data):
+        return data
+
+
+# Python >= 3
+else:
+
+    def encode2bytes(data):
+        return bytes(data, 'ascii')
 
 
 class DB(object):
@@ -50,6 +38,7 @@ class DB(object):
     <odoorpc.db.DB object at 0x...>
 
     """
+
     def __init__(self, odoo):
         self._odoo = odoo
 
@@ -125,10 +114,8 @@ class DB(object):
         if v(self._odoo.version)[0] >= 9:
             args.append(format_)
         data = self._odoo.json(
-            '/jsonrpc',
-            {'service': 'db',
-             'method': 'dump',
-             'args': args})
+            '/jsonrpc', {'service': 'db', 'method': 'dump', 'args': args}
+        )
         # Encode to bytes forced to be compatible with Python 3.2
         # (its 'base64.standard_b64decode()' function only accepts bytes)
         result = encode2bytes(data['result'])
@@ -160,11 +147,16 @@ class DB(object):
         """
         self._odoo.json(
             '/jsonrpc',
-            {'service': 'db',
-             'method': 'change_admin_password',
-             'args': [password, new_password]})
+            {
+                'service': 'db',
+                'method': 'change_admin_password',
+                'args': [password, new_password],
+            },
+        )
 
-    def create(self, password, db, demo=False, lang='en_US', admin_password='admin'):
+    def create(
+        self, password, db, demo=False, lang='en_US', admin_password='admin'
+    ):
         """Request the server to create a new database named `db`
         which will have `admin_password` as administrator password and
         localized with the `lang` parameter.
@@ -195,9 +187,12 @@ class DB(object):
         """
         self._odoo.json(
             '/jsonrpc',
-            {'service': 'db',
-             'method': 'create_database',
-             'args': [password, db, demo, lang, admin_password]})
+            {
+                'service': 'db',
+                'method': 'create_database',
+                'args': [password, db, demo, lang, admin_password],
+            },
+        )
 
     def drop(self, password, db):
         """Drop the `db` database. Returns `True` if the database was removed,
@@ -225,9 +220,8 @@ class DB(object):
             self._odoo.logout()
         data = self._odoo.json(
             '/jsonrpc',
-            {'service': 'db',
-             'method': 'drop',
-             'args': [password, db]})
+            {'service': 'db', 'method': 'drop', 'args': [password, db]},
+        )
         return data['result']
 
     def duplicate(self, password, db, new_db):
@@ -249,9 +243,12 @@ class DB(object):
         """
         self._odoo.json(
             '/jsonrpc',
-            {'service': 'db',
-             'method': 'duplicate_database',
-             'args': [password, db, new_db]})
+            {
+                'service': 'db',
+                'method': 'duplicate_database',
+                'args': [password, db, new_db],
+            },
+        )
 
     def list(self):
         """Return the list of the databases:
@@ -270,10 +267,8 @@ class DB(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         data = self._odoo.json(
-            '/jsonrpc',
-            {'service': 'db',
-             'method': 'list',
-             'args': []})
+            '/jsonrpc', {'service': 'db', 'method': 'list', 'args': []}
+        )
         return data.get('result', [])
 
     def restore(self, password, db, dump, copy=False):
@@ -313,8 +308,9 @@ class DB(object):
         b64_data = base64.standard_b64encode(dump.read()).decode()
         self._odoo.json(
             '/jsonrpc',
-            {'service': 'db',
-             'method': 'restore',
-             'args': [password, db, b64_data, copy]})
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+            {
+                'service': 'db',
+                'method': 'restore',
+                'args': [password, db, b64_data, copy],
+            },
+        )

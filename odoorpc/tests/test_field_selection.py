@@ -1,18 +1,17 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from odoorpc.tests import LoginTestCase
 
 
 class TestFieldSelection(LoginTestCase):
-
     def test_field_selection_read(self):
         self.assertEqual(self.user.state, 'active')
 
     def test_field_selection_write(self):
         # TODO: split in several unit tests
-        #record = self.user
-        #data = record.__class__.fields_get()
-        #for f in data:
+        # record = self.user
+        # data = record.__class__.fields_get()
+        # for f in data:
         #    if data[f]['type'] == 'selection':
         #        print("%s" % (f))
         #        #print("%s - %s" % (f, self.user[f]))
@@ -37,5 +36,3 @@ class TestFieldSelection(LoginTestCase):
         data = self.user.read(['tz'])[0]
         self.assertEqual(data['tz'], backup)
         self.assertEqual(self.user.tz, backup)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
