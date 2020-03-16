@@ -140,3 +140,11 @@ class TestModel(LoginTestCase):
         product_fr.name = new_name_fr
         product_fr = product_fr.with_context()  # Refresh the recordset
         self.assertEqual(product_fr.name, new_name_fr)
+
+    def test_record_display_name(self):
+        p_id = self.partner_obj.search([])[:1][0]
+        partner = self.partner_obj.browse(p_id)
+        try:
+            partner.display_name
+        except Exception as exc:
+            self.fail(exc)

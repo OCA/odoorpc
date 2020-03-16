@@ -319,11 +319,4 @@ class Environment(object):
                 Field = fields.generate_field(field_name, field_data)
                 attrs['_columns'][field_name] = Field
                 attrs[field_name] = Field
-        # Case where no field 'name' exists, we generate one (which will be
-        # in readonly mode) in purpose to be filled with the 'name_get' method
-        if 'name' not in attrs['_columns']:
-            field_data = {'type': 'text', 'string': 'Name', 'readonly': True}
-            Field = fields.generate_field('name', field_data)
-            attrs['_columns']['name'] = Field
-            attrs['name'] = Field
         return type(cls_name, (Model,), attrs)

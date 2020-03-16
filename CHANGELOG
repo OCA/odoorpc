@@ -5,6 +5,8 @@ Unreleased
        and isort + reformat the whole code base
 - FIX: int, float, etc type conversion might raise TypeError, catch em all
 - FIX: odoorpc.db.drop: remove existing user session to avoid HTTP session error
+- FIX: Do not create a fake 'name' field on proxy models (common 'display_name'
+       field handles already that case)
 
 0.7.0
 =====
