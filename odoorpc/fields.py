@@ -5,7 +5,8 @@
 A field is a Python descriptor which defines getter/setter methods for
 its related attribute.
 """
-import datetime
+from datetime import datetime, date, timedelta
+from pytz import timezone, UTC
 import sys
 
 # from odoorpc import error
@@ -244,7 +245,7 @@ class Date(BaseField):
         if instance.id in instance._values_to_write[self.name]:
             value = instance._values_to_write[self.name][instance.id]
         try:
-            res = datetime.datetime.strptime(value, self.pattern).date()
+            res = datetime.strptime(value, self.pattern).date()
         except (ValueError, TypeError):
             res = value
         return res
@@ -259,7 +260,7 @@ class Date(BaseField):
         if isinstance(value, datetime.date):
             value = value.strftime("%Y-%m-%d")
         elif is_string(value):
-            datetime.datetime.strptime(value, self.pattern)
+            datetime.strptime(value, self.pattern)
         elif isinstance(value, bool) or value is None:
             return value
         else:
@@ -280,7 +281,10 @@ class Datetime(BaseField):
         if instance.id in instance._values_to_write[self.name]:
             value = instance._values_to_write[self.name][instance.id]
         try:
-            res = datetime.datetime.strptime(value, self.pattern)
+            res = datetime.strptime(value, self.pattern)
+            if instance and 'tz' in instance.env.context:
+                tz = instance.env.context.get('tz')
+                res = self.locate_datetime_zone(res, tz)
         except (ValueError, TypeError):
             res = value
         return res
@@ -292,15 +296,23 @@ class Datetime(BaseField):
 
     def check_value(self, value):
         super(Datetime, self).check_value(value)
-        if isinstance(value, datetime.datetime):
+        if isinstance(value, datetime):
             value = value.strftime("%Y-%m-%d %H:%M:%S")
         elif is_string(value):
-            datetime.datetime.strptime(value, self.pattern)
+            datetime.strptime(value, self.pattern)
         elif isinstance(value, bool):
             return value
         else:
             raise ValueError("Expecting a datetime.datetime object or string")
         return value
+
+    def locate_datetime_zone(self, date, new_tz):
+        if date and new_tz:
+            new_tz, old_tz = timezone(new_tz), timezone("UTC")
+            dt_planned = old_tz.localize(date)
+            date = datetime.strftime(dt_planned.astimezone(new_tz),
+                                     self.pattern)
+        return date
 
 
 class Float(BaseField):
