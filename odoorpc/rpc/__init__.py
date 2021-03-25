@@ -124,10 +124,21 @@ class ConnectorJSONRPC(Connector):
         ...     keys.remove('is_admin')
         >>> if v(VERSION) >= v('12.0'):
         ...     keys.extend([
+        ...         'is_admin',
         ...         'partner_display_name',
         ...         'show_effect',
         ...     ])
         ...     keys.remove('is_superuser')
+        >>> if v(VERSION) >= v('13.0'):
+        ...     keys.extend([
+        ...         'display_switch_company_menu',
+        ...         'cache_hashes',
+        ...     ])
+        ...     keys.remove('session_id')
+        >>> if v(VERSION) >= v('14.0'):
+        ...     keys.extend([
+        ...         'active_ids_limit',
+        ...     ])
         >>> all([key in data['result'] for key in keys])
         True
 

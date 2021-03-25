@@ -114,7 +114,12 @@ class Report(object):
         if v(self._odoo.version)[0] >= 11:
             IrReport = self._odoo.env['ir.actions.report']
             report = IrReport.browse(report_id)
-            response = report.with_context(context).render(ids, data=datas)
+            if v(self._odoo.version)[0] >= 14:
+                response = report.with_context(context)._render(
+                    ids, data=datas
+                )
+            else:
+                response = report.with_context(context).render(ids, data=datas)
             content = response[0]
             # On the server the result is a bytes string,
             # but the RPC layer of Odoo returns it as a unicode string,
@@ -155,7 +160,11 @@ class Report(object):
         .. doctest::
             :options: +SKIP
 
-            >>> odoo.report.list()['account.invoice']
+            >>> from odoorpc.tools import v
+            >>> inv_model = 'account.move'
+            >>> if v(VERSION) < v('13.0'):
+            ...     inv_model = 'account.invoice'
+            >>> odoo.report.list()[inv_model]
             [{'name': u'Duplicates',
               'report_name': u'account.account_invoice_report_duplicate_main',
               'report_type': u'qweb-pdf'},
@@ -166,9 +175,13 @@ class Report(object):
         .. doctest::
             :hide:
 
+            >>> from odoorpc.tools import v
+            >>> inv_model = 'account.move'
+            >>> if v(VERSION) < v('13.0'):
+            ...     inv_model = 'account.invoice'
             >>> from pprint import pprint as pp
             >>> any(data['report_name'] == 'account.report_invoice'
-            ...     for data in odoo.report.list()['account.invoice'])
+            ...     for data in odoo.report.list()[inv_model])
             True
 
         *Python 2:*

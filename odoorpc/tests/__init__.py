@@ -8,6 +8,8 @@ try:
 except ImportError:
     import unittest
 
+from odoorpc.tools import v
+
 
 class BaseTestCase(unittest.TestCase):
     """Instanciates an ``odoorpc.ODOO`` object, nothing more."""
@@ -49,12 +51,15 @@ class LoginTestCase(BaseTestCase):
         default_timeout = self.odoo.config['timeout']
         self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
         # Install 'sale' + 'crm_claim' on Odoo < 10.0,
-        # and 'sale' + 'subscription' on Odoo >= 10.0
+        # 'sale' + 'subscription' on Odoo == 10.0
+        # and only 'sale' on > 10.0
         self.odoo.config['timeout'] = 600
         module_obj = self.odoo.env['ir.module.module']
         modules = ['sale', 'crm_claim']
-        if self.odoo.version == '10.0':
+        if v(self.odoo.version)[0] == 10:
             modules = ['sale', 'subscription']
+        elif v(self.odoo.version)[0] >= 11:
+            modules = ['sale']
         module_ids = module_obj.search([('name', 'in', modules)])
         module_obj.button_immediate_install(module_ids)
         self.odoo.config['timeout'] = default_timeout

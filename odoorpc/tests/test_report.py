@@ -18,7 +18,9 @@ class TestReport(LoginTestCase):
             file_.write(report.read())
 
     def test_report_download_qweb_pdf(self):
-        model = 'account.invoice'
+        model = 'account.move'
+        if v(self.odoo.version)[0] < 13:
+            model = 'account.invoice'
         report_name = 'account.report_invoice'
         ids = self.odoo.env[model].search([])[:10]
         report = self.odoo.report.download(report_name, ids)
@@ -33,10 +35,13 @@ class TestReport(LoginTestCase):
     def test_report_list(self):
         res = self.odoo.report.list()
         self.assertIsInstance(res, dict)
-        self.assertIn('account.invoice', res)
+        model = 'account.move'
+        if v(self.odoo.version)[0] < 13:
+            model = 'account.invoice'
+        self.assertIn(model, res)
         self.assertTrue(
             any(
                 'account.report_invoice' in data['report_name']
-                for data in res['account.invoice']
+                for data in res[model]
             )
         )
