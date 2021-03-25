@@ -110,6 +110,7 @@ class ProxyJSON(Proxy):
         data_json = json.dumps(data)
         request = Request(url=full_url, data=encode_data(data_json))
         request.add_header('Content-Type', 'application/json')
+        request.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7')
         response = self._opener.open(request, timeout=self._timeout)
         if not self._deserialize:
             return response
