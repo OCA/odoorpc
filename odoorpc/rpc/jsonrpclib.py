@@ -10,8 +10,8 @@ import sys
 
 # Python 2
 if sys.version_info[0] < 3:
-    from urllib2 import build_opener, HTTPCookieProcessor, Request
     from cookielib import CookieJar
+    from urllib2 import HTTPCookieProcessor, Request, build_opener
 
     def encode_data(data):
         return data
@@ -22,9 +22,9 @@ if sys.version_info[0] < 3:
 
 # Python >= 3
 else:
-    from urllib.request import build_opener, HTTPCookieProcessor, Request
-    from http.cookiejar import CookieJar
     import io
+    from http.cookiejar import CookieJar
+    from urllib.request import HTTPCookieProcessor, Request, build_opener
 
     def encode_data(data):
         try:
