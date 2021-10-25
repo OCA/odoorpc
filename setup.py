@@ -5,7 +5,7 @@ import os
 import setuptools
 
 name = 'OdooRPC'
-version = '0.8.0'
+version = '0.8.1-dev'
 description = (
     "OdooRPC is a Python package providing an easy way to "
     "pilot your Odoo servers through RPC."
@@ -74,6 +74,10 @@ setuptools.setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",

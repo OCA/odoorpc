@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 # Copyright 2014 Sébastien Alix
+# Copyright 2021 Vincent Hatakeyama
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl)
 """This module contains the :class:`Config <odoorpc.config.Config>` class which
 manage the configuration related to an instance of
 :class:`ODOO <odoorpc.ODOO>`, and some useful helper functions used internally
 in `OdooRPC`.
 """
-import collections
 import re
+import sys
+
+if sys.version_info >= (3, 3):
+    from collections.abc import MutableMapping
+else:
+    from collections import MutableMapping
 
 from .error import InternalError
 
 MATCH_VERSION = re.compile(r'[^\d.]')
 
 
-class Config(collections.MutableMapping):
+class Config(MutableMapping):
     """Class which manage the configuration of an
     :class:`ODOO <odoorpc.ODOO>` instance.
 
