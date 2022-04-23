@@ -6,7 +6,10 @@ manage the configuration related to an instance of
 :class:`ODOO <odoorpc.ODOO>`, and some useful helper functions used internally
 in `OdooRPC`.
 """
-import collections
+try:
+    from collections.abc import MutableMapping
+except ImportError: # Python 2.7 compatibility
+    from collections import MutableMapping
 import re
 
 from .error import InternalError
@@ -14,7 +17,7 @@ from .error import InternalError
 MATCH_VERSION = re.compile(r'[^\d.]')
 
 
-class Config(collections.MutableMapping):
+class Config(MutableMapping):
     """Class which manage the configuration of an
     :class:`ODOO <odoorpc.ODOO>` instance.
 
