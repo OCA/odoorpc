@@ -6,6 +6,9 @@ server with the `JSON-RPC` protocol or through simple HTTP requests.
 
 Web controllers of `Odoo` expose two kinds of methods: `json` and `http`.
 These methods can be accessed from the connectors of this module.
+
+An autoretry for 429 error is also provided, and turn on by default
+for *.odoo.com hosts.
 """
 import sys
 
@@ -24,9 +27,25 @@ else:
 class Connector(object):
     """Connector base class defining the interface used
     to interact with a server.
+
+    You can also configure an autoretry (enable by default for *.odoo.com host)
+    using the ``autoretry`` boolean option. If a 429 HTTP error is raised,
+    the script will automatically retry after ``backoff_factor * math.pow(2, iteration - 1)``
+
+    Number of maximum iterations and backoff factor can also be specified using kwargs
+    ``autoretry_factor`` default to 0.2
+    ``autoretry_max`` default to 10
+
+    .. doctest::
+        :options: +SKIP
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener, autoretry=True)
+        >>> # Or
+        >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener, autoretry=True, autoretry_factor=0.2, autoretry_max=3)
     """
 
-    def __init__(self, host, port=8069, timeout=120, version=None):
+    def __init__(self, host, port=8069, timeout=120, version=None, **kwargs):
         self.host = host
         try:
             int(port)
@@ -38,6 +57,15 @@ class Connector(object):
             self.port = int(port)
         self._timeout = timeout
         self.version = version
+        # Default autoretry for .odoo.com (saas) hosts
+        if 'autoretry' in kwargs:
+            self._autoretry = kwargs['autoretry']
+        elif host.endswith('.odoo.com'):
+            self._autoretry = True
+        else:
+            self._autoretry = False
+        self._autoretry_factor = kwargs.get('autoretry_factor', 0.2)
+        self._autoretry_max = kwargs.get('autoretry_max', 10)
 
     @property
     def ssl(self):
@@ -199,8 +227,11 @@ class ConnectorJSONRPC(Connector):
         version=None,
         deserialize=True,
         opener=None,
+        **kwargs,
     ):
-        super(ConnectorJSONRPC, self).__init__(host, port, timeout, version)
+        super(ConnectorJSONRPC, self).__init__(
+            host, port, timeout, version, **kwargs
+        )
         self.deserialize = deserialize
         # One URL opener (with cookies handling) shared between
         # JSON and HTTP requests
@@ -208,6 +239,7 @@ class ConnectorJSONRPC(Connector):
             cookie_jar = CookieJar()
             opener = build_opener(HTTPCookieProcessor(cookie_jar))
         self._opener = opener
+
         self._proxy_json, self._proxy_http = self._get_proxies()
 
     def _get_proxies(self):
@@ -222,6 +254,9 @@ class ConnectorJSONRPC(Connector):
             ssl=self.ssl,
             deserialize=self.deserialize,
             opener=self._opener,
+            autoretry=self._autoretry,
+            autoretry_factor=self._autoretry_factor,
+            autoretry_max=self._autoretry_max,
         )
         proxy_http = jsonrpclib.ProxyHTTP(
             self.host,
@@ -284,9 +319,10 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         version=None,
         deserialize=True,
         opener=None,
+        **kwargs,
     ):
         super(ConnectorJSONRPCSSL, self).__init__(
-            host, port, timeout, version, opener=opener
+            host, port, timeout, version, opener=opener, **kwargs
         )
         self._proxy_json, self._proxy_http = self._get_proxies()
 

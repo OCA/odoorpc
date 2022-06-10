@@ -5,8 +5,10 @@
 import copy
 import json
 import logging
+import math
 import random
 import sys
+from time import sleep
 
 # Python 2
 if sys.version_info[0] < 3:
@@ -88,10 +90,22 @@ class ProxyJSON(Proxy):
     """
 
     def __init__(
-        self, host, port, timeout=120, ssl=False, opener=None, deserialize=True
+        self,
+        host,
+        port,
+        timeout=120,
+        ssl=False,
+        opener=None,
+        deserialize=True,
+        autoretry=False,
+        autoretry_factor=0.2,
+        autoretry_max=10,
     ):
         Proxy.__init__(self, host, port, timeout, ssl, opener)
         self._deserialize = deserialize
+        self.autoretry = autoretry
+        self.autoretry_factor = autoretry_factor
+        self.autoretry_max = autoretry_max
 
     def __call__(self, url, params=None):
         if params is None:
@@ -110,7 +124,7 @@ class ProxyJSON(Proxy):
         data_json = json.dumps(data)
         request = Request(url=full_url, data=encode_data(data_json))
         request.add_header('Content-Type', 'application/json')
-        response = self._opener.open(request, timeout=self._timeout)
+        response = self._get_response(request)
         if not self._deserialize:
             return response
         result = json.load(decode_data(response))
@@ -119,6 +133,32 @@ class ProxyJSON(Proxy):
             {'url': full_url, 'data': log_data, 'result': result},
         )
         return result
+
+    def _get_response(self, request):
+        if not self.autoretry:
+            return self._opener.open(request, timeout=self._timeout)
+
+        stop = False
+        backoff_factor = self.autoretry_factor
+        iteration = 1
+
+        while not stop:
+            try:
+                response = self._opener.open(request, timeout=self._timeout)
+                return response
+            except HTTPError as e:
+                if e.code == 429:
+                    sleep_time = backoff_factor * math.pow(2, iteration - 1)
+                    logger.debug(
+                        'Error "Too Many Requests", retrying in %s', sleep_time
+                    )
+                    sleep(sleep_time)
+                    if iteration >= self.autoretry_max:
+                        raise
+                    else:
+                        iteration += 1
+                else:
+                    raise
 
 
 class ProxyHTTP(Proxy):
