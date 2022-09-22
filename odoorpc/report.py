@@ -115,9 +115,11 @@ class Report(object):
             IrReport = self._odoo.env['ir.actions.report']
             report = IrReport.browse(report_id)
             if v(self._odoo.version)[0] >= 14:
-                response = report.with_context(context)._render(
-                    ids, data=datas
-                )
+                # Need a CSRF token to print reports on Odoo >= 14
+                raise NotImplementedError
+                # response = report.with_context(context)._render(
+                #     ids, data=datas
+                # )
             else:
                 response = report.with_context(context).render(ids, data=datas)
             content = response[0]

@@ -8,6 +8,7 @@ import weakref
 
 from odoorpc import fields
 from odoorpc.models import Model
+from odoorpc.tools import v
 
 FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
 
@@ -174,8 +175,13 @@ class Environment(object):
         :return: a :class:`odoorpc.models.Model` instance (recordset)
         :raise: :class:`odoorpc.error.RPCError`
         """
+        if v(self._odoo.version)[0] < 15:
+            model, id_ = self._odoo.execute(
+                "ir.model.data", "xmlid_to_res_model_res_id", xml_id, True
+            )
+        module, name = xml_id.split(".", 1)
         model, id_ = self._odoo.execute(
-            'ir.model.data', 'xmlid_to_res_model_res_id', xml_id, True
+            "ir.model.data", "check_object_reference", module, name, True
         )
         return self[model].browse(id_)
 

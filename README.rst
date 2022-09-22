@@ -79,7 +79,7 @@ Supported Odoo server versions
 Supported Python versions
 =========================
 
-`OdooRPC` support Python 2.7, 3.4, 3.5 and 3.6.
+`OdooRPC` support Python 2.7, 3.7+.
 
 License
 =======

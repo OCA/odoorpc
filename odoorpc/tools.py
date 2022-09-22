@@ -8,7 +8,7 @@ in `OdooRPC`.
 """
 try:
     from collections.abc import MutableMapping
-except ImportError: # Python 2.7 compatibility
+except ImportError:  # Python 2.7 compatibility
     from collections import MutableMapping
 import re
 
