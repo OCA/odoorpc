@@ -39,7 +39,7 @@ __all__ = ['ODOO', 'error']
 
 import logging
 
-from odoorpc.odoo import ODOO
 from odoorpc import error
+from odoorpc.odoo import ODOO
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

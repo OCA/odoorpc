@@ -13,12 +13,12 @@ from odoorpc.rpc import error, jsonrpclib
 
 # Python 2
 if sys.version_info[0] < 3:
-    from urllib2 import build_opener, HTTPCookieProcessor
     from cookielib import CookieJar
+    from urllib2 import HTTPCookieProcessor, build_opener
 # Python >= 3
 else:
-    from urllib.request import build_opener, HTTPCookieProcessor
     from http.cookiejar import CookieJar
+    from urllib.request import HTTPCookieProcessor, build_opener
 
 
 class Connector(object):
