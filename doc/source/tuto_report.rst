@@ -79,7 +79,7 @@ To download a report::
 The method will return a file-like object, you will have to read its content
 in order to save it on your file-system::
 
-    >>> with open('invoice.pdf', 'w') as report_file:
+    >>> with open('invoice.pdf', 'wb') as report_file:
     ...     report_file.write(report.read())
     ...
 
