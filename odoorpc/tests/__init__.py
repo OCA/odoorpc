@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import time
 
 import odoorpc
 
@@ -50,6 +51,7 @@ class LoginTestCase(BaseTestCase):
         BaseTestCase.setUp(self)
         default_timeout = self.odoo.config['timeout']
         self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
+        self._disable_cron_jobs()
         # Install 'sale' + 'crm_claim' on Odoo < 10.0,
         # 'sale' + 'subscription' on Odoo == 10.0
         # and only 'sale' on > 10.0
@@ -67,3 +69,19 @@ class LoginTestCase(BaseTestCase):
         # to get all available fields (avoiding test failures)
         self.user = self.odoo.env.user
         self.user_obj = self.odoo.env['res.users']
+
+    def _disable_cron_jobs(self):
+        # Disable cron jobs so installation of modules in tests doesn't
+        # trigger "Odoo is currently processing a scheduled action." error.
+        cron_disabled = False
+        attempts = 0
+        while not cron_disabled and attempts < 20:
+            try:
+                cron_model = self.odoo.env["ir.cron"]
+                cron_ids = cron_model.search([])
+                cron_model.write(cron_ids, {"active": False})
+            except odoorpc.error.RPCError:
+                time.sleep(1)  # Let's wait a bit before trying again
+                attempts += 1
+            else:
+                cron_disabled = True
