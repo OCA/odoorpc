@@ -163,7 +163,7 @@ class BaseField(object):
                         self.name, self.size
                     )
                 )
-        if not value and self.required:
+        if not value and value != 0 and self.required:
             raise ValueError("'{}' field is required".format(self.name))
         return value
 
