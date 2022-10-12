@@ -1,6 +1,15 @@
 Unreleased
 ==========
 
+0.9.0
+=====
+
+- FIX: Support for Python 3.10+
+- FIX: Add support for Odoo 15.0 (excepting reports)
+
+0.8.0
+=====
+
 - IMP: integrate pre-commit with some hooks such as black, flake8, pyupgrade
        and isort + reformat the whole code base
 - FIX: int, float, etc type conversion might raise TypeError, catch em all
