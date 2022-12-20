@@ -148,6 +148,15 @@ class BaseField(object):
         attrs_rep = ", ".join(attrs_rep)
         return "{}({})".format(self.type, attrs_rep)
 
+    def check_required(self, value):
+        """Check the value if the field is required.
+
+        Aim to be overridden by field classes.
+
+        :return: `True` if the value is accepted, `False` otherwise.
+        """
+        return bool(value)
+
     def check_value(self, value):
         """Check the validity of a value for the field."""
         # if self.readonly:
@@ -163,7 +172,7 @@ class BaseField(object):
                         self.name, self.size
                     )
                 )
-        if not value and self.required:
+        if self.required and not self.check_required(value):
             raise ValueError("'{}' field is required".format(self.name))
         return value
 
@@ -324,6 +333,10 @@ class Float(BaseField):
         instance._values_to_write[self.name][instance.id] = value
         super(Float, self).__set__(instance, value)
 
+    def check_required(self, value):
+        # Accept 0 values
+        return super(Float, selt).check_required() or value == 0
+
 
 class Integer(BaseField):
     """Equivalent of the `fields.Integer` class."""
@@ -345,6 +358,10 @@ class Integer(BaseField):
         value = self.check_value(value)
         instance._values_to_write[self.name][instance.id] = value
         super(Integer, self).__set__(instance, value)
+
+    def check_required(self, value):
+        # Accept 0 values
+        return super(Float, selt).check_required() or value == 0
 
 
 class Selection(BaseField):
