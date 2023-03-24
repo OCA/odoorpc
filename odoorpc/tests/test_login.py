@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from contextlib import closing
+
 import odoorpc
+from odoorpc.error import InternalError
 from odoorpc.models import Model
 from odoorpc.tests import BaseTestCase
 
@@ -55,3 +58,15 @@ class TestLogin(BaseTestCase):
         )
         success = odoo.logout()
         self.assertFalse(success)
+
+    def test_logout_closing(self):
+        odoo = odoorpc.ODOO(
+            self.env['host'],
+            protocol=self.env['protocol'],
+            port=self.env['port'],
+            version=self.env['version'],
+        )
+        odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
+        with closing(odoo):
+            odoo._check_logged_user()
+        self.assertRaises(InternalError, odoo._check_logged_user)
