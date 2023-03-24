@@ -379,6 +379,8 @@ class ODOO(object):
         self._password = None
         return True
 
+    close = logout  # Compatibility with contextlib.closing
+
     # ------------------------- #
     # -- Raw XML-RPC methods -- #
     # ------------------------- #
