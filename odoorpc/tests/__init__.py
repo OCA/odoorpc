@@ -96,3 +96,18 @@ class LoginTestCase(BaseTestCase):
                 attempts += 1
             else:
                 cron_disabled = True
+
+    @classmethod
+    def _install_lang(cls, lang_code):
+        Wizard = cls.odoo.env["base.language.install"]
+        if v(cls.odoo.version)[0] >= 16:
+            lang_ids = (
+                cls.odoo.env["res.lang"]
+                .with_context(active_test=False)
+                .search([("code", "=", lang_code)])
+            )
+            wiz_values = {"lang_ids": [(6, 0, lang_ids)]}
+        else:
+            wiz_values = {"lang": "fr_FR"}
+        wiz_id = Wizard.create(wiz_values)
+        Wizard.lang_install([wiz_id])

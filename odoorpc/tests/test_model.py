@@ -111,9 +111,7 @@ class TestModel(LoginTestCase):
         user_fr = user.with_context(lang='fr_FR')
         self.assertEqual(user_fr.env.lang, 'fr_FR')
         # Install 'fr_FR' and test the use of context with it
-        Wizard = self.odoo.env['base.language.install']
-        wiz_id = Wizard.create({'lang': 'fr_FR'})
-        Wizard.lang_install([wiz_id])
+        self._install_lang("fr_FR")
         # Read data with two languages
         Country = self.odoo.env['res.country']
         de_id = Country.search([('code', '=', 'DE')])[0]
