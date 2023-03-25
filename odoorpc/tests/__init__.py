@@ -13,14 +13,15 @@ from odoorpc.tools import v
 
 
 class BaseTestCase(unittest.TestCase):
-    """Instanciates an ``odoorpc.ODOO`` object, nothing more."""
+    """Instanciates an ``odoorpc.ODOO`` object and a test database."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         try:
             port = int(os.environ.get('ORPC_TEST_PORT', 8069))
         except (ValueError, TypeError):
             raise ValueError("The port must be an integer")
-        self.env = {
+        cls.env = {
             'protocol': os.environ.get('ORPC_TEST_PROTOCOL', 'jsonrpc'),
             'host': os.environ.get('ORPC_TEST_HOST', 'localhost'),
             'port': port,
@@ -30,55 +31,65 @@ class BaseTestCase(unittest.TestCase):
             'version': os.environ.get('ORPC_TEST_VERSION', None),
             'super_pwd': os.environ.get('ORPC_TEST_SUPER_PWD', 'admin'),
         }
-        self.odoo = odoorpc.ODOO(
-            self.env['host'],
-            protocol=self.env['protocol'],
-            port=self.env['port'],
-            version=self.env['version'],
+        cls.odoo = odoorpc.ODOO(
+            cls.env['host'],
+            protocol=cls.env['protocol'],
+            port=cls.env['port'],
+            version=cls.env['version'],
         )
         # Create the database
-        default_timeout = self.odoo.config['timeout']
-        self.odoo.config['timeout'] = 600
-        if self.env['db'] not in self.odoo.db.list():
-            self.odoo.db.create(self.env['super_pwd'], self.env['db'], True)
-        self.odoo.config['timeout'] = default_timeout
+        default_timeout = cls.odoo.config['timeout']
+        cls.odoo.config['timeout'] = 600
+        if cls.env['db'] not in cls.odoo.db.list():
+            cls.odoo.db.create(cls.env['super_pwd'], cls.env['db'], True)
+        cls.odoo.config['timeout'] = default_timeout
 
 
 class LoginTestCase(BaseTestCase):
-    """Instanciates an ``odoorpc.ODOO`` object and perform the user login."""
+    """Login on the test database and install some modules."""
 
-    def setUp(self):
-        BaseTestCase.setUp(self)
-        default_timeout = self.odoo.config['timeout']
-        self.odoo.login(self.env['db'], self.env['user'], self.env['pwd'])
-        self._disable_cron_jobs()
+    @classmethod
+    def setUpClass(cls):
+        BaseTestCase.setUpClass()
+        default_timeout = cls.odoo.config['timeout']
+        try:
+            cls.odoo._check_logged_user()
+        except odoorpc.error.InternalError:
+            cls.odoo.login(cls.env['db'], cls.env['user'], cls.env['pwd'])
+        cls._disable_cron_jobs()
         # Install 'sale' + 'crm_claim' on Odoo < 10.0,
         # 'sale' + 'subscription' on Odoo == 10.0
         # and only 'sale' on > 10.0
-        self.odoo.config['timeout'] = 600
-        module_obj = self.odoo.env['ir.module.module']
+        cls.odoo.config['timeout'] = 600
+        module_obj = cls.odoo.env['ir.module.module']
         modules = ['sale', 'crm_claim']
-        if v(self.odoo.version)[0] == 10:
+        if v(cls.odoo.version)[0] == 10:
             modules = ['sale', 'subscription']
-        elif v(self.odoo.version)[0] >= 11:
+        elif v(cls.odoo.version)[0] >= 11:
             modules = ['sale']
-        module_ids = module_obj.search([('name', 'in', modules)])
-        module_obj.button_immediate_install(module_ids)
-        self.odoo.config['timeout'] = default_timeout
+        module_ids = module_obj.search(
+            [('name', 'in', modules), ('state', '!=', 'installed')]
+        )
+        if module_ids:
+            module_obj.button_immediate_install(module_ids)
+        cls.odoo.config['timeout'] = default_timeout
         # Get user record and model after the installation of modules
         # to get all available fields (avoiding test failures)
-        self.user = self.odoo.env.user
-        self.user_obj = self.odoo.env['res.users']
+        cls.user = cls.odoo.env.user
+        cls.user_obj = cls.odoo.env['res.users']
 
-    def _disable_cron_jobs(self):
+    @classmethod
+    def _disable_cron_jobs(cls):
         # Disable cron jobs so installation of modules in tests doesn't
         # trigger "Odoo is currently processing a scheduled action." error.
+        cron_model = cls.odoo.env["ir.cron"]
+        cron_ids = cron_model.search([])
+        if not cron_ids:
+            return
         cron_disabled = False
         attempts = 0
         while not cron_disabled and attempts < 20:
             try:
-                cron_model = self.odoo.env["ir.cron"]
-                cron_ids = cron_model.search([])
                 cron_model.write(cron_ids, {"active": False})
             except odoorpc.error.RPCError:
                 time.sleep(1)  # Let's wait a bit before trying again

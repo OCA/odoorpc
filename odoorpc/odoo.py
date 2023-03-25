@@ -379,7 +379,22 @@ class ODOO(object):
         self._password = None
         return True
 
-    close = logout  # Compatibility with contextlib.closing
+    def close(self):
+        """Same than :attr:`odoorpc.ODOO.logout` method.
+
+        Here for the compatibility with `contextlib.closing`:
+
+        .. doctest::
+            :options: +SKIP
+
+            >>> import contextlib
+            >>> odoo.login('db_name', 'admin', 'admin')
+            >>> with contextlib.closing(odoo):
+            ...     print(odoo.env.user.name)
+            ...
+            Mitchell Admin
+        """
+        return self.logout()
 
     # ------------------------- #
     # -- Raw XML-RPC methods -- #

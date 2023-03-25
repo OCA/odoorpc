@@ -21,6 +21,7 @@ def encode2bytes(data):
 
 class Report(object):
     """The `Report` class represents the report management service.
+
     It provides methods to list and download available reports from the server.
 
     .. note::
@@ -51,6 +52,9 @@ class Report(object):
 
     def download(self, name, ids, datas=None, context=None):
         """Download a report from the server and return it as a remote file.
+
+        Warning: this feature is not supported for Odoo >= 14 (CSRF token required).
+
         For instance, to download the "Quotation / Order" report of sale orders
         identified by the IDs ``[2, 3]``:
 
@@ -62,7 +66,9 @@ class Report(object):
         .. doctest::
             :hide:
 
-            >>> report = odoo.report.download('sale.report_saleorder', [2])
+            >>> from odoorpc.tools import v
+            >>> if v(VERSION) < v('14.0'):
+            ...     report = odoo.report.download('sale.report_saleorder', [2])
 
         Write it on the file system:
 
@@ -76,8 +82,10 @@ class Report(object):
         .. doctest::
             :hide:
 
-            >>> with open('sale_orders.pdf', 'wb') as report_file:
-            ...     fileno = report_file.write(report.read())   # Python 3
+            >>> from odoorpc.tools import v
+            >>> if v(VERSION) < v('14.0'):
+            ...     with open('sale_orders.pdf', 'wb') as report_file:
+            ...         fileno = report_file.write(report.read())   # Python 3
             ...
 
         *Python 2:*
@@ -156,8 +164,9 @@ class Report(object):
             return io.BytesIO(content)
 
     def list(self):
-        """List available reports from the server by returning a dictionary
-        with reports classified by data model:
+        """List available reports from the server.
+
+        It returns a dictionary with reports classified by data model:
 
         .. doctest::
             :options: +SKIP

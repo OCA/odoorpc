@@ -335,7 +335,7 @@ class Float(BaseField):
 
     def check_required(self, value):
         # Accept 0 values
-        return super(Float, selt).check_required() or value == 0
+        return super(Float, self).check_required() or value == 0
 
 
 class Integer(BaseField):
@@ -361,7 +361,7 @@ class Integer(BaseField):
 
     def check_required(self, value):
         # Accept 0 values
-        return super(Float, selt).check_required() or value == 0
+        return super(Float, self).check_required() or value == 0
 
 
 class Selection(BaseField):
