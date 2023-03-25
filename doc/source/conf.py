@@ -45,6 +45,7 @@ PWD = os.environ.get('ORPC_TEST_PWD', 'admin')
 VERSION = os.environ.get('ORPC_TEST_VERSION', '10.0')
 SUPER_PWD = os.environ.get('ORPC_TEST_SUPER_PWD', 'admin')
 import odoorpc
+from odoorpc.tools import v
 odoo = odoorpc.ODOO(HOST, protocol=PROTOCOL, port=PORT, version=VERSION)
 # == create a database
 if DB not in odoo.db.list():
@@ -52,7 +53,15 @@ if DB not in odoo.db.list():
 odoo.login(DB, USER, PWD)
 # == install fr_FR language
 Wizard = odoo.env['base.language.install']
-wiz_id = Wizard.create({'lang': 'fr_FR'})
+lang_code = 'fr_FR'
+if v(odoo.version)[0] >= 16:
+    lang_ids = odoo.env['res.lang'].with_context(active_test=False).search(
+        [('code', '=', lang_code)]
+    )
+    values = {'lang_ids': [(6, 0, lang_ids)]}
+else:
+    values = {'lang': lang_code}
+wiz_id = Wizard.create(values)
 Wizard.lang_install([wiz_id])
 # == install some modules
 odoo.config['timeout'] = 600
