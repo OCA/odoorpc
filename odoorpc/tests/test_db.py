@@ -164,6 +164,7 @@ class TestDB(BaseTestCase):
         res = self.odoo.db.drop(self.env['super_pwd'], new_database)
         self.assertTrue(res)
         self.assertNotIn(new_database, self.odoo.db.list())
+        self.odoo.logout()
 
     def tearDown(self):
         """Clean up databases created during tests."""
