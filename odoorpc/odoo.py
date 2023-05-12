@@ -340,13 +340,37 @@ class ODOO(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         # Get the user's ID and generate the corresponding user record
-        data = self.json(
-            '/web/session/authenticate',
-            {'db': db, 'login': login, 'password': password},
-        )
-        uid = data['result']['uid']
+        if tools.v(self.version)[0] >= 10:
+            data = self.json(
+                "/jsonrpc",
+                params={
+                    "service": "common",
+                    "method": "login",
+                    "args": [db, login, password],
+                },
+            )
+            uid = data["result"]
+        else:
+            # Needed to get 'report' service working on Odoo < 10.0
+            data = self.json(
+                "/web/session/authenticate",
+                {"db": db, "login": login, "password": password},
+            )
+            uid = data["result"]["uid"]
         if uid:
-            context = data['result']['user_context']
+            if tools.v(self.version)[0] >= 10:
+                args_to_send = [db, uid, password, "res.users", "context_get"]
+                context = self.json(
+                    "/jsonrpc",
+                    {
+                        "service": "object",
+                        "method": "execute",
+                        "args": args_to_send,
+                    },
+                )["result"]
+                context["uid"] = uid
+            else:
+                context = data["result"]["user_context"]
             self._env = Environment(self, db, uid, context=context)
             self._login = login
             self._password = password
@@ -373,7 +397,8 @@ class ODOO(object):
         """
         if not self._env:
             return False
-        self.json('/web/session/destroy', {})
+        if tools.v(self.version)[0] < 10:
+            self.json('/web/session/destroy', {})
         self._env = None
         self._login = None
         self._password = None
