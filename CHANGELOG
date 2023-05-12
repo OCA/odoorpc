@@ -1,6 +1,14 @@
 Unreleased
 ==========
 
+0.10.0
+======
+
+- IMP: Add support for Odoo 16.0 (excepting reports)
+- IMP: Add support for API key login
+- IMP: Add support for contextlib.closing to handle the logout automatically
+- FIX: Accept 0 values for required integer/float fields
+
 0.9.0
 =====
 
