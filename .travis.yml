@@ -27,6 +27,7 @@ jobs:
     - stage: deploy
       script: echo "Deploy to PyPi"
       deploy:
+        python: 3.11
         provider: pypi
         user: OCA
         password:
