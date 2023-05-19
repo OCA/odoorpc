@@ -322,6 +322,7 @@ class Environment(object):
         fields_get = self._odoo.execute(model, 'fields_get')
         for field_name, field_data in fields_get.items():
             if field_name not in FIELDS_RESERVED:
+                field_data['context'] = self._context # pass context to new fields ...
                 Field = fields.generate_field(field_name, field_data)
                 attrs['_columns'][field_name] = Field
                 attrs[field_name] = Field
