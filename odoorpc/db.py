@@ -155,7 +155,7 @@ class DB(object):
         )
 
     def create(
-        self, password, db, demo=False, lang='en_US', admin_password='admin'
+        self, password, db, demo=False, lang='en_US', admin_password='admin', login='admin', country_code=None, phone=None
     ):
         """Request the server to create a new database named `db`
         which will have `admin_password` as administrator password and
@@ -163,14 +163,14 @@ class DB(object):
         You have to set the flag `demo` to `True` in order to insert
         demonstration data.
 
-        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd') # doctest: +SKIP
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd', 'admin@example.com', 'fr', '+3312345678') # doctest: +SKIP
 
         If you get a timeout error, increase this one before performing the
         request:
 
         >>> timeout_backup = odoo.config['timeout']
         >>> odoo.config['timeout'] = 600    # Timeout set to 10 minutes
-        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd') # doctest: +SKIP
+        >>> odoo.db.create('super_admin_passwd', 'prod', False, 'fr_FR', 'my_admin_passwd', 'admin@example.com', 'fr', '+3312345678') # doctest: +SKIP
         >>> odoo.config['timeout'] = timeout_backup
 
         The super administrator password is required to perform this method.
@@ -190,7 +190,7 @@ class DB(object):
             {
                 'service': 'db',
                 'method': 'create_database',
-                'args': [password, db, demo, lang, admin_password],
+                'args': [password, db, demo, lang, admin_password, login, country_code, phone],
             },
         )
 
