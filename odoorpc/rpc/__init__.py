@@ -195,6 +195,7 @@ class ConnectorJSONRPC(Connector):
         self,
         host,
         port=8069,
+        basic_auth=None,
         timeout=120,
         version=None,
         deserialize=True,
@@ -208,9 +209,9 @@ class ConnectorJSONRPC(Connector):
             cookie_jar = CookieJar()
             opener = build_opener(HTTPCookieProcessor(cookie_jar))
         self._opener = opener
-        self._proxy_json, self._proxy_http = self._get_proxies()
+        self._proxy_json, self._proxy_http = self._get_proxies(basic_auth)
 
-    def _get_proxies(self):
+    def _get_proxies(self, basic_auth):
         """Returns the :class:`ProxyJSON <odoorpc.rpc.jsonrpclib.ProxyJSON>`
         and :class:`ProxyHTTP <odoorpc.rpc.jsonrpclib.ProxyHTTP>` instances
         corresponding to the server version used.
@@ -218,6 +219,7 @@ class ConnectorJSONRPC(Connector):
         proxy_json = jsonrpclib.ProxyJSON(
             self.host,
             self.port,
+            basic_auth,
             self._timeout,
             ssl=self.ssl,
             deserialize=self.deserialize,
@@ -226,6 +228,7 @@ class ConnectorJSONRPC(Connector):
         proxy_http = jsonrpclib.ProxyHTTP(
             self.host,
             self.port,
+            basic_auth,
             self._timeout,
             ssl=self.ssl,
             opener=self._opener,

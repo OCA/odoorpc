@@ -65,6 +65,7 @@ class ODOO(object):
         timeout=120,
         version=None,
         opener=None,
+        basic_auth=None,
     ):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = (
@@ -90,10 +91,16 @@ class ODOO(object):
         self._password = None
         self._db = DB(self)
         self._report = Report(self)
+        if basic_auth and len(basic_auth) == 3:
+            # print("using basic auth with:")
+            # print(basic_auth[0], basic_auth[1], basic_auth[2])
+            self._basic_auth = basic_auth
+        else:
+            self._basic_auth = None
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._host, self._port, timeout, version, opener=opener
+                self._host, self._port, self._basic_auth, timeout, version, opener=opener
             )
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)
