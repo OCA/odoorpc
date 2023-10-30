@@ -64,7 +64,7 @@ def get_json_log_data(data):
 class Proxy(object):
     """Base class to implement a proxy to perform requests."""
 
-    def __init__(self, host, port, basic_auth, timeout=120, ssl=False, opener=None):
+    def __init__(self, host, port, basic_auth=None, timeout=120, ssl=False, opener=None):
         self._root_url = "{http}{host}:{port}".format(
             http=(ssl and "https://" or "http://"), host=host, port=port
         )
@@ -79,7 +79,6 @@ class Proxy(object):
             passman = HTTPPasswordMgrWithDefaultRealm()
             passman.add_password(None, self._basic_auth[0], self._basic_auth[1], self._basic_auth[2])
             self._opener.add_handler(HTTPBasicAuthHandler(passman))
-            # print("opener added basicauth handler for ", self._basic_auth[0], self._basic_auth[1], self._basic_auth[2])
 
     def __getattr__(self, name):
         return getattr(self._builder, name)

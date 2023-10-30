@@ -91,12 +91,9 @@ class ODOO(object):
         self._password = None
         self._db = DB(self)
         self._report = Report(self)
-        if basic_auth and len(basic_auth) == 3:
-            # print("using basic auth with:")
-            # print(basic_auth[0], basic_auth[1], basic_auth[2])
-            self._basic_auth = basic_auth
-        else:
-            self._basic_auth = None
+        self._basic_auth = basic_auth
+        if self._basic_auth and len(self._basic_auth) != 3:
+            raise ValueError("basic_auth needs to be tuple with localhost, user, pw")
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
