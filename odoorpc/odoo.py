@@ -65,6 +65,7 @@ class ODOO(object):
         timeout=120,
         version=None,
         opener=None,
+        basic_auth=None,
     ):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = (
@@ -90,10 +91,13 @@ class ODOO(object):
         self._password = None
         self._db = DB(self)
         self._report = Report(self)
+        self._basic_auth = basic_auth
+        if self._basic_auth and len(self._basic_auth) != 3:
+            raise ValueError("basic_auth needs to be tuple with localhost, user, pw")
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._host, self._port, timeout, version, opener=opener
+                self._host, self._port, self._basic_auth, timeout, version, opener=opener
             )
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)

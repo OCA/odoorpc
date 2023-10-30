@@ -8,6 +8,9 @@ import logging
 import random
 import sys
 
+import urllib.request
+from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler
+
 # Python 2
 if sys.version_info[0] < 3:
     from cookielib import CookieJar
@@ -61,16 +64,21 @@ def get_json_log_data(data):
 class Proxy(object):
     """Base class to implement a proxy to perform requests."""
 
-    def __init__(self, host, port, timeout=120, ssl=False, opener=None):
+    def __init__(self, host, port, basic_auth=None, timeout=120, ssl=False, opener=None):
         self._root_url = "{http}{host}:{port}".format(
             http=(ssl and "https://" or "http://"), host=host, port=port
         )
+        self._basic_auth = basic_auth
         self._timeout = timeout
         self._builder = URLBuilder(self)
         self._opener = opener
         if not opener:
             cookie_jar = CookieJar()
             self._opener = build_opener(HTTPCookieProcessor(cookie_jar))
+        if self._basic_auth:
+            passman = HTTPPasswordMgrWithDefaultRealm()
+            passman.add_password(None, self._basic_auth[0], self._basic_auth[1], self._basic_auth[2])
+            self._opener.add_handler(HTTPBasicAuthHandler(passman))
 
     def __getattr__(self, name):
         return getattr(self._builder, name)
@@ -88,9 +96,9 @@ class ProxyJSON(Proxy):
     """
 
     def __init__(
-        self, host, port, timeout=120, ssl=False, opener=None, deserialize=True
+        self, host, port, basic_auth, timeout=120, ssl=False, opener=None, deserialize=True
     ):
-        Proxy.__init__(self, host, port, timeout, ssl, opener)
+        Proxy.__init__(self, host, port, basic_auth, timeout, ssl, opener)
         self._deserialize = deserialize
 
     def __call__(self, url, params=None):
