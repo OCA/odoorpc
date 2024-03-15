@@ -13,7 +13,7 @@ from time import sleep
 # Python 2
 if sys.version_info[0] < 3:
     from cookielib import CookieJar
-    from urllib2 import HTTPCookieProcessor, Request, build_opener
+    from urllib2 import HTTPCookieProcessor, Request, build_opener, HTTPError
 
     def encode_data(data):
         return data
@@ -27,6 +27,7 @@ else:
     import io
     from http.cookiejar import CookieJar
     from urllib.request import HTTPCookieProcessor, Request, build_opener
+    from urllib.error import HTTPError
 
     def encode_data(data):
         try:
