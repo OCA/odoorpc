@@ -44,6 +44,18 @@ class ODOO(object):
         >>> opener = urllib.request.build_opener(auth_handler)
         >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener)
 
+    You can also configure an autoretry (enable by default for *.odoo.com host)
+    using autoretry boolean option.
+    Number of iterations and backoff factor can also be specified
+
+    .. doctest::
+        :options: +SKIP
+
+        >>> import odoorpc
+        >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener, autoretry=True)
+        >>> # Or
+        >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener, autoretry=True, autoretry_factor=0.2, autoretry_max=3)
+
     *Python 2:*
 
     :raise: :class:`odoorpc.error.InternalError`
@@ -65,6 +77,7 @@ class ODOO(object):
         timeout=120,
         version=None,
         opener=None,
+        **kwargs,
     ):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = (
@@ -93,7 +106,12 @@ class ODOO(object):
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
-                self._host, self._port, timeout, version, opener=opener
+                self._host,
+                self._port,
+                timeout,
+                version,
+                opener=opener,
+                **kwargs,
             )
         except rpc.error.ConnectorError as exc:
             raise error.InternalError(exc.message)
