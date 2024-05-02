@@ -71,6 +71,13 @@ How does it work? See below:
 
 See the documentation for more details and features.
 
+Install
+-------
+
+Using pip: ``pip install odoorpc``
+
+ArchLinux users: AUR package python-odoorpc
+
 Supported Odoo server versions
 ==============================
 
