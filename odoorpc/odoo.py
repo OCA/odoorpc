@@ -44,7 +44,7 @@ class ODOO(object):
         >>> opener = urllib.request.build_opener(auth_handler)
         >>> odoo = odoorpc.ODOO('example.net', port=80, opener=opener)
 
-    You can also configure an autoretry (enable by default for *.odoo.com host)
+    You can also configure an autoretry (enabled by default for *.odoo.com host)
     using autoretry boolean option.
     Number of iterations and backoff factor can also be specified
 
