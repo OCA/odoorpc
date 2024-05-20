@@ -28,7 +28,7 @@ class Connector(object):
     """Connector base class defining the interface used
     to interact with a server.
 
-    You can also configure an autoretry (enable by default for *.odoo.com host)
+    You can also configure an autoretry (enabled by default for *.odoo.com host)
     using the ``autoretry`` boolean option. If a 429 HTTP error is raised,
     the script will automatically retry after ``backoff_factor * math.pow(2, iteration - 1)``
 
