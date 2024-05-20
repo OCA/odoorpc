@@ -139,11 +139,10 @@ class ProxyJSON(Proxy):
         if not self.autoretry:
             return self._opener.open(request, timeout=self._timeout)
 
-        stop = False
         backoff_factor = self.autoretry_factor
         iteration = 1
 
-        while not stop:
+        while True:
             try:
                 response = self._opener.open(request, timeout=self._timeout)
                 return response
