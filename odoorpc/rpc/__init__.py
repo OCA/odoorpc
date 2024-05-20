@@ -7,7 +7,7 @@ server with the `JSON-RPC` protocol or through simple HTTP requests.
 Web controllers of `Odoo` expose two kinds of methods: `json` and `http`.
 These methods can be accessed from the connectors of this module.
 
-An autoretry for 429 error is also provided, and turn on by default
+An autoretry for 429 error is also provided, turned on by default
 for *.odoo.com hosts.
 """
 import sys
