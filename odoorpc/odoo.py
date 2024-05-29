@@ -77,7 +77,7 @@ class ODOO(object):
         timeout=120,
         version=None,
         opener=None,
-        autoretry=False,
+        **kwargs,
     ):
         if protocol not in ['jsonrpc', 'jsonrpc+ssl']:
             txt = (
