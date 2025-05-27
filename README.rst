@@ -2,6 +2,10 @@
 OdooRPC
 =======
 
+.. image:: https://deepwiki.com/badge.svg
+    :target: https://deepwiki.com/OCA/odoorpc
+    :alt: Ask DeepWiki
+
 .. image:: https://img.shields.io/pypi/v/OdooRPC.svg
     :target: https://pypi.python.org/pypi/OdooRPC/
     :alt: Latest Version
