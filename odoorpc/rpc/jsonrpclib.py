@@ -96,6 +96,7 @@ class ProxyJSON(Proxy):
     ):
         Proxy.__init__(self, host, port, timeout, ssl, opener)
         self._deserialize = deserialize
+        self.debug = logger.isEnabledFor(logging.DEBUG)
 
     def __call__(self, url, params=None):
         if params is None:
@@ -109,8 +110,12 @@ class ProxyJSON(Proxy):
         if url.startswith('/'):
             url = url[1:]
         full_url = self._get_full_url(url)
-        log_data = get_json_log_data(data)
-        logger.debug(LOG_JSON_SEND_MSG, {'url': full_url, 'data': log_data})
+
+        log_data = None
+        if self.debug:
+            log_data = get_json_log_data(data)
+            logger.debug(LOG_JSON_SEND_MSG, {'url': full_url, 'data': log_data})
+
         data_json = json.dumps(data)
         request = Request(url=full_url, data=encode_data(data_json))
         request.add_header('Content-Type', 'application/json')
