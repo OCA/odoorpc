@@ -49,12 +49,16 @@ def get_json_log_data(data):
     """Returns a new `data` dictionary with hidden params
     for log purpose.
     """
-    log_data = data
+    log_data = copy.deepcopy(data)
     for param in LOG_HIDDEN_JSON_PARAMS:
         if param in data['params']:
-            if log_data is data:
-                log_data = copy.deepcopy(data)
             log_data['params'][param] = "**********"
+
+    # The password is the 3rd element of the args array.
+    if 'args' in data['params']:
+        if 2 in data['params']['args']:
+            log_data['params']['args'][2] = "**********"
+
     return log_data
 
 
