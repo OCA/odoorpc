@@ -224,10 +224,15 @@ class DB(object):
         )
         return data['result']
 
-    def duplicate(self, password, db, new_db):
-        """Duplicate `db' as `new_db`.
+    def duplicate(self, password, db, new_db, neutralize_database=False):
+        """Duplicate `db` as `new_db`. If `neutralize_database` is set to `True`,
+        the duplicated database will be neutralized (available from Odoo 16+).
 
         >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test') # doctest: +SKIP
+
+        To neutralize the duplicated database (Odoo 16+):
+
+        >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test', neutralize_database=True) # doctest: +SKIP
 
         The super administrator password is required to perform this method.
 
@@ -241,12 +246,16 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
+        args = [password, db, new_db]
+        # neutralize_database parameter is only available from Odoo 16+
+        if neutralize_database and v(self._odoo.version)[0] >= 16:
+            args.append(neutralize_database)
         self._odoo.json(
             '/jsonrpc',
             {
                 'service': 'db',
                 'method': 'duplicate_database',
-                'args': [password, db, new_db],
+                'args': args,
             },
         )
 
