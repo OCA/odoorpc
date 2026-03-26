@@ -94,6 +94,17 @@ class TestDB(BaseTestCase):
             self.env['super_pwd'], self.env['db'], new_database
         )
 
+    def test_db_duplicate_with_neutralization(self):
+        date = datetime.strftime(datetime.today(), '%Y%m%d_%Hh%Mm%S')
+        new_database = "{}_{}_neutralized".format(self.env['db'], date)
+        self.databases.append(new_database)
+        self.odoo.db.duplicate(
+            self.env['super_pwd'], self.env['db'], new_database,
+            neutralize_database=True
+        )
+        # Check that database was created
+        self.assertIn(new_database, self.odoo.db.list())
+
     def test_db_duplicate_wrong_database(self):
         date = datetime.strftime(datetime.today(), '%Y%m%d_%Hh%Mm%S')
         new_database = "{}_{}".format(self.env['db'], date)
