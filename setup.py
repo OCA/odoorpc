@@ -4,8 +4,8 @@ import os
 
 import setuptools
 
-name = 'OdooRPC'
-version = '0.10.1'
+name = "OdooRPC"
+version = "0.10.1"
 description = (
     "OdooRPC is a Python package providing an easy way to "
     "pilot your Odoo servers through RPC."
@@ -18,11 +18,11 @@ keywords = (
     "service web webservice"
 )
 author = "Sebastien Alix"
-author_email = 'seb@usr-src.org'
-url = 'https://github.com/OCA/odoorpc'
-license = 'LGPL v3'
-doc_build_dir = 'doc/build'
-doc_source_dir = 'doc/source'
+author_email = "seb@usr-src.org"
+url = "https://github.com/OCA/odoorpc"
+license = "LGPL v3"
+doc_build_dir = "doc/build"
+doc_source_dir = "doc/source"
 
 cmdclass = {}
 command_options = {}
@@ -32,16 +32,16 @@ try:
 
     if not os.path.exists(doc_build_dir):
         os.mkdir(doc_build_dir)
-    cmdclass.update({'build_doc': BuildDoc})
+    cmdclass.update({"build_doc": BuildDoc})
     command_options.update(
         {
-            'build_doc': {
+            "build_doc": {
                 # 'project': ('setup.py', name),
-                'version': ('setup.py', version),
-                'release': ('setup.py', version),
-                'source_dir': ('setup.py', doc_source_dir),
-                'build_dir': ('setup.py', doc_build_dir),
-                'builder': ('setup.py', 'html'),
+                "version": ("setup.py", version),
+                "release": ("setup.py", version),
+                "source_dir": ("setup.py", doc_source_dir),
+                "build_dir": ("setup.py", doc_build_dir),
+                "builder": ("setup.py", "html"),
             }
         }
     )
@@ -61,7 +61,7 @@ setuptools.setup(
     author=author,
     author_email=author_email,
     url=url,
-    packages=['odoorpc', 'odoorpc.rpc'],
+    packages=["odoorpc", "odoorpc.rpc"],
     license=license,
     cmdclass=cmdclass,
     command_options=command_options,

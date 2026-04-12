@@ -6,7 +6,7 @@ from odoorpc.tests import LoginTestCase
 
 class TestFieldMany2one(LoginTestCase):
     def test_field_many2one_read(self):
-        User = self.odoo.env['res.users']
+        User = self.odoo.env["res.users"]
         user = User.browse(1)
         company = user.company_id
         self.assertIsInstance(company, Model)
@@ -25,7 +25,7 @@ class TestFieldMany2one(LoginTestCase):
     def test_field_many2one_write(self):
         self.user.action_id = 1
         self.assertEqual(self.user.action_id.id, 1)
-        action = self.odoo.env['ir.actions.actions'].browse(1)
+        action = self.odoo.env["ir.actions.actions"].browse(1)
         self.user.action_id = action
         self.assertEqual(self.user.action_id.id, 1)
         # False

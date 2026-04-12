@@ -12,7 +12,7 @@ existing records (`write`, `read`, ...)::
     True
     >>> user = User.browse(6)
     >>> user.write({'name': "Dupont D."})       # Using the instance method
-    >>> user.mapped('company_id.partner_id.child_ids.name') # Another use of instance method 
+    >>> user.mapped('company_id.partner_id.child_ids.name') # Another use of instance method
     ['Chester Reed', 'Dwayne Newman']
 
 When a method is called directly on records, their `ids` (here `user.ids`) is

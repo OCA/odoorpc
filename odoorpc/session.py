@@ -16,7 +16,7 @@ else:
     from configparser import ConfigParser
 
 
-def get_all(rc_file='~/.odoorpcrc'):
+def get_all(rc_file="~/.odoorpcrc"):
     """Return all session configurations from the `rc_file` file.
 
     >>> import odoorpc
@@ -59,19 +59,19 @@ def get_all(rc_file='~/.odoorpcrc'):
     sessions = {}
     for name in conf.sections():
         sessions[name] = {
-            'type': conf.get(name, 'type'),
-            'host': conf.get(name, 'host'),
-            'protocol': conf.get(name, 'protocol'),
-            'port': conf.getint(name, 'port'),
-            'timeout': conf.getfloat(name, 'timeout'),
-            'user': conf.get(name, 'user'),
-            'passwd': conf.get(name, 'passwd'),
-            'database': conf.get(name, 'database'),
+            "type": conf.get(name, "type"),
+            "host": conf.get(name, "host"),
+            "protocol": conf.get(name, "protocol"),
+            "port": conf.getint(name, "port"),
+            "timeout": conf.getfloat(name, "timeout"),
+            "user": conf.get(name, "user"),
+            "passwd": conf.get(name, "passwd"),
+            "database": conf.get(name, "database"),
         }
     return sessions
 
 
-def get(name, rc_file='~/.odoorpcrc'):
+def get(name, rc_file="~/.odoorpcrc"):
     """Return the session configuration identified by `name`
     from the `rc_file` file.
 
@@ -114,22 +114,20 @@ def get(name, rc_file='~/.odoorpcrc'):
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
-        raise ValueError(
-            "'{}' session does not exist in {}".format(name, rc_file)
-        )
+        raise ValueError("'{}' session does not exist in {}".format(name, rc_file))
     return {
-        'type': conf.get(name, 'type'),
-        'host': conf.get(name, 'host'),
-        'protocol': conf.get(name, 'protocol'),
-        'port': conf.getint(name, 'port'),
-        'timeout': conf.getfloat(name, 'timeout'),
-        'user': conf.get(name, 'user'),
-        'passwd': conf.get(name, 'passwd'),
-        'database': conf.get(name, 'database'),
+        "type": conf.get(name, "type"),
+        "host": conf.get(name, "host"),
+        "protocol": conf.get(name, "protocol"),
+        "port": conf.getint(name, "port"),
+        "timeout": conf.getfloat(name, "timeout"),
+        "user": conf.get(name, "user"),
+        "passwd": conf.get(name, "passwd"),
+        "database": conf.get(name, "database"),
     }
 
 
-def save(name, data, rc_file='~/.odoorpcrc'):
+def save(name, data, rc_file="~/.odoorpcrc"):
     """Save the `data` session configuration under the name `name`
     in the `rc_file` file.
 
@@ -158,12 +156,12 @@ def save(name, data, rc_file='~/.odoorpcrc'):
     for key in data:
         value = data[key]
         conf.set(name, key, str(value))
-    with open(os.path.expanduser(rc_file), 'w') as file_:
+    with open(os.path.expanduser(rc_file), "w") as file_:
         os.chmod(os.path.expanduser(rc_file), stat.S_IREAD | stat.S_IWRITE)
         conf.write(file_)
 
 
-def remove(name, rc_file='~/.odoorpcrc'):
+def remove(name, rc_file="~/.odoorpcrc"):
     """Remove the session configuration identified by `name`
     from the `rc_file` file.
 
@@ -182,9 +180,7 @@ def remove(name, rc_file='~/.odoorpcrc'):
     conf = ConfigParser()
     conf.read([os.path.expanduser(rc_file)])
     if not conf.has_section(name):
-        raise ValueError(
-            "'{}' session does not exist in {}".format(name, rc_file)
-        )
+        raise ValueError("'{}' session does not exist in {}".format(name, rc_file))
     conf.remove_section(name)
-    with open(os.path.expanduser(rc_file), 'wb') as file_:
+    with open(os.path.expanduser(rc_file), "wb") as file_:
         conf.write(file_)

@@ -14,7 +14,7 @@ import re
 
 from .error import InternalError
 
-MATCH_VERSION = re.compile(r'[^\d.]')
+MATCH_VERSION = re.compile(r"[^\d.]")
 
 
 class Config(MutableMapping):
@@ -41,7 +41,7 @@ class Config(MutableMapping):
 
     def __setitem__(self, key, value):
         """Handle ``timeout`` option to set the timeout on the connector."""
-        if key == 'timeout':
+        if key == "timeout":
             self._odoo._connector.timeout = value
         self._options[key] = value
 
@@ -70,7 +70,7 @@ def clean_version(version):
 
     :return: a cleaner version string
     """
-    version = MATCH_VERSION.sub('', version.split('-')[0])
+    version = MATCH_VERSION.sub("", version.split("-")[0])
     return version
 
 
@@ -91,7 +91,7 @@ def v(version):
     return [int(x) for x in clean_version(version).split(".")]
 
 
-def get_encodings(hint_encoding='utf-8'):
+def get_encodings(hint_encoding="utf-8"):
     """Used to try different encoding.
     Function copied from Odoo 11.0 (odoo.loglevels.get_encodings).
     This piece of code is licensed under the LGPL-v3 and so it is compatible
@@ -101,9 +101,9 @@ def get_encodings(hint_encoding='utf-8'):
         - https://github.com/odoo/odoo/blob/11.0/COPYRIGHT
     """
     fallbacks = {
-        'latin1': 'latin9',
-        'iso-8859-1': 'iso8859-15',
-        'cp1252': '1252',
+        "latin1": "latin9",
+        "iso-8859-1": "iso8859-15",
+        "cp1252": "1252",
     }
     if hint_encoding:
         yield hint_encoding
@@ -111,14 +111,14 @@ def get_encodings(hint_encoding='utf-8'):
             yield fallbacks[hint_encoding.lower()]
 
     # some defaults (also taking care of pure ASCII)
-    for charset in ['utf8', 'latin1', 'ascii']:
+    for charset in ["utf8", "latin1", "ascii"]:
         if not hint_encoding or (charset.lower() != hint_encoding.lower()):
             yield charset
 
     from locale import getpreferredencoding
 
     prefenc = getpreferredencoding()
-    if prefenc and prefenc.lower() != 'utf-8':
+    if prefenc and prefenc.lower() != "utf-8":
         yield prefenc
         prefenc = fallbacks.get(prefenc.lower())
         if prefenc:

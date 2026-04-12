@@ -17,34 +17,32 @@ else:
 class TestInit(BaseTestCase):
     def test_init1(self):
         # Host + Protocol + Port
-        odoo = odoorpc.ODOO(
-            self.env['host'], self.env['protocol'], self.env['port']
-        )
+        odoo = odoorpc.ODOO(self.env["host"], self.env["protocol"], self.env["port"])
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
-        self.assertEqual(odoo.host, self.env['host'])
-        self.assertEqual(odoo.protocol, self.env['protocol'])
-        self.assertEqual(odoo.port, self.env['port'])
+        self.assertEqual(odoo.host, self.env["host"])
+        self.assertEqual(odoo.protocol, self.env["protocol"])
+        self.assertEqual(odoo.port, self.env["port"])
 
     def test_init2(self):
         # Host + Protocol + Port + Timeout
         odoo = odoorpc.ODOO(
-            self.env['host'], self.env['protocol'], self.env['port'], 42
+            self.env["host"], self.env["protocol"], self.env["port"], 42
         )
         self.assertIsInstance(odoo, odoorpc.ODOO)
         self.assertIsNotNone(odoo)
-        self.assertEqual(odoo.host, self.env['host'])
-        self.assertEqual(odoo.protocol, self.env['protocol'])
-        self.assertEqual(odoo.port, self.env['port'])
-        self.assertEqual(odoo.config['timeout'], 42)
+        self.assertEqual(odoo.host, self.env["host"])
+        self.assertEqual(odoo.protocol, self.env["protocol"])
+        self.assertEqual(odoo.port, self.env["port"])
+        self.assertEqual(odoo.config["timeout"], 42)
 
     def test_init_opener(self):
         # Opener
         opener = build_opener(BaseHandler)
         odoo = odoorpc.ODOO(
-            self.env['host'],
-            self.env['protocol'],
-            self.env['port'],
+            self.env["host"],
+            self.env["protocol"],
+            self.env["port"],
             opener=opener,
         )
         connector = odoo._connector
@@ -54,31 +52,31 @@ class TestInit(BaseTestCase):
 
     def test_init_timeout_none(self):
         odoo = odoorpc.ODOO(
-            self.env['host'], self.env['protocol'], self.env['port'], None
+            self.env["host"], self.env["protocol"], self.env["port"], None
         )
-        self.assertIs(odoo.config['timeout'], None)
+        self.assertIs(odoo.config["timeout"], None)
 
     def test_init_timeout_float(self):
         odoo = odoorpc.ODOO(
-            self.env['host'], self.env['protocol'], self.env['port'], 23.42
+            self.env["host"], self.env["protocol"], self.env["port"], 23.42
         )
-        self.assertEqual(odoo.config['timeout'], 23.42)
+        self.assertEqual(odoo.config["timeout"], 23.42)
 
     def test_init_wrong_protocol(self):
         self.assertRaises(
             ValueError,
             odoorpc.ODOO,
-            self.env['host'],
+            self.env["host"],
             "wrong",
-            self.env['port'],
+            self.env["port"],
         )
 
     def test_init_wrong_port(self):
         self.assertRaises(
             URLError,
             odoorpc.ODOO,
-            self.env['host'],
-            self.env['protocol'],
+            self.env["host"],
+            self.env["protocol"],
             65000,
         )
 
@@ -86,8 +84,8 @@ class TestInit(BaseTestCase):
         self.assertRaises(
             ValueError,
             odoorpc.ODOO,
-            self.env['host'],
-            self.env['protocol'],
+            self.env["host"],
+            self.env["protocol"],
             "wrong",
         )
 
@@ -95,8 +93,8 @@ class TestInit(BaseTestCase):
         self.assertRaises(
             ValueError,
             odoorpc.ODOO,
-            self.env['host'],
-            self.env['protocol'],
-            self.env['port'],
+            self.env["host"],
+            self.env["protocol"],
+            self.env["port"],
             "wrong",
         )

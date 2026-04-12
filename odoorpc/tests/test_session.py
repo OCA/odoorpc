@@ -10,8 +10,8 @@ from odoorpc.tests import LoginTestCase
 class TestSession(LoginTestCase):
     def setUp(self):
         LoginTestCase.setUp(self)
-        self.session_name = self.env['db']
-        self.file_path = tempfile.mkstemp(suffix='.cfg', prefix='odoorpc_')[1]
+        self.session_name = self.env["db"]
+        self.file_path = tempfile.mkstemp(suffix=".cfg", prefix="odoorpc_")[1]
 
     def tearDown(self):
         os.remove(self.file_path)
@@ -43,14 +43,14 @@ class TestSession(LoginTestCase):
     def test_session_get(self):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         data = {
-            'type': self.odoo.__class__.__name__,
-            'host': self.odoo.host,
-            'protocol': self.odoo.protocol,
-            'port': int(self.odoo.port),
-            'timeout': self.odoo.config['timeout'],
-            'user': self.odoo._login,
-            'passwd': self.odoo._password,
-            'database': self.odoo.env.db,
+            "type": self.odoo.__class__.__name__,
+            "host": self.odoo.host,
+            "protocol": self.odoo.protocol,
+            "port": int(self.odoo.port),
+            "timeout": self.odoo.config["timeout"],
+            "user": self.odoo._login,
+            "passwd": self.odoo._password,
+            "database": self.odoo.env.db,
         }
         result = odoorpc.session.get(self.session_name, rc_file=self.file_path)
         self.assertEqual(data, result)
@@ -60,14 +60,14 @@ class TestSession(LoginTestCase):
         self.odoo.save(self.session_name, rc_file=self.file_path)
         data = {
             self.session_name: {
-                'type': self.odoo.__class__.__name__,
-                'host': self.odoo.host,
-                'protocol': self.odoo.protocol,
-                'port': int(self.odoo.port),
-                'timeout': self.odoo.config['timeout'],
-                'user': self.odoo._login,
-                'passwd': self.odoo._password,
-                'database': self.odoo.env.db,
+                "type": self.odoo.__class__.__name__,
+                "host": self.odoo.host,
+                "protocol": self.odoo.protocol,
+                "port": int(self.odoo.port),
+                "timeout": self.odoo.config["timeout"],
+                "user": self.odoo._login,
+                "passwd": self.odoo._password,
+                "database": self.odoo.env.db,
             }
         }
         result = odoorpc.session.get_all(rc_file=self.file_path)

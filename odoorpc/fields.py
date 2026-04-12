@@ -86,9 +86,9 @@ def tuples2ids(tuples, ids):
 def records2ids(iterable):
     """Replace records contained in `iterable` with their corresponding IDs:
 
-        >>> groups = list(odoo.env.user.groups_id)
-        >>> records2ids(groups)
-        [1, 2, 3, 14, 17, 18, 19, 7, 8, 9, 5, 20, 21, 22, 23]
+    >>> groups = list(odoo.env.user.groups_id)
+    >>> records2ids(groups)
+    [1, 2, 3, 14, 17, 18, 19, 7, 8, 9, 5, 20, 21, 22, 23]
     """
 
     def record2id(elt):
@@ -107,13 +107,13 @@ class BaseField(object):
 
     def __init__(self, name, data):
         self.name = name
-        self.type = 'type' in data and data['type'] or False
-        self.string = 'string' in data and data['string'] or False
-        self.size = 'size' in data and data['size'] or False
-        self.required = 'required' in data and data['required'] or False
-        self.readonly = 'readonly' in data and data['readonly'] or False
-        self.help = 'help' in data and data['help'] or False
-        self.states = 'states' in data and data['states'] or False
+        self.type = "type" in data and data["type"] or False
+        self.string = "string" in data and data["string"] or False
+        self.size = "size" in data and data["size"] or False
+        self.required = "required" in data and data["required"] or False
+        self.readonly = "readonly" in data and data["readonly"] or False
+        self.help = "help" in data and data["help"] or False
+        self.states = "states" in data and data["states"] or False
 
     def __get__(self, instance, owner):
         pass
@@ -123,18 +123,18 @@ class BaseField(object):
         in the environment.
         """
         instance.env.dirty.add(instance)
-        if instance._odoo.config.get('auto_commit'):
+        if instance._odoo.config.get("auto_commit"):
             instance.env.commit()
 
     def __str__(self):
         """Return a human readable string representation of the field."""
         attrs = [
-            'string',
-            'relation',
-            'required',
-            'readonly',
-            'size',
-            'domain',
+            "string",
+            "relation",
+            "required",
+            "readonly",
+            "size",
+            "domain",
         ]
         attrs_rep = []
         for attr in attrs:
@@ -168,9 +168,7 @@ class BaseField(object):
                 raise ValueError("Value supplied has to be a string")
             if len(value) > self.size:
                 raise ValueError(
-                    "Lenght of the '{}' is limited to {}".format(
-                        self.name, self.size
-                    )
+                    "Lenght of the '{}' is limited to {}".format(self.name, self.size)
                 )
         if self.required and not self.check_required(value):
             raise ValueError("'{}' field is required".format(self.name))
@@ -369,7 +367,7 @@ class Selection(BaseField):
 
     def __init__(self, name, data):
         super(Selection, self).__init__(name, data)
-        self.selection = 'selection' in data and data['selection'] or False
+        self.selection = "selection" in data and data["selection"] or False
 
     def __get__(self, instance, owner):
         value = instance._values[self.name].get(instance.id, False)
@@ -390,9 +388,7 @@ class Selection(BaseField):
         if value and value not in selection:
             raise ValueError(
                 "The value '{}' supplied doesn't match with the possible "
-                "values '{}' for the '{}' field".format(
-                    value, selection, self.name
-                )
+                "values '{}' for the '{}' field".format(value, selection, self.name)
             )
         return value
 
@@ -402,9 +398,9 @@ class Many2many(BaseField):
 
     def __init__(self, name, data):
         super(Many2many, self).__init__(name, data)
-        self.relation = 'relation' in data and data['relation'] or False
-        self.context = 'context' in data and data['context'] or {}
-        self.domain = 'domain' in data and data['domain'] or False
+        self.relation = "relation" in data and data["relation"] or False
+        self.context = "context" in data and data["context"] or {}
+        self.domain = "domain" in data and data["domain"] or False
 
     def __get__(self, instance, owner):
         """Return a recordset."""
@@ -414,10 +410,10 @@ class Many2many(BaseField):
         # None value => get the value on the fly
         if ids is None:
             args = [[instance.id], [self.name]]
-            kwargs = {'context': self.context, 'load': '_classic_write'}
-            orig_ids = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs
-            )[0][self.name]
+            kwargs = {"context": self.context, "load": "_classic_write"}
+            orig_ids = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[
+                0
+            ][self.name]
             instance._values[self.name][instance.id] = orig_ids
             ids = orig_ids and orig_ids[:] or []
         # Take updated values into account
@@ -454,8 +450,7 @@ class Many2many(BaseField):
                 and not isinstance(value, IncrementalRecords)
             ):
                 raise ValueError(
-                    "The value supplied has to be a list, a recordset "
-                    "or 'False'"
+                    "The value supplied has to be a list, a recordset or 'False'"
                 )
         return super(Many2many, self).check_value(value)
 
@@ -472,9 +467,9 @@ class Many2one(BaseField):
 
     def __init__(self, name, data):
         super(Many2one, self).__init__(name, data)
-        self.relation = 'relation' in data and data['relation'] or False
-        self.context = 'context' in data and data['context'] or {}
-        self.domain = 'domain' in data and data['domain'] or False
+        self.relation = "relation" in data and data["relation"] or False
+        self.context = "context" in data and data["context"] or {}
+        self.domain = "domain" in data and data["domain"] or False
 
     def __get__(self, instance, owner):
         id_ = instance._values[self.name].get(instance.id)
@@ -483,10 +478,10 @@ class Many2one(BaseField):
         # None value => get the value on the fly
         if id_ is None:
             args = [[instance.id], [self.name]]
-            kwargs = {'context': self.context, 'load': '_classic_write'}
-            id_ = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs
-            )[0][self.name]
+            kwargs = {"context": self.context, "load": "_classic_write"}
+            id_ = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[0][
+                self.name
+            ]
             instance._values[self.name][instance.id] = id_
         Relation = instance.env[self.relation]
         if id_:
@@ -514,9 +509,7 @@ class Many2one(BaseField):
         o_rel = self.check_value(o_rel)
         # instance.__data__['updated_values'][self.name] = \
         #    o_rel and [o_rel.id, False]
-        instance._values_to_write[self.name][instance.id] = (
-            o_rel and o_rel.id or False
-        )
+        instance._values_to_write[self.name][instance.id] = o_rel and o_rel.id or False
         super(Many2one, self).__set__(instance, value)
 
     def check_value(self, value):
@@ -540,9 +533,9 @@ class One2many(BaseField):
 
     def __init__(self, name, data):
         super(One2many, self).__init__(name, data)
-        self.relation = 'relation' in data and data['relation'] or False
-        self.context = 'context' in data and data['context'] or {}
-        self.domain = 'domain' in data and data['domain'] or False
+        self.relation = "relation" in data and data["relation"] or False
+        self.context = "context" in data and data["context"] or {}
+        self.domain = "domain" in data and data["domain"] or False
 
     def __get__(self, instance, owner):
         """Return a recordset."""
@@ -552,10 +545,10 @@ class One2many(BaseField):
         # None value => get the value on the fly
         if ids is None:
             args = [[instance.id], [self.name]]
-            kwargs = {'context': self.context, 'load': '_classic_write'}
-            orig_ids = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs
-            )[0][self.name]
+            kwargs = {"context": self.context, "load": "_classic_write"}
+            orig_ids = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[
+                0
+            ][self.name]
             instance._values[self.name][instance.id] = orig_ids
             ids = orig_ids and orig_ids[:] or []
         # Take updated values into account
@@ -591,8 +584,7 @@ class One2many(BaseField):
                 and not isinstance(value, IncrementalRecords)
             ):
                 raise ValueError(
-                    "The value supplied has to be a list, a recordset "
-                    "or 'False'"
+                    "The value supplied has to be a list, a recordset or 'False'"
                 )
         return super(One2many, self).check_value(value)
 
@@ -609,9 +601,9 @@ class Reference(BaseField):
 
     def __init__(self, name, data):
         super(Reference, self).__init__(name, data)
-        self.context = 'context' in data and data['context'] or {}
-        self.domain = 'domain' in data and data['domain'] or False
-        self.selection = 'selection' in data and data['selection'] or False
+        self.context = "context" in data and data["context"] or {}
+        self.domain = "domain" in data and data["domain"] or False
+        self.selection = "selection" in data and data["selection"] or False
 
     def __get__(self, instance, owner):
         value = instance._values[self.name].get(instance.id) or False
@@ -620,13 +612,13 @@ class Reference(BaseField):
         # None value => get the value on the fly
         if value is None:
             args = [[instance.id], [self.name]]
-            kwargs = {'context': self.context, 'load': '_classic_write'}
-            value = instance._odoo.execute_kw(
-                instance._name, 'read', args, kwargs
-            )[0][self.name]
+            kwargs = {"context": self.context, "load": "_classic_write"}
+            value = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[0][
+                self.name
+            ]
             instance._values_to_write[self.name][instance.id] = value
         if value:
-            parts = value.rpartition(',')
+            parts = value.rpartition(",")
             relation, o_id = parts[0], parts[2]
             relation = relation.strip()
             o_id = int(o_id.strip())
@@ -637,9 +629,7 @@ class Reference(BaseField):
                     context = instance.env.context.copy()
                     context.update(self.context)
                     env = instance.env(context=context)
-                return Relation._browse(
-                    env, o_id, from_record=(instance, self)
-                )
+                return Relation._browse(env, o_id, from_record=(instance, self))
         return False
 
     def __set__(self, instance, value):
@@ -657,35 +647,31 @@ class Reference(BaseField):
                 (
                     "The value '{value}' supplied doesn't match with the possible"
                     " values '{selection}' for the '{field_name}' field"
-                ).format(
-                    value=relation, selection=selection, field_name=self.name
-                )
+                ).format(value=relation, selection=selection, field_name=self.name)
             )
         return relation
 
     def check_value(self, value):
         if isinstance(value, Model):
-            relation = value.__class__.__osv__['name']
+            relation = value.__class__.__osv__["name"]
             self._check_relation(relation)
             value = "{},{}".format(relation, value.id)
             super(Reference, self).check_value(value)
         elif is_string(value):
             super(Reference, self).check_value(value)
-            parts = value.rpartition(',')
+            parts = value.rpartition(",")
             relation, o_id = parts[0], parts[2]
             relation = relation.strip()
             o_id = o_id.strip()
             # o_rel = instance.__class__.__odoo__.browse(relation, o_id)
             if not relation or not is_int(o_id):
                 raise ValueError(
-                    "String not well formatted, expecting "
-                    "'{relation},{id}' format"
+                    "String not well formatted, expecting '{relation},{id}' format"
                 )
             self._check_relation(relation)
         else:
             raise ValueError(
-                "Value supplied has to be a string or"
-                " a browse_record object."
+                "Value supplied has to be a string or a browse_record object."
             )
         return value
 
@@ -738,20 +724,20 @@ class Unknown(BaseField):
 
 
 TYPES_TO_FIELDS = {
-    'binary': Binary,
-    'boolean': Boolean,
-    'char': Char,
-    'date': Date,
-    'datetime': Datetime,
-    'float': Float,
-    'html': Html,
-    'integer': Integer,
-    'many2many': Many2many,
-    'many2one': Many2one,
-    'one2many': One2many,
-    'reference': Reference,
-    'selection': Selection,
-    'text': Text,
+    "binary": Binary,
+    "boolean": Boolean,
+    "char": Char,
+    "date": Date,
+    "datetime": Datetime,
+    "float": Float,
+    "html": Html,
+    "integer": Integer,
+    "many2many": Many2many,
+    "many2one": Many2one,
+    "one2many": One2many,
+    "reference": Reference,
+    "selection": Selection,
+    "text": Text,
 }
 
 
@@ -759,6 +745,6 @@ def generate_field(name, data):
     """Generate a well-typed field according to the data dictionary supplied
     (obtained via the `fields_get' method of any models).
     """
-    assert 'type' in data
-    field = TYPES_TO_FIELDS.get(data['type'], Unknown)(name, data)
+    assert "type" in data
+    field = TYPES_TO_FIELDS.get(data["type"], Unknown)(name, data)
     return field

@@ -17,4 +17,3 @@ Reference
     ref_session
     ref_tools
     ref_error
-

@@ -10,7 +10,7 @@ from odoorpc import fields
 from odoorpc.models import Model
 from odoorpc.tools import v
 
-FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
+FIELDS_RESERVED = ["id", "ids", "__odoo__", "__osv__", "__data__", "env"]
 
 
 class Environment(object):
@@ -159,7 +159,7 @@ class Environment(object):
             >>> odoo.env.lang
             'en_US'
         """
-        return self.context.get('lang', False)
+        return self.context.get("lang", False)
 
     def ref(self, xml_id):
         """Return the record corresponding to the given `xml_id` (also called
@@ -228,7 +228,7 @@ class Environment(object):
         :return: a :class:`odoorpc.models.Model` instance
         :raise: :class:`odoorpc.error.RPCError`
         """
-        return self['res.users'].browse(self.uid)
+        return self["res.users"].browse(self.uid)
 
     @property
     def registry(self):
@@ -296,9 +296,7 @@ class Environment(object):
 
         :return: `True` or `False`
         """
-        model_exists = self._odoo.execute(
-            'ir.model', 'search', [('model', '=', model)]
-        )
+        model_exists = self._odoo.execute("ir.model", "search", [("model", "=", model)])
         return bool(model_exists)
 
     def _create_model_class(self, model):
@@ -306,23 +304,23 @@ class Environment(object):
 
         :return: a :class:`odoorpc.models.Model` class
         """
-        cls_name = model.replace('.', '_')
+        cls_name = model.replace(".", "_")
         # Hack for Python 2 (no need to do this for Python 3)
         if sys.version_info[0] < 3:
             # noqa: F821
             if isinstance(cls_name, unicode):  # noqa: F821
-                cls_name = cls_name.encode('utf-8')
+                cls_name = cls_name.encode("utf-8")
         # Retrieve server fields info and generate corresponding local fields
         attrs = {
-            '_env': self,
-            '_odoo': self._odoo,
-            '_name': model,
-            '_columns': {},
+            "_env": self,
+            "_odoo": self._odoo,
+            "_name": model,
+            "_columns": {},
         }
-        fields_get = self._odoo.execute(model, 'fields_get')
+        fields_get = self._odoo.execute(model, "fields_get")
         for field_name, field_data in fields_get.items():
             if field_name not in FIELDS_RESERVED:
                 Field = fields.generate_field(field_name, field_data)
-                attrs['_columns'][field_name] = Field
+                attrs["_columns"][field_name] = Field
                 attrs[field_name] = Field
         return type(cls_name, (Model,), attrs)

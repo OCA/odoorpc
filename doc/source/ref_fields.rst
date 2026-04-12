@@ -25,4 +25,3 @@ fields.One2many   ``Recordset``
 fields.Many2many  ``Recordset``
 fields.Reference  ``Recordset``
 ================  ==============================
-
