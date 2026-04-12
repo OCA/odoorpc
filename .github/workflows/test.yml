@@ -27,6 +27,12 @@ jobs:
             PYTHON_VERSION: "3.7"
           - ORPC_TEST_VERSION: "16.0"
             PYTHON_VERSION: "3.11"
+          - ORPC_TEST_VERSION: "17.0"
+            PYTHON_VERSION: "3.12"
+          - ORPC_TEST_VERSION: "18.0"
+            PYTHON_VERSION: "3.13"
+          - ORPC_TEST_VERSION: "19.0"
+            PYTHON_VERSION: "3.14"
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python

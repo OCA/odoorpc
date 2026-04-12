@@ -17,10 +17,11 @@ class TestFieldMany2one(LoginTestCase):
         self.assertEqual(company.env.db, user.env.db)
         self.assertEqual(company.env.uid, user.env.uid)
         # Test if empty field returns an empty recordset, and not False
-        title = user.title
-        self.assertIsInstance(title, Model)
-        self.assertEqual(title.id, None)
-        self.assertFalse(bool(title))
+        user.state_id = False
+        state = user.state_id
+        self.assertIsInstance(state, Model)
+        self.assertEqual(state.id, None)
+        self.assertFalse(bool(state))
 
     def test_field_many2one_write(self):
         self.user.action_id = 1

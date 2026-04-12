@@ -8,10 +8,11 @@ from odoorpc.tools import v
 
 class TestFieldBinary(LoginTestCase):
     def test_field_binary_read(self):
-        if v(self.odoo.version)[0] < 13:
+        if v(self.odoo.version)[0] < 11:
             img = self.user.image
         else:
-            img = self.user.image_1920
+            base = self.odoo.env.ref("base.module_base")
+            img = base.icon_image
         base64.b64decode(img.encode("ascii"))
 
     def test_field_binary_write(self):
