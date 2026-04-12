@@ -1,0 +1,31 @@
+services:
+  odoo:
+    image: odoo:15.0
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    ports:
+      - "127.0.0.1:8069:8069"
+      - "127.0.0.1:8072:8072"
+    volumes:
+      - "odoo-data-15:/var/lib/odoo"
+
+  db:
+    image: "postgres:12"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - "pg-data-15:/var/lib/postgresql/data/pgdata"
+
+volumes:
+  odoo-data-15:
+  pg-data-15:

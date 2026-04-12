@@ -25,7 +25,7 @@ class TestTimeout(LoginTestCase):
         # partner_model = self.odoo.env["res.partner"]
         attachment_model = self.odoo.env["ir.attachment"]
         # Set the timeout
-        self.odoo.config['timeout'] = 0.5
+        self.odoo.config['timeout'] = 0.1
         # Execute a time consuming query: handle exception
         self.assertRaises(
             socket.timeout, attachment_model.create, self.attachment_values

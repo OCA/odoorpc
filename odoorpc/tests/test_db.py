@@ -5,6 +5,7 @@ from datetime import datetime
 
 import odoorpc
 from odoorpc.tests import BaseTestCase
+from odoorpc.tools import v
 
 
 class TestDB(BaseTestCase):
@@ -13,7 +14,15 @@ class TestDB(BaseTestCase):
         self.odoo.logout()
         self.databases = []  # Keep databases created during tests
 
+    def _skip_if_odoo_14(self):
+        # Odoo:14.0 Docker image used when running tests has an issue
+        # regarding pg_dump process. To ease tests run we skip any test
+        # involving 'odoo.db.dump()' (so 'pg_dump' under the hood).
+        if v(self.odoo.version)[0] == 14:
+            self.skipTest("Tests involving pg_dump are disabled on Odoo 14.0")
+
     def test_db_dump(self):
+        self._skip_if_odoo_14()
         dump = self.odoo.db.dump(self.env['super_pwd'], self.env['db'])
         self.assertIn('dump.sql', zipfile.ZipFile(dump).namelist())
 
@@ -135,6 +144,7 @@ class TestDB(BaseTestCase):
         self.assertIn(self.env['db'], res)
 
     def test_db_restore_new_database(self):
+        self._skip_if_odoo_14()
         dump = self.odoo.db.dump(self.env['super_pwd'], self.env['db'])
         date = datetime.strftime(datetime.today(), '%Y-%m-%d_%Hh%Mm%S')
         new_database = "{}_{}".format(self.env['db'], date)
@@ -142,6 +152,7 @@ class TestDB(BaseTestCase):
         self.odoo.db.restore(self.env['super_pwd'], new_database, dump)
 
     def test_db_restore_existing_database(self):
+        self._skip_if_odoo_14()
         dump = self.odoo.db.dump(self.env['super_pwd'], self.env['db'])
         self.assertRaises(
             odoorpc.error.RPCError,
@@ -152,6 +163,7 @@ class TestDB(BaseTestCase):
         )
 
     def test_db_restore_wrong_password(self):
+        self._skip_if_odoo_14()
         dump = self.odoo.db.dump(self.env['super_pwd'], self.env['db'])
         date = datetime.strftime(datetime.today(), '%Y%m%d_%Hh%Mm%S')
         new_database = "{}_{}".format(self.env['db'], date)
