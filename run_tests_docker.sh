@@ -42,4 +42,4 @@ else
     $VENV/bin/python3 -m unittest $1 -v
 fi
 printf "Stopping Odoo ${ORPC_TEST_VERSION}...\n"
-docker compose -f "$HERE/.ci/odoo-${ORPC_TEST_VERSION}.yml" down
+docker compose -f "$HERE/.ci/odoo-${ORPC_TEST_VERSION}.yml" down -v
