@@ -8,6 +8,7 @@ import sys
 
 from odoorpc import error
 from odoorpc.tools import v
+from odoorpc.rpc.jsonrpclib import Secret, Bloat
 
 # Python 2
 if sys.version_info[0] < 3:
@@ -110,7 +111,7 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
-        args = [password, db]
+        args = [Secret(password), db]
         if v(self._odoo.version)[0] >= 9:
             args.append(format_)
         data = self._odoo.json(
@@ -150,7 +151,7 @@ class DB(object):
             {
                 "service": "db",
                 "method": "change_admin_password",
-                "args": [password, new_password],
+                "args": [Secret(password), Secret(new_password)],
             },
         )
 
@@ -188,7 +189,7 @@ class DB(object):
             {
                 "service": "db",
                 "method": "create_database",
-                "args": [password, db, demo, lang, admin_password],
+                "args": [Secret(password), db, demo, lang, Secret(admin_password)],
             },
         )
 
@@ -218,7 +219,7 @@ class DB(object):
             self._odoo.logout()
         data = self._odoo.json(
             "/jsonrpc",
-            {"service": "db", "method": "drop", "args": [password, db]},
+            {"service": "db", "method": "drop", "args": [Secret(password), db]},
         )
         return data["result"]
 
@@ -244,7 +245,7 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
-        args = [password, db, new_db]
+        args = [Secret(password), db, new_db]
         # neutralize_database parameter is only available from Odoo 16+
         if neutralize_database and v(self._odoo.version)[0] >= 16:
             args.append(neutralize_database)
@@ -318,6 +319,6 @@ class DB(object):
             {
                 "service": "db",
                 "method": "restore",
-                "args": [password, db, b64_data, copy],
+                "args": [Secret(password), db, Bloat(b64_data), copy],
             },
         )

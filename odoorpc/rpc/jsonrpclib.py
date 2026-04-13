@@ -19,6 +19,16 @@ if sys.version_info[0] < 3:
     def decode_data(data):
         return data
 
+    class Secret(unicode):  # noqa: F821
+        """Used to hide sensitive string RPC parameters in logs."""
+
+        MASK = "**********"
+
+    class Bloat(unicode):  # noqa: F821
+        """Used to replace bloated string RPC parameters in logs."""
+
+        MASK = "<...>"
+
 
 # Python >= 3
 else:
@@ -35,8 +45,17 @@ else:
     def decode_data(data):
         return io.StringIO(data.read().decode("utf-8"))
 
+    class Secret(str):
+        """Used to hide sensitive string RPC parameters in logs."""
 
-LOG_HIDDEN_JSON_PARAMS = ["password"]
+        MASK = "**********"
+
+    class Bloat(str):
+        """Used to replace bloated string RPC parameters in logs."""
+
+        MASK = "<...>"
+
+
 LOG_JSON_SEND_MSG = "(JSON,send) %(url)s %(data)s"
 LOG_JSON_RECV_MSG = "(JSON,recv) %(url)s %(data)s => %(result)s"
 LOG_HTTP_SEND_MSG = "(HTTP,send) %(url)s%(data)s"
@@ -45,16 +64,32 @@ LOG_HTTP_RECV_MSG = "(HTTP,recv) %(url)s%(data)s => %(result)s"
 logger = logging.getLogger(__name__)
 
 
+def _hide_parameters(data):
+    """Recursively hide Secret and Bloat values in `data`."""
+    if isinstance(data, dict):
+        for key in data:
+            value = data[key]
+            data[key] = _hide_parameters(value)
+    elif isinstance(data, list):
+        for e in data:
+            data[data.index(e)] = _hide_parameters(e)
+    elif isinstance(data, tuple):
+        # Replace tuple by list (mutable)
+        new_data = []
+        for e in data:
+            new_data.append(_hide_parameters(e))
+        return tuple(new_data)
+    elif isinstance(data, Secret):
+        return Secret.MASK
+    elif isinstance(data, Bloat):
+        return Bloat.MASK
+    return data
+
+
 def get_json_log_data(data):
-    """Returns a new `data` dictionary with hidden params
-    for log purpose.
-    """
-    log_data = data
-    for param in LOG_HIDDEN_JSON_PARAMS:
-        if param in data["params"]:
-            if log_data is data:
-                log_data = copy.deepcopy(data)
-            log_data["params"][param] = "**********"
+    """Returns a new `data` dictionary with hidden params for log purpose."""
+    log_data = copy.deepcopy(data)
+    _hide_parameters(log_data)
     return log_data
 
 

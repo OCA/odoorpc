@@ -8,6 +8,7 @@ from odoorpc import error, rpc, session, tools
 from odoorpc.db import DB
 from odoorpc.env import Environment
 from odoorpc.report import Report
+from odoorpc.rpc.jsonrpclib import Secret
 
 
 class ODOO(object):
@@ -337,6 +338,7 @@ class ODOO(object):
         :raise: :class:`odoorpc.error.RPCError`
         :raise: `urllib.error.URLError` (connection error)
         """
+        password = Secret(password)
         # Get the user's ID and generate the corresponding user record
         if tools.v(self.version)[0] >= 10:
             data = self.json(
