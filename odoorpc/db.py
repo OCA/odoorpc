@@ -20,7 +20,7 @@ if sys.version_info[0] < 3:
 else:
 
     def encode2bytes(data):
-        return bytes(data, 'ascii')
+        return bytes(data, "ascii")
 
 
 class DB(object):
@@ -42,7 +42,7 @@ class DB(object):
     def __init__(self, odoo):
         self._odoo = odoo
 
-    def dump(self, password, db, format_='zip'):
+    def dump(self, password, db, format_="zip"):
         """Backup the `db` database. Returns the dump as a binary ZIP file
         containing the SQL dump file alongside the filestore directory (if any).
 
@@ -114,11 +114,11 @@ class DB(object):
         if v(self._odoo.version)[0] >= 9:
             args.append(format_)
         data = self._odoo.json(
-            '/jsonrpc', {'service': 'db', 'method': 'dump', 'args': args}
+            "/jsonrpc", {"service": "db", "method": "dump", "args": args}
         )
         # Encode to bytes forced to be compatible with Python 3.2
         # (its 'base64.standard_b64decode()' function only accepts bytes)
-        result = encode2bytes(data['result'])
+        result = encode2bytes(data["result"])
         content = base64.standard_b64decode(result)
         return io.BytesIO(content)
 
@@ -146,17 +146,15 @@ class DB(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         self._odoo.json(
-            '/jsonrpc',
+            "/jsonrpc",
             {
-                'service': 'db',
-                'method': 'change_admin_password',
-                'args': [password, new_password],
+                "service": "db",
+                "method": "change_admin_password",
+                "args": [password, new_password],
             },
         )
 
-    def create(
-        self, password, db, demo=False, lang='en_US', admin_password='admin'
-    ):
+    def create(self, password, db, demo=False, lang="en_US", admin_password="admin"):
         """Request the server to create a new database named `db`
         which will have `admin_password` as administrator password and
         localized with the `lang` parameter.
@@ -186,11 +184,11 @@ class DB(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         self._odoo.json(
-            '/jsonrpc',
+            "/jsonrpc",
             {
-                'service': 'db',
-                'method': 'create_database',
-                'args': [password, db, demo, lang, admin_password],
+                "service": "db",
+                "method": "create_database",
+                "args": [password, db, demo, lang, admin_password],
             },
         )
 
@@ -219,10 +217,10 @@ class DB(object):
             # Remove the existing session to avoid HTTP session error
             self._odoo.logout()
         data = self._odoo.json(
-            '/jsonrpc',
-            {'service': 'db', 'method': 'drop', 'args': [password, db]},
+            "/jsonrpc",
+            {"service": "db", "method": "drop", "args": [password, db]},
         )
-        return data['result']
+        return data["result"]
 
     def duplicate(self, password, db, new_db, neutralize_database=False):
         """Duplicate `db` as `new_db`. If `neutralize_database` is set to `True`,
@@ -251,11 +249,11 @@ class DB(object):
         if neutralize_database and v(self._odoo.version)[0] >= 16:
             args.append(neutralize_database)
         self._odoo.json(
-            '/jsonrpc',
+            "/jsonrpc",
             {
-                'service': 'db',
-                'method': 'duplicate_database',
-                'args': args,
+                "service": "db",
+                "method": "duplicate_database",
+                "args": args,
             },
         )
 
@@ -276,9 +274,9 @@ class DB(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         data = self._odoo.json(
-            '/jsonrpc', {'service': 'db', 'method': 'list', 'args': []}
+            "/jsonrpc", {"service": "db", "method": "list", "args": []}
         )
-        return data.get('result', [])
+        return data.get("result", [])
 
     def restore(self, password, db, dump, copy=False):
         """Restore the `dump` database into the new `db` database.
@@ -316,10 +314,10 @@ class DB(object):
             raise error.InternalError("Dump file closed")
         b64_data = base64.standard_b64encode(dump.read()).decode()
         self._odoo.json(
-            '/jsonrpc',
+            "/jsonrpc",
             {
-                'service': 'db',
-                'method': 'restore',
-                'args': [password, db, b64_data, copy],
+                "service": "db",
+                "method": "restore",
+                "args": [password, db, b64_data, copy],
             },
         )

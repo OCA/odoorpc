@@ -10,7 +10,7 @@ from odoorpc.error import RPCError
 
 class TestError(unittest.TestCase):
     def test_rpcerror_unicode_message(self):
-        message = u"é"
+        message = "é"
         exc = RPCError(message)
         str(exc)
         if sys.version_info[0] < 3:

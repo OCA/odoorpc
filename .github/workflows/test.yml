@@ -1,0 +1,40 @@
+name: test
+
+on: [pull_request, push]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04 # Python 3.7 not available on Ubuntu 24.04+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ORPC_TEST_VERSION: "8.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "9.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "10.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "11.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "12.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "13.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "14.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "15.0"
+            PYTHON_VERSION: "3.7"
+          - ORPC_TEST_VERSION: "16.0"
+            PYTHON_VERSION: "3.11"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+      - name: Start Odoo
+        run: |
+          docker compose -f ".ci/odoo-${{ matrix.ORPC_TEST_VERSION }}.yml" up -d && sleep 5
+      - name: Run tests
+        run: python -m unittest discover -v

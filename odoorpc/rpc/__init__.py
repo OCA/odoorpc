@@ -232,9 +232,9 @@ class ConnectorJSONRPC(Connector):
         )
         # Detect the server version
         if self.version is None:
-            result = proxy_json('/web/webclient/version_info')['result']
-            if 'server_version' in result:
-                self.version = result['server_version']
+            result = proxy_json("/web/webclient/version_info")["result"]
+            if "server_version" in result:
+                self.version = result["server_version"]
         return proxy_json, proxy_http
 
     @property
@@ -295,4 +295,4 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         return True
 
 
-PROTOCOLS = {'jsonrpc': ConnectorJSONRPC, 'jsonrpc+ssl': ConnectorJSONRPCSSL}
+PROTOCOLS = {"jsonrpc": ConnectorJSONRPC, "jsonrpc+ssl": ConnectorJSONRPCSSL}

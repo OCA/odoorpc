@@ -5,7 +5,7 @@
 methods proposed by a data model.
 """
 
-__all__ = ['Model']
+__all__ = ["Model"]
 
 import sys
 
@@ -20,7 +20,7 @@ else:
     NORMALIZED_TYPES = (int, str, bytes)
 
 
-FIELDS_RESERVED = ['id', 'ids', '__odoo__', '__osv__', '__data__', 'env']
+FIELDS_RESERVED = ["id", "ids", "__odoo__", "__osv__", "__data__", "env"]
 
 
 def _normalize_ids(ids):
@@ -49,13 +49,13 @@ class MetaModel(type):
 
     def __getattr__(cls, method):
         """Provide a dynamic access to a RPC method."""
-        if method.startswith('_'):
+        if method.startswith("_"):
             return super(MetaModel, cls).__getattr__(method)
 
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
-            if cls._odoo.config['auto_context'] and 'context' not in kwargs:
-                kwargs['context'] = cls.env.context
+            if cls._odoo.config["auto_context"] and "context" not in kwargs:
+                kwargs["context"] = cls.env.context
             result = cls._odoo.execute_kw(cls._name, method, args, kwargs)
             return result
 
@@ -72,7 +72,7 @@ class MetaModel(type):
 
 # An intermediate class used to associate the 'MetaModel' metaclass to the
 # 'Model' one with a Python 2 and Python 3 compatibility
-BaseModel = MetaModel('BaseModel', (), {})
+BaseModel = MetaModel("BaseModel", (), {})
 
 
 class Model(BaseModel):
@@ -340,20 +340,20 @@ class Model(BaseModel):
         basic_fields = []
         for field_name in self._columns:
             field = self._columns[field_name]
-            if not getattr(field, 'relation', False):
+            if not getattr(field, "relation", False):
                 basic_fields.append(field_name)
         # Fetch values from the server
         if self.ids:
             rows = self.__class__.read(
-                self.ids, basic_fields, context=context, load='_classic_write'
+                self.ids, basic_fields, context=context, load="_classic_write"
             )
             ids_fetched = set()
             for row in rows:
-                ids_fetched.add(row['id'])
+                ids_fetched.add(row["id"])
                 for field_name in row:
-                    if field_name == 'id':
+                    if field_name == "id":
                         continue
-                    self._values[field_name][row['id']] = row[field_name]
+                    self._values[field_name][row["id"]] = row[field_name]
             ids_in_error = set(self.ids) - ids_fetched
             if ids_in_error:
                 raise ValueError(
@@ -367,9 +367,7 @@ class Model(BaseModel):
                 list(self._columns), context=context
             )
             for field_name in self._columns:
-                self._values[field_name][None] = default_get.get(
-                    field_name, False
-                )
+                self._values[field_name][None] = default_get.get(field_name, False)
 
     def __getattr__(self, method):
         """Provide a dynamic access to a RPC *instance* method (which applies
@@ -385,14 +383,14 @@ class Model(BaseModel):
             True
 
         """
-        if method.startswith('_'):
+        if method.startswith("_"):
             return super(Model, self).__getattr__(method)
 
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
             args = tuple([self.ids]) + args
-            if self._odoo.config['auto_context'] and 'context' not in kwargs:
-                kwargs['context'] = self.env.context
+            if self._odoo.config["auto_context"] and "context" not in kwargs:
+                kwargs["context"] = self.env.context
             result = self._odoo.execute_kw(self._name, method, args, kwargs)
             return result
 
@@ -429,7 +427,7 @@ class Model(BaseModel):
             yield self._browse(self.env, id_, iterated=self)
 
     def __nonzero__(self):
-        return bool(getattr(self, '_ids', True))
+        return bool(getattr(self, "_ids", True))
 
     def __len__(self):
         return len(self.ids)

@@ -106,11 +106,11 @@ class Report(object):
             context = self._odoo.env.context
 
         def check_report(name):
-            report_model = 'ir.actions.report'
+            report_model = "ir.actions.report"
             if v(self._odoo.version)[0] < 11:
-                report_model = 'ir.actions.report.xml'
+                report_model = "ir.actions.report.xml"
             IrReport = self._odoo.env[report_model]
-            report_ids = IrReport.search([('report_name', '=', name)])
+            report_ids = IrReport.search([("report_name", "=", name)])
             report_id = report_ids and report_ids[0] or False
             if not report_id:
                 raise ValueError("The report '%s' does not exist." % name)
@@ -120,7 +120,7 @@ class Report(object):
 
         # Odoo >= 11.0
         if v(self._odoo.version)[0] >= 11:
-            IrReport = self._odoo.env['ir.actions.report']
+            IrReport = self._odoo.env["ir.actions.report"]
             report = IrReport.browse(report_id)
             if v(self._odoo.version)[0] >= 14:
                 # Need a CSRF token to print reports on Odoo >= 14
@@ -134,7 +134,7 @@ class Report(object):
             # On the server the result is a bytes string,
             # but the RPC layer of Odoo returns it as a unicode string,
             # so we encode it again as bytes
-            result = content.encode('latin1')
+            result = content.encode("latin1")
             return io.BytesIO(result)
         # Odoo < 11.0
         else:
@@ -148,18 +148,18 @@ class Report(object):
                 context,
             ]
             data = self._odoo.json(
-                '/jsonrpc',
+                "/jsonrpc",
                 {
-                    'service': 'report',
-                    'method': 'render_report',
-                    'args': args_to_send,
+                    "service": "report",
+                    "method": "render_report",
+                    "args": args_to_send,
                 },
             )
-            if 'result' not in data and not data['result'].get('result'):
+            if "result" not in data and not data["result"].get("result"):
                 raise ValueError("Received invalid data.")
             # Encode to bytes forced to be compatible with Python 3.2
             # (its 'base64.standard_b64decode()' function only accepts bytes)
-            result = encode2bytes(data['result']['result'])
+            result = encode2bytes(data["result"]["result"])
             content = base64.standard_b64decode(result)
             return io.BytesIO(content)
 
@@ -205,18 +205,18 @@ class Report(object):
         :return: `list` of dictionaries
         :raise: `urllib.error.URLError` (connection error)
         """
-        report_model = 'ir.actions.report'
+        report_model = "ir.actions.report"
         if v(self._odoo.version)[0] < 11:
-            report_model = 'ir.actions.report.xml'
+            report_model = "ir.actions.report.xml"
         IrReport = self._odoo.env[report_model]
         report_ids = IrReport.search([])
         reports = IrReport.read(
-            report_ids, ['name', 'model', 'report_name', 'report_type']
+            report_ids, ["name", "model", "report_name", "report_type"]
         )
         result = {}
         for report in reports:
-            model = report.pop('model')
-            report.pop('id')
+            model = report.pop("model")
+            report.pop("id")
             if model not in result:
                 result[model] = []
             result[model].append(report)

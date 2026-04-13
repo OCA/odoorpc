@@ -23,8 +23,8 @@ class TestFieldText(LoginTestCase):
         # Test empty field
         self.assertFalse(self.user.comment)
         # Test field containing a value
-        Module = self.odoo.env['ir.module.module']
-        sale_id = Module.search([('name', '=', 'sale')])
+        Module = self.odoo.env["ir.module.module"]
+        sale_id = Module.search([("name", "=", "sale")])
         sale_mod = Module.browse(sale_id)
         self.assertTrue(is_string(sale_mod.views_by_module))
 

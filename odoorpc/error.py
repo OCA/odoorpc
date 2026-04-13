@@ -70,7 +70,7 @@ class RPCError(Error):
         # Ensure that the message is in unicode,
         # to be compatible both with Python2 and 3
         try:
-            message = message.decode('utf-8')
+            message = message.decode("utf-8")
         except (UnicodeEncodeError, AttributeError):
             pass
         super(Error, self).__init__(message, info)
@@ -79,12 +79,12 @@ class RPCError(Error):
     def __str__(self):
         # args[0] should always be a unicode object (see '__init__(...)')
         if sys.version_info[0] < 3 and self.args and self.args[0]:
-            return self.args[0].encode('utf-8')
-        return self.args and self.args[0] or ''
+            return self.args[0].encode("utf-8")
+        return self.args and self.args[0] or ""
 
     def __unicode__(self):
         # args[0] should always be a unicode object (see '__init__(...)')
-        return self.args and self.args[0] or u''
+        return self.args and self.args[0] or ""
 
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__, repr(self.args[0]))
