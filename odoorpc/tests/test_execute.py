@@ -33,7 +33,7 @@ class TestExecute(LoginTestCase):
             self.odoo.execute,
             "res.users",
             "search",
-            False,
+            "False",
         )  # Wrong arg
 
     def test_execute_search_with_wrong_model(self):

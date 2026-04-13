@@ -58,10 +58,14 @@ class TestLogin(BaseTestCase):
             },
         )
         action = data["result"]
+        assert action["res_model"] == "res.users.identitycheck"
         IdentityCheck = odoo.env["res.users.identitycheck"]
         if action.get("res_model") == IdentityCheck._name:
             check = IdentityCheck.browse(action["res_id"])
             check.password = self.env["pwd"]
+            # Starting from Odoo 19.0, the password must be in the context
+            ctx = dict(odoo.env.context)
+            ctx["password"] = self.env["pwd"]
             data = odoo.json(
                 # NOTE Workaround: act like the Odoo web client.
                 # Use of '/web/dataset/call_button' instead of '/jsonrpc' to bypass
@@ -69,7 +73,7 @@ class TestLogin(BaseTestCase):
                 "/web/dataset/call_button",
                 params={
                     "args": [[check.id]],
-                    "kwargs": {"context": odoo.env.context},
+                    "kwargs": {"context": ctx},
                     "method": "run_check",
                     "model": check._name,
                 },

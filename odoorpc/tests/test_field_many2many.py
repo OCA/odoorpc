@@ -4,6 +4,7 @@ import time
 
 from odoorpc.models import Model
 from odoorpc.tests import LoginTestCase
+from odoorpc.tools import v
 
 
 class TestFieldMany2many(LoginTestCase):
@@ -18,13 +19,44 @@ class TestFieldMany2many(LoginTestCase):
         )
         self.g1_id = self.group_obj.create({"name": "Group 1"})
         self.g2_id = self.group_obj.create({"name": "Group 2"})
+        if v(self.odoo.version)[0] < 19:
+            self.groups_field = "groups_id"
+        else:
+            self.groups_field = "group_ids"
         self.u1_id = self.user_obj.create(
             {
                 "name": "TestMany2many User 2",
                 "login": "test_m2m_u2_%s" % time.time(),
-                "groups_id": [(4, self.g1_id), (4, self.g2_id)],
+                self.groups_field: [(4, self.g1_id), (4, self.g2_id)],
             }
         )
+
+    def _get_user_groups(self, user):
+        """Helper method getting groups field from `user` record."""
+        return getattr(user, self.groups_field)
+
+    def _set_user_groups(self, user, groups):
+        """Helper method setting `groups` on `user` record."""
+        setattr(user, self.groups_field, groups)
+
+    def _iadd_user_groups(self, user, groups):
+        """Helper method adding groups field on `user` record with += operator."""
+        if v(self.odoo.version)[0] < 19:
+            user.groups_id += groups
+        else:
+            user.group_ids += groups
+
+    def _isub_user_groups(self, user, groups):
+        """Helper method subtracting groups field from `user` record with -= operator."""
+        if v(self.odoo.version)[0] < 19:
+            user.groups_id -= groups
+        else:
+            user.group_ids -= groups
+
+    def _read_user_groups(self, user):
+        """Helper method reading groups from `user` with `read` method."""
+        data = user.read([self.groups_field])[0]
+        return data[self.groups_field]
 
     def test_field_many2many_read(self):
         self.assertIsInstance(self.user.company_ids, Model)
@@ -37,28 +69,28 @@ class TestFieldMany2many(LoginTestCase):
     def test_field_many2many_write_set_false(self):
         user = self.user_obj.browse(self.u0_id)
         # False
-        user.groups_id = False
-        data = user.read(["groups_id"])[0]
-        self.assertEqual(data["groups_id"], [])
-        self.assertEqual(list(user.groups_id), [])
+        self._set_user_groups(user, False)
+        groups = self._read_user_groups(user)
+        self.assertEqual(groups, [])
+        self.assertEqual(list(self._get_user_groups(user)), [])
 
     def test_field_many2many_write_set_empty_list(self):
         user = self.user_obj.browse(self.u0_id)
         # = []
-        user.groups_id = []
-        data = user.read(["groups_id"])[0]
-        self.assertEqual(data["groups_id"], [])
-        self.assertEqual(list(user.groups_id), [])
+        self._set_user_groups(user, [])
+        groups = self._read_user_groups(user)
+        self.assertEqual(groups, [])
+        self.assertEqual(list(self._get_user_groups(user)), [])
 
     def test_field_many2many_write_set_magic_tuples(self):
         user = self.user_obj.browse(self.u0_id)
         # [(6, 0, IDS)]
-        user.groups_id = [(6, 0, [self.g1_id, self.g2_id])]
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        self.assertEqual(len(data["groups_id"]), 2)
-        group_ids = [grp.id for grp in user.groups_id]
+        self._set_user_groups(user, [(6, 0, [self.g1_id, self.g2_id])])
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        self.assertEqual(len(groups), 2)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
         self.assertEqual(len(group_ids), 2)
@@ -66,106 +98,109 @@ class TestFieldMany2many(LoginTestCase):
     def test_field_many2many_write_iadd_id(self):
         user = self.user_obj.browse(self.u0_id)
         # += ID
-        user.groups_id += self.g1_id
-        user.groups_id += self.g2_id
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(user, self.g1_id)
+        self._iadd_user_groups(user, self.g2_id)
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_iadd_record(self):
         user = self.user_obj.browse(self.u0_id)
         # += Record
-        user.groups_id += self.group_obj.browse(self.g2_id)
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(user, self.group_obj.browse(self.g2_id))
+        groups = self._read_user_groups(user)
+        self.assertNotIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_iadd_recordset(self):
         user = self.user_obj.browse(self.u0_id)
         # += Recordset
-        user.groups_id += self.group_obj.browse([self.g1_id, self.g2_id])
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(user, self.group_obj.browse([self.g1_id, self.g2_id]))
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_iadd_list_ids(self):
         user = self.user_obj.browse(self.u0_id)
         # += List of IDs
-        user.groups_id += [self.g1_id, self.g2_id]
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(user, [self.g1_id, self.g2_id])
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_iadd_list_records(self):
         user = self.user_obj.browse(self.u0_id)
         # += List of records
-        user.groups_id += [
-            self.group_obj.browse(self.g1_id),
-            self.group_obj.browse(self.g2_id),
-        ]
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(
+            user,
+            [
+                self.group_obj.browse(self.g1_id),
+                self.group_obj.browse(self.g2_id),
+            ],
+        )
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_iadd_id_and_list_ids(self):
         user = self.user_obj.browse(self.u0_id)
         # += ID and += [ID]
-        user.groups_id += self.g1_id
-        user.groups_id += [self.g2_id]
-        data = user.read(["groups_id"])[0]
-        self.assertIn(self.g1_id, data["groups_id"])
-        self.assertIn(self.g2_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._iadd_user_groups(user, self.g1_id)
+        self._iadd_user_groups(user, [self.g2_id])
+        groups = self._read_user_groups(user)
+        self.assertIn(self.g1_id, groups)
+        self.assertIn(self.g2_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertIn(self.g1_id, group_ids)
         self.assertIn(self.g2_id, group_ids)
 
     def test_field_many2many_write_isub_id(self):
         user = self.user_obj.browse(self.u1_id)
-        self.assertIn(self.g1_id, user.groups_id.ids)
+        self.assertIn(self.g1_id, self._get_user_groups(user).ids)
         # -= ID
-        user.groups_id -= self.g1_id
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(self.g1_id, data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        self._isub_user_groups(user, self.g1_id)
+        groups = self._read_user_groups(user)
+        self.assertNotIn(self.g1_id, groups)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(self.g1_id, group_ids)
 
     def test_field_many2many_write_isub_record(self):
         user = self.user_obj.browse(self.u1_id)
-        self.assertIn(self.g1_id, user.groups_id.ids)
+        self.assertIn(self.g1_id, self._get_user_groups(user).ids)
         # -= Record
         group = self.group_obj.browse(self.g1_id)
-        user.groups_id -= group
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(group.id, data["groups_id"])
-        self.assertNotIn(group.id, user.groups_id.ids)
+        self._isub_user_groups(user, group)
+        groups = self._read_user_groups(user)
+        self.assertNotIn(group.id, groups)
+        self.assertNotIn(group.id, self._get_user_groups(user).ids)
 
     def test_field_many2many_write_isub_recordset(self):
         user = self.user_obj.browse(self.u1_id)
         groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= Recordset
-        data = user.read(["groups_id"])[0]
-        self.assertIn(groups.ids[0], data["groups_id"])
-        self.assertIn(groups.ids[1], data["groups_id"])
-        user.groups_id -= groups
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(groups.ids[0], data["groups_id"])
-        self.assertNotIn(groups.ids[1], data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        groups_ = self._read_user_groups(user)
+        self.assertIn(groups.ids[0], groups_)
+        self.assertIn(groups.ids[1], groups_)
+        self._isub_user_groups(user, groups)
+        groups_ = self._read_user_groups(user)
+        self.assertNotIn(groups.ids[0], groups_)
+        self.assertNotIn(groups.ids[1], groups_)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(groups.ids[0], group_ids)
         self.assertNotIn(groups.ids[1], group_ids)
 
@@ -173,14 +208,14 @@ class TestFieldMany2many(LoginTestCase):
         user = self.user_obj.browse(self.u1_id)
         groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= List of IDs
-        data = user.read(["groups_id"])[0]
-        self.assertIn(groups.ids[0], data["groups_id"])
-        self.assertIn(groups.ids[1], data["groups_id"])
-        user.groups_id -= groups.ids
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(groups.ids[0], data["groups_id"])
-        self.assertNotIn(groups.ids[1], data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        groups_ = self._read_user_groups(user)
+        self.assertIn(groups.ids[0], groups_)
+        self.assertIn(groups.ids[1], groups_)
+        self._isub_user_groups(user, groups.ids)
+        groups_ = self._read_user_groups(user)
+        self.assertNotIn(groups.ids[0], groups_)
+        self.assertNotIn(groups.ids[1], groups_)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(groups.ids[0], group_ids)
         self.assertNotIn(groups.ids[1], group_ids)
 
@@ -188,14 +223,14 @@ class TestFieldMany2many(LoginTestCase):
         user = self.user_obj.browse(self.u1_id)
         groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= List of records
-        data = user.read(["groups_id"])[0]
-        self.assertIn(groups.ids[0], data["groups_id"])
-        self.assertIn(groups.ids[1], data["groups_id"])
-        user.groups_id -= [grp for grp in groups]
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(groups.ids[0], data["groups_id"])
-        self.assertNotIn(groups.ids[1], data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        groups_ = self._read_user_groups(user)
+        self.assertIn(groups.ids[0], groups_)
+        self.assertIn(groups.ids[1], groups_)
+        self._isub_user_groups(user, [grp for grp in groups])
+        groups_ = self._read_user_groups(user)
+        self.assertNotIn(groups.ids[0], groups_)
+        self.assertNotIn(groups.ids[1], groups_)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(groups.ids[0], group_ids)
         self.assertNotIn(groups.ids[1], group_ids)
 
@@ -203,14 +238,14 @@ class TestFieldMany2many(LoginTestCase):
         user = self.user_obj.browse(self.u1_id)
         groups = self.group_obj.browse([self.g1_id, self.g2_id])
         # -= ID and -= [ID]
-        data = user.read(["groups_id"])[0]
-        self.assertIn(groups.ids[0], data["groups_id"])
-        self.assertIn(groups.ids[1], data["groups_id"])
-        user.groups_id -= groups.ids[0]
-        user.groups_id -= [groups.ids[1]]
-        data = user.read(["groups_id"])[0]
-        self.assertNotIn(groups.ids[0], data["groups_id"])
-        self.assertNotIn(groups.ids[1], data["groups_id"])
-        group_ids = [grp.id for grp in user.groups_id]
+        groups_ = self._read_user_groups(user)
+        self.assertIn(groups.ids[0], groups_)
+        self.assertIn(groups.ids[1], groups_)
+        self._isub_user_groups(user, groups.ids[0])
+        self._isub_user_groups(user, [groups.ids[1]])
+        groups_ = self._read_user_groups(user)
+        self.assertNotIn(groups.ids[0], groups_)
+        self.assertNotIn(groups.ids[1], groups_)
+        group_ids = [grp.id for grp in self._get_user_groups(user)]
         self.assertNotIn(groups.ids[0], group_ids)
         self.assertNotIn(groups.ids[1], group_ids)

@@ -6,6 +6,7 @@ from odoorpc import error
 from odoorpc.env import Environment
 from odoorpc.models import Model
 from odoorpc.tests import LoginTestCase
+from odoorpc.tools import v
 
 
 class TestModel(LoginTestCase):
@@ -47,25 +48,32 @@ class TestModel(LoginTestCase):
 
     def test_model_browse_wrong_id(self):
         self.assertRaises(ValueError, self.partner_obj.browse, 9999999)  # Wrong ID
-        self.assertRaises(error.RPCError, self.partner_obj.browse, "1")  # Wrong ID type
+        if v(self.odoo.version)[0] < 19:
+            expected_exc = error.RPCError
+        else:
+            # Starting from Odoo 19.0, 'read()' calls ignore IDs that do not exist,
+            # and do not fail anymore. Still, OdooRPC is checking provided IDs
+            # once the data are fetched, raising a ValueError if needed.
+            expected_exc = ValueError
+        self.assertRaises(expected_exc, self.partner_obj.browse, "1")  # Wrong ID type
 
     def test_model_browse_without_arg(self):
         self.assertRaises(TypeError, self.partner_obj.browse)
 
     def test_model_rpc_method(self):
         user_obj = self.odoo.env["res.users"]
-        user_obj.name_get(self.odoo.env.uid)
-        self.odoo.env["ir.sequence"].get("fake.code")  # Return False
+        user_obj.read([self.odoo.env.uid])
+        self.odoo.env["res.users"].read([self.odoo.env.uid])
 
     def test_model_rpc_method_error_no_arg(self):
         # Handle exception (execute a 'name_get' with without args)
         user_obj = self.odoo.env["res.users"]
-        self.assertRaises(error.RPCError, user_obj.name_get)  # No arg
+        self.assertRaises(error.RPCError, user_obj.read)  # No arg
 
     def test_model_rpc_method_error_wrong_args(self):
         # Handle exception (execute a 'search' with wrong args)
         user_obj = self.odoo.env["res.users"]
-        self.assertRaises(error.RPCError, user_obj.search, False)  # Wrong arg
+        self.assertRaises(error.RPCError, user_obj.search, "False")  # Wrong arg
 
     def test_model_with_context(self):
         Product = self.odoo.env["product.product"]
@@ -100,12 +108,12 @@ class TestModel(LoginTestCase):
         self.assertEqual(id(partner._values), id(partners._values))
 
     def test_record_with_context(self):
+        # Install 'fr_FR' and test the use of context with it
+        self._install_lang("fr_FR")
         user = self.odoo.env.user
         self.assertEqual(user.env.lang, "en_US")
         user_fr = user.with_context(lang="fr_FR")
         self.assertEqual(user_fr.env.lang, "fr_FR")
-        # Install 'fr_FR' and test the use of context with it
-        self._install_lang("fr_FR")
         # Read data with two languages
         Country = self.odoo.env["res.country"]
         de_id = Country.search([("code", "=", "DE")])[0]
