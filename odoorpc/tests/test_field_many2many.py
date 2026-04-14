@@ -11,24 +11,26 @@ class TestFieldMany2many(LoginTestCase):
     def setUp(self):
         LoginTestCase.setUp(self)
         self.group_obj = self.odoo.env["res.groups"]
-        self.u0_id = self.user_obj.create(
+        self.u0_id = self._create(
+            "res.users",
             {
                 "name": "TestMany2many User 1",
                 "login": "test_m2m_u1_%s" % time.time(),
-            }
+            },
         )
-        self.g1_id = self.group_obj.create({"name": "Group 1"})
-        self.g2_id = self.group_obj.create({"name": "Group 2"})
-        if v(self.odoo.version)[0] < 19:
-            self.groups_field = "groups_id"
-        else:
+        self.g1_id = self._create("res.groups", {"name": "Group 1"})
+        self.g2_id = self._create("res.groups", {"name": "Group 2"})
+        if v(self.odoo.version)[0] >= 19:
             self.groups_field = "group_ids"
-        self.u1_id = self.user_obj.create(
+        else:
+            self.groups_field = "groups_id"
+        self.u1_id = self._create(
+            "res.users",
             {
                 "name": "TestMany2many User 2",
                 "login": "test_m2m_u2_%s" % time.time(),
                 self.groups_field: [(4, self.g1_id), (4, self.g2_id)],
-            }
+            },
         )
 
     def _get_user_groups(self, user):
@@ -55,7 +57,7 @@ class TestFieldMany2many(LoginTestCase):
 
     def _read_user_groups(self, user):
         """Helper method reading groups from `user` with `read` method."""
-        data = user.read([self.groups_field])[0]
+        data = self._read(user._name, user.ids, [self.groups_field])[0]
         return data[self.groups_field]
 
     def test_field_many2many_read(self):

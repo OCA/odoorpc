@@ -13,21 +13,21 @@ class TestFieldChar(LoginTestCase):
         backup = partner.street
         # "A street"
         partner.street = "A street"
-        data = partner.read(["street"])[0]
+        data = self._read("res.partner", partner.ids, ["street"])[0]
         self.assertEqual(data["street"], "A street")
         self.assertEqual(partner.street, "A street")
         # False
         partner.street = False
-        data = partner.read(["street"])[0]
+        data = self._read("res.partner", partner.ids, ["street"])[0]
         self.assertEqual(data["street"], False)
         self.assertEqual(partner.street, False)
         # None
         partner.street = None
-        data = partner.read(["street"])[0]
+        data = self._read("res.partner", partner.ids, ["street"])[0]
         self.assertEqual(data["street"], False)
         self.assertEqual(partner.street, False)
         # Restore original value
         partner.street = backup
-        data = partner.read(["street"])[0]
+        data = self._read("res.partner", partner.ids, ["street"])[0]
         self.assertEqual(data["street"], backup)
         self.assertEqual(partner.street, backup)

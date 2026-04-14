@@ -12,7 +12,7 @@ class TestReport(LoginTestCase):
         model = "res.company"
         if v(self.odoo.version)[0] < 11:
             report_name = "preview.report"
-        ids = self.odoo.env[model].search([])[:20]
+        ids = self._search(model, [])[:20]
         try:
             report = self.odoo.report.download(report_name, ids)
             with tempfile.TemporaryFile(mode="wb", suffix=".pdf") as file_:

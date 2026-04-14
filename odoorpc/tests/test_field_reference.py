@@ -26,7 +26,7 @@ class TestFieldReference(LoginTestCase):
         # 10.0
         elif v(self.odoo.version) < v("11"):
             Subscription = self.odoo.env["subscription.subscription"]
-            fields_list = list(Subscription.fields_get([]))
+            fields_list = list(Subscription.fields_get(allfields=[]))
             vals = Subscription.default_get(fields_list)
             vals["name"] = "ODOORPC TEST (fields.Reference)"
             vals["doc_source"] = "res.partner,1"
@@ -36,15 +36,18 @@ class TestFieldReference(LoginTestCase):
             self.assertIsInstance(subscription.doc_source, Model)
             self.assertEqual(subscription.doc_source._name, "res.partner")
             self.assertEqual(subscription.doc_source.id, 1)
-        # 11.0
+        # >= 11.0
         else:
             Menu = self.odoo.env["ir.ui.menu"]
-            fields_list = list(Menu.fields_get([]))
-            vals = Menu.default_get(fields_list)
+            fields_list = list(Menu.fields_get(allfields=[]))
+            if v(self.odoo.version) >= v("19"):
+                vals = Menu.default_get(fields=fields_list)
+            else:
+                vals = Menu.default_get(fields_list)
             vals["name"] = "ODOORPC TEST (fields.Reference)"
             action = self.odoo.env.ref("base.action_partner_form")
             vals["action"] = "{},{}".format(action._name, action.id)
-            menu_id = Menu.create(vals)
+            menu_id = self._create("ir.ui.menu", vals)
             # Test field containing a value
             menu = Menu.browse(menu_id)
             self.assertIsInstance(menu.action, Model)

@@ -110,7 +110,10 @@ class Report(object):
             if v(self._odoo.version)[0] < 11:
                 report_model = "ir.actions.report.xml"
             IrReport = self._odoo.env[report_model]
-            report_ids = IrReport.search([("report_name", "=", name)])
+            if self._odoo.json2_ready:
+                report_ids = IrReport.search(domain=[("report_name", "=", name)])
+            else:
+                report_ids = IrReport.search([("report_name", "=", name)])
             report_id = report_ids and report_ids[0] or False
             if not report_id:
                 raise ValueError("The report '%s' does not exist." % name)
@@ -209,10 +212,17 @@ class Report(object):
         if v(self._odoo.version)[0] < 11:
             report_model = "ir.actions.report.xml"
         IrReport = self._odoo.env[report_model]
-        report_ids = IrReport.search([])
-        reports = IrReport.read(
-            report_ids, ["name", "model", "report_name", "report_type"]
-        )
+        if self._odoo.json2_ready:
+            report_ids = IrReport.search(domain=[])
+            reports = IrReport.read(
+                ids=report_ids,
+                fields=["name", "model", "report_name", "report_type"],
+            )
+        else:
+            report_ids = IrReport.search([])
+            reports = IrReport.read(
+                report_ids, ["name", "model", "report_name", "report_type"]
+            )
         result = {}
         for report in reports:
             model = report.pop("model")
