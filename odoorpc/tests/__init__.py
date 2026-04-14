@@ -55,7 +55,18 @@ class LoginTestCase(BaseTestCase):
         try:
             cls.odoo._check_logged_user()
         except odoorpc.error.InternalError:
-            cls.odoo.login(cls.env["db"], cls.env["user"], cls.env["pwd"])
+            if v(cls.odoo.version)[0] >= 19:
+                # Odoo >= 19.0 supports JSON-2 connection which requires an API key.
+                # NOTE: /generate_test_api_key endpoint is provided by
+                # 'odoorpc_json2_api_key' module.
+                resp = cls.odoo.http(
+                    "/generate_test_api_key",
+                    headers={"X-Odoo-Database": cls.env["db"]},
+                )
+                key = resp.read().decode()
+                cls.odoo.login(cls.env["db"], api_key=key)
+            else:
+                cls.odoo.login(cls.env["db"], cls.env["user"], cls.env["pwd"])
         cls._disable_cron_jobs()
         # Install 'sale' + 'crm_claim' on Odoo < 10.0,
         # 'sale' + 'subscription' on Odoo == 10.0
@@ -110,4 +121,6 @@ class LoginTestCase(BaseTestCase):
         else:
             wiz_values = {"lang": "fr_FR"}
         wiz_id = Wizard.create(wiz_values)
+        if isinstance(wiz_id, list):
+            wiz_id = wiz_id[0]
         Wizard.lang_install([wiz_id])

@@ -11,6 +11,10 @@ class TestFieldOne2many(LoginTestCase):
         self.p0_id = self.partner_obj.create({"name": "Parent"})
         self.p1_id = self.partner_obj.create({"name": "Child 1"})
         self.p2_id = self.partner_obj.create({"name": "Child 2"})
+        if isinstance(self.p0_id, list):
+            self.p0_id = self.p0_id[0]
+            self.p1_id = self.p1_id[0]
+            self.p2_id = self.p2_id[0]
 
     def test_field_one2many_read(self):
         # Test if empty field returns an empty recordset, and not False

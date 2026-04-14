@@ -73,6 +73,8 @@ class TestExecuteKw(LoginTestCase):
         result = self.odoo.execute_kw(
             "res.users", "create", [{"name": login, "login": login}]
         )
+        if isinstance(result, list):
+            result = result[0]
         self.assertIsInstance(result, numbers.Number)
         # Handle exception (create another user with the same login)
         self.assertRaises(
@@ -96,6 +98,6 @@ class TestExecuteKw(LoginTestCase):
             self.odoo.execute_kw,
             "res.users",
             "create",
-            True,
-            True,
+            args=[10],
+            kwargs={"test": True},
         )  # Wrong args

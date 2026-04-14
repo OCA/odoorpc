@@ -65,6 +65,8 @@ class TestExecute(LoginTestCase):
         result = self.odoo.execute(
             "res.users", "create", {"name": login, "login": login}
         )
+        if isinstance(result, list):
+            result = result[0]
         self.assertIsInstance(result, numbers.Number)
         # Handle exception (create another user with the same login)
         self.assertRaises(

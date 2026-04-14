@@ -15,20 +15,23 @@ class TestFieldMany2many(LoginTestCase):
             {
                 "name": "TestMany2many User 1",
                 "login": "test_m2m_u1_%s" % time.time(),
-            }
+            },
         )
         self.g1_id = self.group_obj.create({"name": "Group 1"})
         self.g2_id = self.group_obj.create({"name": "Group 2"})
-        if v(self.odoo.version)[0] < 19:
-            self.groups_field = "groups_id"
-        else:
+        if isinstance(self.g1_id, list):
+            self.g1_id = self.g1_id[0]
+            self.g2_id = self.g2_id[0]
+        if v(self.odoo.version)[0] >= 19:
             self.groups_field = "group_ids"
+        else:
+            self.groups_field = "groups_id"
         self.u1_id = self.user_obj.create(
             {
                 "name": "TestMany2many User 2",
                 "login": "test_m2m_u2_%s" % time.time(),
                 self.groups_field: [(4, self.g1_id), (4, self.g2_id)],
-            }
+            },
         )
 
     def _get_user_groups(self, user):

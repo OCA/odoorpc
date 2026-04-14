@@ -61,14 +61,15 @@ class TestModel(LoginTestCase):
         self.assertRaises(TypeError, self.partner_obj.browse)
 
     def test_model_rpc_method(self):
-        user_obj = self.odoo.env["res.users"]
-        user_obj.read([self.odoo.env.uid])
         self.odoo.env["res.users"].read([self.odoo.env.uid])
 
     def test_model_rpc_method_error_no_arg(self):
         # Handle exception (execute a 'name_get' with without args)
         user_obj = self.odoo.env["res.users"]
-        self.assertRaises(error.RPCError, user_obj.read)  # No arg
+        if v(self.odoo.version)[0] < 19:
+            self.assertRaises(error.RPCError, user_obj.name_get)  # No arg
+        else:
+            self.assertRaises(error.RPCError, user_obj.name_create)  # No arg
 
     def test_model_rpc_method_error_wrong_args(self):
         # Handle exception (execute a 'search' with wrong args)
@@ -78,6 +79,8 @@ class TestModel(LoginTestCase):
     def test_model_with_context(self):
         Product = self.odoo.env["product.product"]
         product_id = Product.create({"name": "Product invisible", "active": False})
+        if isinstance(product_id, list):
+            product_id = product_id[0]
         product_ids = Product.search([])
         self.assertNotIn(product_id, product_ids)
         product_ids = Product.with_context(active_test=False).search([])

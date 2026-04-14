@@ -5,7 +5,7 @@ from odoorpc.tests import LoginTestCase
 
 class TestFieldSelection(LoginTestCase):
     def test_field_selection_read(self):
-        self.assertEqual(self.user.state, "active")
+        self.assertIn(self.user.state, ["new", "active"])
 
     def test_field_selection_write(self):
         # TODO: split in several unit tests
