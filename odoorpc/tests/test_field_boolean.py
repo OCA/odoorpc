@@ -37,21 +37,21 @@ class TestFieldBoolean(LoginTestCase):
             backup = partner.customer_rank
             # True
             partner.customer_rank = True
-            data = partner.read(["customer_rank"])[0]
+            data = self._read(partner._name, partner.ids, ["customer_rank"])[0]
             self.assertEqual(data["customer_rank"], True)
             self.assertEqual(partner.customer_rank, True)
             # False
             partner.customer_rank = False
-            data = partner.read(["customer_rank"])[0]
+            data = self._read(partner._name, partner.ids, ["customer_rank"])[0]
             self.assertEqual(data["customer_rank"], False)
             self.assertEqual(partner.customer_rank, False)
             # None
             partner.customer_rank = None
-            data = partner.read(["customer_rank"])[0]
+            data = self._read(partner._name, partner.ids, ["customer_rank"])[0]
             self.assertEqual(data["customer_rank"], False)
             self.assertEqual(partner.customer_rank, False)
             # Restore original value
             partner.customer_rank = backup
-            data = partner.read(["customer_rank"])[0]
+            data = self._read(partner._name, partner.ids, ["customer_rank"])[0]
             self.assertEqual(data["customer_rank"], backup)
             self.assertEqual(partner.customer_rank, backup)

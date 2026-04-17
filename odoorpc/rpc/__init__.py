@@ -7,18 +7,21 @@ server with the `JSON-RPC` protocol or through simple HTTP requests.
 Web controllers of `Odoo` expose two kinds of methods: `json` and `http`.
 These methods can be accessed from the connectors of this module.
 """
+import json
 import sys
 
 from odoorpc.rpc import error, jsonrpclib
+from odoorpc.tools import v
 
 # Python 2
 if sys.version_info[0] < 3:
     from cookielib import CookieJar
-    from urllib2 import HTTPCookieProcessor, build_opener
+    from urllib2 import HTTPCookieProcessor, HTTPError, build_opener
 # Python >= 3
 else:
     from http.cookiejar import CookieJar
     from urllib.request import HTTPCookieProcessor, build_opener
+    from urllib.error import HTTPError
 
 
 class Connector(object):
@@ -208,7 +211,7 @@ class ConnectorJSONRPC(Connector):
             cookie_jar = CookieJar()
             opener = build_opener(HTTPCookieProcessor(cookie_jar))
         self._opener = opener
-        self._proxy_json, self._proxy_http = self._get_proxies()
+        self._proxy_json, self._proxy_json2, self._proxy_http = self._get_proxies()
 
     def _get_proxies(self):
         """Returns the :class:`ProxyJSON <odoorpc.rpc.jsonrpclib.ProxyJSON>`
@@ -230,17 +233,39 @@ class ConnectorJSONRPC(Connector):
             ssl=self.ssl,
             opener=self._opener,
         )
+        proxy_json2 = None
         # Detect the server version
         if self.version is None:
-            result = proxy_json("/web/webclient/version_info")["result"]
-            if "server_version" in result:
-                self.version = result["server_version"]
-        return proxy_json, proxy_http
+            # Odoo >= 19.0: use HTTP endpoint '/web/version'
+            try:
+                result = json.load(proxy_http("/web/version"))
+                if "version" in result:
+                    self.version = result["version"]
+            # Odoo < 19.0: use JSON endpoint '/web/webclient/version_info'
+            except HTTPError:
+                result = proxy_json("/web/webclient/version_info")["result"]
+                if "server_version" in result:
+                    self.version = result["server_version"]
+        if v(self.version)[0] >= 19:
+            # Proxy to support JSON-2 connection starting from Odoo 19.0
+            proxy_json2 = jsonrpclib.ProxyJSON2(
+                self.host,
+                self.port,
+                self._timeout,
+                ssl=self.ssl,
+                opener=self._opener,
+            )
+        return proxy_json, proxy_json2, proxy_http
 
     @property
     def proxy_json(self):
         """Return the JSON proxy."""
         return self._proxy_json
+
+    @property
+    def proxy_json2(self):
+        """Return the JSON-2 proxy."""
+        return self._proxy_json2
 
     @property
     def proxy_http(self):
@@ -288,7 +313,7 @@ class ConnectorJSONRPCSSL(ConnectorJSONRPC):
         super(ConnectorJSONRPCSSL, self).__init__(
             host, port, timeout, version, opener=opener
         )
-        self._proxy_json, self._proxy_http = self._get_proxies()
+        self._proxy_json, self._proxy_json2, self._proxy_http = self._get_proxies()
 
     @property
     def ssl(self):

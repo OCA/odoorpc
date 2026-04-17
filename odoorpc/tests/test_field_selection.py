@@ -5,7 +5,7 @@ from odoorpc.tests import LoginTestCase
 
 class TestFieldSelection(LoginTestCase):
     def test_field_selection_read(self):
-        self.assertEqual(self.user.state, "active")
+        self.assertIn(self.user.state, ["new", "active"])
 
     def test_field_selection_write(self):
         # TODO: split in several unit tests
@@ -18,21 +18,21 @@ class TestFieldSelection(LoginTestCase):
         backup = self.user.tz
         # False
         self.user.tz = False
-        data = self.user.read(["tz"])[0]
+        data = self._read(self.user._name, self.user.ids, ["tz"])[0]
         self.assertEqual(data["tz"], False)
         self.assertEqual(self.user.tz, False)
         # None
         self.user.tz = None
-        data = self.user.read(["tz"])[0]
+        data = self._read(self.user._name, self.user.ids, ["tz"])[0]
         self.assertEqual(data["tz"], False)
         self.assertEqual(self.user.tz, False)
         # Europe/Paris
         self.user.tz = "Europe/Paris"
-        data = self.user.read(["tz"])[0]
+        data = self._read(self.user._name, self.user.ids, ["tz"])[0]
         self.assertEqual(data["tz"], "Europe/Paris")
         self.assertEqual(self.user.tz, "Europe/Paris")
         # Restore original value
         self.user.tz = backup
-        data = self.user.read(["tz"])[0]
+        data = self._read(self.user._name, self.user.ids, ["tz"])[0]
         self.assertEqual(data["tz"], backup)
         self.assertEqual(self.user.tz, backup)

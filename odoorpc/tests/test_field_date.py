@@ -8,7 +8,11 @@ from odoorpc.tools import v
 
 class TestFieldDate(LoginTestCase):
     def test_field_date_read(self):
-        self.assertIsInstance(self.user.login_date, datetime.date)
+        if v(self.odoo.version)[0] >= 19:
+            rate = self.odoo.env.ref("base.rateUSD")
+            self.assertIsInstance(rate.name, datetime.date)
+        else:
+            self.assertIsInstance(self.user.login_date, datetime.date)
 
     def test_field_date_write(self):
         if v(self.odoo.version)[0] < 18:
@@ -45,16 +49,16 @@ class TestFieldDate(LoginTestCase):
             # NOTE: not testing False and None values
             # 2012-01-01 (string)
             rate.name = "2012-01-01"
-            data = rate.read(["name"])[0]
+            data = self._read(rate._name, rate.ids, ["name"])[0]
             self.assertEqual(data["name"], "2012-01-01")
             self.assertEqual(rate.name, datetime.date(2012, 1, 1))
             # 2012-01-01 (date object)
             rate.name = datetime.date(2012, 1, 1)
-            data = rate.read(["name"])[0]
+            data = self._read(rate._name, rate.ids, ["name"])[0]
             self.assertEqual(data["name"], "2012-01-01")
             self.assertEqual(rate.name, datetime.date(2012, 1, 1))
             # Restore original value
             rate.name = backup
-            data = rate.read(["name"])[0]
+            data = self._read(rate._name, rate.ids, ["name"])[0]
             self.assertEqual(data["name"], backup and backup.strftime("%Y-%m-%d"))
             self.assertEqual(rate.name, backup)

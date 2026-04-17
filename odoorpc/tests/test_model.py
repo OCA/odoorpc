@@ -13,15 +13,14 @@ class TestModel(LoginTestCase):
     def setUp(self):
         LoginTestCase.setUp(self)
         self.partner_obj = self.odoo.env["res.partner"]
-        self.p0_id = self.partner_obj.create({"name": "Parent"})
-        self.p1_id = self.partner_obj.create({"name": "Child 1"})
-        self.p2_id = self.partner_obj.create({"name": "Child 2"})
-        self.group_obj = self.odoo.env["res.groups"]
-        self.u0_id = self.user_obj.create(
-            {"name": "TestOdooRPC", "login": "test_%s" % time.time()}
+        self.p0_id = self._create("res.partner", {"name": "Parent"})
+        self.p1_id = self._create("res.partner", {"name": "Child 1"})
+        self.p2_id = self._create("res.partner", {"name": "Child 2"})
+        self.u0_id = self._create(
+            "res.users", {"name": "TestOdooRPC", "login": "test_%s" % time.time()}
         )
-        self.g1_id = self.group_obj.create({"name": "Group 1"})
-        self.g2_id = self.group_obj.create({"name": "Group 2"})
+        self.g1_id = self._create("res.groups", {"name": "Group 1"})
+        self.g2_id = self._create("res.groups", {"name": "Group 2"})
 
     def test_create_model_class(self):
         partner_obj = self.odoo.env["res.partner"]
@@ -61,29 +60,32 @@ class TestModel(LoginTestCase):
         self.assertRaises(TypeError, self.partner_obj.browse)
 
     def test_model_rpc_method(self):
-        user_obj = self.odoo.env["res.users"]
-        user_obj.read([self.odoo.env.uid])
-        self.odoo.env["res.users"].read([self.odoo.env.uid])
+        self._read("res.users", [self.odoo.env.uid])
 
     def test_model_rpc_method_error_no_arg(self):
         # Handle exception (execute a 'name_get' with without args)
         user_obj = self.odoo.env["res.users"]
-        self.assertRaises(error.RPCError, user_obj.read)  # No arg
+        if v(self.odoo.version)[0] < 19:
+            self.assertRaises(error.RPCError, user_obj.name_get)  # No arg
+        else:
+            self.assertRaises(error.RPCError, user_obj.name_create)  # No arg
 
     def test_model_rpc_method_error_wrong_args(self):
         # Handle exception (execute a 'search' with wrong args)
-        user_obj = self.odoo.env["res.users"]
-        self.assertRaises(error.RPCError, user_obj.search, "False")  # Wrong arg
+        self.assertRaises(
+            error.RPCError, self._search, "res.users", "False"
+        )  # Wrong arg
 
     def test_model_with_context(self):
-        Product = self.odoo.env["product.product"]
-        product_id = Product.create({"name": "Product invisible", "active": False})
-        product_ids = Product.search([])
+        product_id = self._create(
+            "product.product", {"name": "Product invisible", "active": False}
+        )
+        product_ids = self._search("product.product", [])
         self.assertNotIn(product_id, product_ids)
-        product_ids = Product.with_context(active_test=False).search([])
+        product_ids = self._search("product.product", [], active_test=False)
         self.assertIn(product_id, product_ids)
         # Check that the previous environment has not been impacted
-        product_ids = Product.search([])
+        product_ids = self._search("product.product", [])
         self.assertNotIn(product_id, product_ids)
 
     def test_record_getitem_field(self):
@@ -100,7 +102,7 @@ class TestModel(LoginTestCase):
         self.assertEqual([record.id for record in partner[:]], [1])
 
     def test_record_iter(self):
-        ids = self.partner_obj.search([])[:5]
+        ids = self._search("res.partner", [])[:5]
         partners = self.partner_obj.browse(ids)
         self.assertEqual({partner.id for partner in partners}, set(ids))
         partner = partners[0]
@@ -116,7 +118,7 @@ class TestModel(LoginTestCase):
         self.assertEqual(user_fr.env.lang, "fr_FR")
         # Read data with two languages
         Country = self.odoo.env["res.country"]
-        de_id = Country.search([("code", "=", "DE")])[0]
+        de_id = self._search("res.country", [("code", "=", "DE")])[0]
         de = Country.browse(de_id)
         self.assertEqual(de.name, "Germany")
         self.assertEqual(de.with_context(lang="fr_FR").name, "Allemagne")
@@ -124,13 +126,13 @@ class TestModel(LoginTestCase):
         Product = self.odoo.env["product.product"]
         self.assertEqual(Product.env.lang, "en_US")
         name_en = "Product en_US"
-        product_id = Product.create({"name": name_en})
+        product_id = self._create("product.product", {"name": name_en})
         product_en = Product.browse(product_id)
         self.assertEqual(product_en.name, name_en)
         product_fr = product_en.with_context(lang="fr_FR")
         self.assertEqual(product_fr.env.lang, "fr_FR")
         name_fr = "Produit fr_FR"
-        product_fr.write({"name": name_fr})
+        self._write("product.product", product_fr.ids, {"name": name_fr}, lang="fr_FR")
         product_fr = product_fr.with_context()  # Refresh the recordset
         self.assertEqual(product_fr.name, name_fr)
         self.assertEqual(Product.env.lang, "en_US")
@@ -142,7 +144,7 @@ class TestModel(LoginTestCase):
         self.assertEqual(product_fr.name, new_name_fr)
 
     def test_record_display_name(self):
-        p_id = self.partner_obj.search([])[:1][0]
+        p_id = self._search("res.partner", [])[:1][0]
         partner = self.partner_obj.browse(p_id)
         try:
             partner.display_name

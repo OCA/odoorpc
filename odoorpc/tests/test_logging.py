@@ -2,7 +2,6 @@
 
 import base64
 import logging
-import os
 
 from odoorpc.tests import LoginTestCase
 from odoorpc.rpc.jsonrpclib import Secret, Bloat
@@ -12,8 +11,8 @@ class TestLogging(LoginTestCase):
     @classmethod
     def setUpClass(cls):
         LoginTestCase.setUpClass()
-        dummy_file = os.urandom(1024)
-        b64_data = str(base64.b64encode(dummy_file))
+        dummy_file = b"Test"
+        b64_data = base64.b64encode(dummy_file).decode()
         cls.attachment_values = {"name": "TEST", "datas": Bloat(b64_data)}
 
     def test_hidden_parameters_in_logs(self):
@@ -22,14 +21,16 @@ class TestLogging(LoginTestCase):
         logger = logging.getLogger("odoorpc")
         logger.setLevel(logging.DEBUG)
         with self.assertLogs("odoorpc", level="DEBUG") as logs:
-            self.odoo.env["ir.attachment"].create(self.attachment_values)
+            self._create("ir.attachment", self.attachment_values)
             # Password and b64 value should be hidden in logs
-            hidden_password = (
-                f"'{self.odoo.env.db}', {self.odoo.env.uid}, '{Secret.MASK}', "
-                "'ir.attachment', 'create'"
-            )
-            self.assertTrue(any(hidden_password in log for log in logs.output))
-            self.assertFalse(any(self.odoo._password in log for log in logs.output))
+            if not self.odoo.json2_ready:
+                # NOTE: no password to hide with JSON-2 protocol (part of HTTP headers)
+                hidden_password = (
+                    f"'{self.odoo.env.db}', {self.odoo.env.uid}, '{Secret.MASK}', "
+                    "'ir.attachment', 'create'"
+                )
+                self.assertTrue(any(hidden_password in log for log in logs.output))
+                self.assertFalse(any(self.odoo._password in log for log in logs.output))
             hidden_bloat = f"'datas': '{Bloat.MASK}'"
             self.assertTrue(any(hidden_bloat in log for log in logs.output))
             self.assertFalse(

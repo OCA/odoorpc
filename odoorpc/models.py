@@ -9,7 +9,7 @@ __all__ = ["Model"]
 
 import sys
 
-from odoorpc import error
+from odoorpc import error, tools
 
 # Python 2
 if sys.version_info[0] < 3:
@@ -56,8 +56,7 @@ class MetaModel(type):
             """Return the result of the RPC request."""
             if cls._odoo.config["auto_context"] and "context" not in kwargs:
                 kwargs["context"] = cls.env.context
-            result = cls._odoo.execute_kw(cls._name, method, args, kwargs)
-            return result
+            return cls._odoo.execute_kw(cls._name, method, args, kwargs)
 
         return rpc_method
 
@@ -344,9 +343,17 @@ class Model(BaseModel):
                 basic_fields.append(field_name)
         # Fetch values from the server
         if self.ids:
-            rows = self.__class__.read(
-                self.ids, basic_fields, context=context, load="_classic_write"
-            )
+            if self._odoo.json2_ready:
+                rows = self.__class__.read(
+                    ids=self.ids,
+                    fields=basic_fields,
+                    context=context,
+                    load="_classic_write",
+                )
+            else:
+                rows = self.__class__.read(
+                    self.ids, basic_fields, context=context, load="_classic_write"
+                )
             ids_fetched = set()
             for row in rows:
                 ids_fetched.add(row["id"])
@@ -363,9 +370,14 @@ class Model(BaseModel):
                 )
         # No ID: fields filled with default values
         else:
-            default_get = self.__class__.default_get(
-                list(self._columns), context=context
-            )
+            if tools.v(self._odoo.version)[0] >= 19:
+                default_get = self.__class__.default_get(
+                    fields=list(self._columns), context=context
+                )
+            else:
+                default_get = self.__class__.default_get(
+                    fields_list=list(self._columns), context=context
+                )
             for field_name in self._columns:
                 self._values[field_name][None] = default_get.get(field_name, False)
 
@@ -388,7 +400,10 @@ class Model(BaseModel):
 
         def rpc_method(*args, **kwargs):
             """Return the result of the RPC request."""
-            args = tuple([self.ids]) + args
+            if self._odoo.json2_ready:
+                kwargs["ids"] = self.ids
+            else:
+                args = tuple([self.ids]) + args
             if self._odoo.config["auto_context"] and "context" not in kwargs:
                 kwargs["context"] = self.env.context
             result = self._odoo.execute_kw(self._name, method, args, kwargs)

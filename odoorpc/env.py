@@ -143,7 +143,10 @@ class Environment(object):
                     # values can not be stored "as is" (e.g. magic tuples of
                     # 2many fields need to be converted)
                     record.__class__.__dict__[field].store(record, value)
-            record.write(values)
+            if self._odoo.json2_ready:
+                record.write(vals=values)
+            else:
+                record.write(values)
             self.dirty.remove(record)
 
     def invalidate(self):
@@ -179,10 +182,22 @@ class Environment(object):
             model, id_ = self._odoo.execute(
                 "ir.model.data", "xmlid_to_res_model_res_id", xml_id, True
             )
-        module, name = xml_id.split(".", 1)
-        model, id_ = self._odoo.execute(
-            "ir.model.data", "check_object_reference", module, name, True
-        )
+        else:
+            module, name = xml_id.split(".", 1)
+            if self._odoo.json2_ready:
+                model, id_ = self._odoo.execute_kw(
+                    "ir.model.data",
+                    "check_object_reference",
+                    kwargs={
+                        "module": module,
+                        "xml_id": name,
+                        "raise_on_access_error": True,
+                    },
+                )
+            else:
+                model, id_ = self._odoo.execute(
+                    "ir.model.data", "check_object_reference", module, name, True
+                )
         return self[model].browse(id_)
 
     @property
@@ -296,7 +311,10 @@ class Environment(object):
 
         :return: `True` or `False`
         """
-        model_exists = self._odoo.execute("ir.model", "search", [("model", "=", model)])
+        kwargs = {"domain": [("model", "=", model)]}
+        if v(self._odoo.version)[0] < 16:
+            kwargs = {"args": [("model", "=", model)]}
+        model_exists = self._odoo.execute_kw("ir.model", "search", kwargs=kwargs)
         return bool(model_exists)
 
     def _create_model_class(self, model):
