@@ -12,6 +12,10 @@ class TestExecute(LoginTestCase):
         if self.odoo.json2_ready:
             self.skipTest("'execute()' is not supported with JSON-2 connection.")
 
+    def _skip_if_not_json2_ready(self):
+        if not self.odoo.json2_ready:
+            self.skipTest("Skip JSON-2 dedicated test.")
+
     # ------
     # Search
     # ------
@@ -105,10 +109,12 @@ class TestExecute(LoginTestCase):
 
     def test_execute_json2_error_raised(self):
         # 'execute()' method not supported anymore with JSON-2 connection
+        self._skip_if_not_json2_ready()
         self.assertRaises(
             DeprecationWarning,
             self.odoo.execute,
-            "res.users",
-            "create",
-            {},
+            "res.partner",
+            "read",
+            [1],
+            ["name"],
         )

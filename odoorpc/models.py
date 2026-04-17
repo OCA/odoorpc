@@ -9,7 +9,7 @@ __all__ = ["Model"]
 
 import sys
 
-from odoorpc import error, tools
+from odoorpc import error
 
 # Python 2
 if sys.version_info[0] < 3:
@@ -370,13 +370,13 @@ class Model(BaseModel):
                 )
         # No ID: fields filled with default values
         else:
-            if tools.v(self._odoo.version)[0] >= 19:
+            if self._odoo.json2_ready:
                 default_get = self.__class__.default_get(
                     fields=list(self._columns), context=context
                 )
             else:
                 default_get = self.__class__.default_get(
-                    fields_list=list(self._columns), context=context
+                    list(self._columns), context=context
                 )
             for field_name in self._columns:
                 self._values[field_name][None] = default_get.get(field_name, False)

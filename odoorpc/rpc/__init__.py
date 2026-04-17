@@ -275,12 +275,14 @@ class ConnectorJSONRPC(Connector):
     @property
     def timeout(self):
         """Return the timeout."""
-        return self._proxy_json._timeout
+        return self._proxy_json._timeout or self._proxy_json2._timeout
 
     @timeout.setter
     def timeout(self, timeout):
         """Set the timeout."""
         self._proxy_json._timeout = timeout
+        if self._proxy_json2:
+            self._proxy_json2._timeout = timeout
         self._proxy_http._timeout = timeout
 
 

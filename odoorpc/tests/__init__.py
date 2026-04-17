@@ -153,4 +153,4 @@ class LoginTestCase(BaseTestCase):
         model = cls.odoo.env[model].with_context(**context)
         if cls.odoo.json2_ready:
             return model.write(ids=ids, vals=vals)
-        return model.read(ids, vals)
+        return model.write(ids, vals)
