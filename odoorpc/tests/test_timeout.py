@@ -19,16 +19,14 @@ class TestTimeout(LoginTestCase):
         # Set the timeout
         self.odoo.config["timeout"] = 120
         # Execute a time consuming query: no exception
-        self.odoo.env["ir.attachment"].create(self.attachment_values)
+        self._create("ir.attachment", self.attachment_values)
 
     def test_reduced_timeout(self):
-        # partner_model = self.odoo.env["res.partner"]
-        attachment_model = self.odoo.env["ir.attachment"]
         # Set the timeout
         self.odoo.config["timeout"] = 0.1
         # Execute a time consuming query: handle exception
         self.assertRaises(
-            socket.timeout, attachment_model.create, self.attachment_values
+            socket.timeout, self._create, "ir.attachment", self.attachment_values
         )
 
     def tearDown(self):

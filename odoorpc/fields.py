@@ -409,8 +409,13 @@ class Many2many(BaseField):
             ids = instance._values[self.name][instance.id][:]
         # None value => get the value on the fly
         if ids is None:
-            args = [[instance.id], [self.name]]
+            args = []
             kwargs = {"context": self.context, "load": "_classic_write"}
+            if instance._odoo.json2_ready:
+                kwargs["ids"] = [instance.id]
+                kwargs["fields"] = [self.name]
+            else:
+                args = [[instance.id], [self.name]]
             orig_ids = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[
                 0
             ][self.name]
@@ -477,8 +482,13 @@ class Many2one(BaseField):
             id_ = instance._values_to_write[self.name][instance.id]
         # None value => get the value on the fly
         if id_ is None:
-            args = [[instance.id], [self.name]]
+            args = []
             kwargs = {"context": self.context, "load": "_classic_write"}
+            if instance._odoo.json2_ready:
+                kwargs["ids"] = [instance.id]
+                kwargs["fields"] = [self.name]
+            else:
+                args = [[instance.id], [self.name]]
             id_ = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[0][
                 self.name
             ]
@@ -544,8 +554,13 @@ class One2many(BaseField):
             ids = instance._values[self.name][instance.id][:]
         # None value => get the value on the fly
         if ids is None:
-            args = [[instance.id], [self.name]]
+            args = []
             kwargs = {"context": self.context, "load": "_classic_write"}
+            if instance._odoo.json2_ready:
+                kwargs["ids"] = [instance.id]
+                kwargs["fields"] = [self.name]
+            else:
+                args = [[instance.id], [self.name]]
             orig_ids = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[
                 0
             ][self.name]
@@ -611,8 +626,13 @@ class Reference(BaseField):
             value = instance._values_to_write[self.name][instance.id]
         # None value => get the value on the fly
         if value is None:
-            args = [[instance.id], [self.name]]
+            args = []
             kwargs = {"context": self.context, "load": "_classic_write"}
+            if instance._odoo.json2_ready:
+                kwargs["ids"] = [instance.id]
+                kwargs["fields"] = [self.name]
+            else:
+                args = [[instance.id], [self.name]]
             value = instance._odoo.execute_kw(instance._name, "read", args, kwargs)[0][
                 self.name
             ]

@@ -10,6 +10,8 @@ services:
       - "127.0.0.1:8072:8072"
     volumes:
       - "odoo-data-19:/var/lib/odoo"
+      - "./extra-addons:/mnt/extra-addons"
+    command: odoo -i odooorpc_json2_api_key
 
   db:
     image: "postgres:16"

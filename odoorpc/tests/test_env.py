@@ -29,7 +29,7 @@ class TestEnvironment(LoginTestCase):
         self.odoo.config["auto_commit"] = False
 
         def test_record_garbarge_collected():
-            user_ids = self.odoo.env["res.users"].search([("id", "!=", 1)])
+            user_ids = self._search("res.users", [("id", "!=", 1)])
             user = self.user_obj.browse(user_ids[0])
             self.assertNotIn(user, self.odoo.env.dirty)
             self.assertNotIn(user, user.env.dirty)
@@ -56,15 +56,15 @@ class TestEnvironment(LoginTestCase):
         # We test with 'auto_commit' deactivated since the commit is implicit
         # by default and sufficiently tested in the 'test_field_*' modules.
         self.odoo.config["auto_commit"] = False
-        user_id = self.user_obj.create(
-            {"name": "TestCommit", "login": "test_commit_%s" % time.time()}
+        user_id = self._create(
+            "res.users", {"name": "TestCommit", "login": "test_commit_%s" % time.time()}
         )
         user = self.user_obj.browse(user_id)
         self.assertNotIn(user, self.odoo.env.dirty)
         user.name = "Bob"
         self.assertIn(user, self.odoo.env.dirty)
         self.odoo.env.commit()
-        data = user.read(["name"])[0]
+        data = self._read(user._name, user.ids, ["name"])[0]
         self.assertEqual(data["name"], "Bob")
         self.assertEqual(user.name, "Bob")
         self.assertNotIn(user, self.odoo.env.dirty)
