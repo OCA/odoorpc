@@ -61,6 +61,8 @@ class MetaModel(type):
         return rpc_method
 
     def __repr__(cls):
+        if not hasattr(cls, "_name"):
+            return super().__repr__()
         return "Model(%r)" % (cls._name)
 
     @property

@@ -21,8 +21,8 @@ author = "Sebastien Alix"
 author_email = "seb@usr-src.org"
 url = "https://github.com/OCA/odoorpc"
 license = "LGPL v3"
-doc_build_dir = "doc/build"
-doc_source_dir = "doc/source"
+doc_build_dir = "docs/build"
+doc_source_dir = "docs/source"
 
 cmdclass = {}
 command_options = {}

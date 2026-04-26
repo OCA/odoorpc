@@ -2,6 +2,6 @@ include AUTHORS
 include CHANGELOG
 include LICENSE
 include README.rst
-include doc/Makefile doc/make.bat
-recursive-include doc/source *
+include docs/Makefile docs/make.bat
+recursive-include docs/source *
 recursive-include sphinx_ext *

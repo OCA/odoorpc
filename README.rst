@@ -98,7 +98,7 @@ Then, you can use the ``build_doc`` option of the ``setup.py``::
 
     python setup.py build_doc
 
-The generated documentation will be in the ``./doc/build/html`` directory.
+The generated documentation will be in the ``./docs/build/html`` directory.
 
 Changes in this version
 =======================
