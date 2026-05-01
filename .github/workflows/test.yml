@@ -39,6 +39,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.PYTHON_VERSION }}
+      - name: Install requirements
+        run: pip install -r requirements.txt
       - name: Start Odoo
         run: |
           docker compose -f ".ci/odoo-${{ matrix.ORPC_TEST_VERSION }}.yml" up -d && sleep 5

@@ -37,6 +37,11 @@ class BaseTestCase(unittest.TestCase):
             port=cls.env["port"],
             version=cls.env["version"],
         )
+        if v(cls.odoo.version)[0] >= 19:
+            # NOTE: cannot use for test purpose default 'admin' password (lowercase)
+            # with Odoo 19.0+ and /web/database/ HTTP controllers as they accept
+            # by default the default password.
+            cls.env["super_pwd"] = "Admin"
         # Create the database
         default_timeout = cls.odoo.config["timeout"]
         cls.odoo.config["timeout"] = 600

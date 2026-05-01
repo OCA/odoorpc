@@ -12,6 +12,7 @@ import sys
 if sys.version_info[0] < 3:
     from cookielib import CookieJar
     from urllib2 import HTTPCookieProcessor, Request, build_opener
+    from urllib import urlencode
 
     def encode_data(data):
         return data
@@ -35,6 +36,7 @@ else:
     import io
     from http.cookiejar import CookieJar
     from urllib.request import HTTPCookieProcessor, Request, build_opener
+    from urllib.parse import urlencode
 
     def encode_data(data):
         try:
@@ -196,7 +198,12 @@ class ProxyHTTP(Proxy):
         )
         kwargs = {"url": full_url}
         if data:
-            kwargs["data"] = encode_data(data)
+            if isinstance(data, str):
+                kwargs["data"] = data.encode()
+            elif isinstance(data, bytes):
+                kwargs["data"] = data
+            else:
+                kwargs["data"] = encode_data(urlencode(data))
         request = Request(**kwargs)
         if headers:
             for hkey in headers:
