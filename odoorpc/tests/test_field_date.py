@@ -8,7 +8,11 @@ from odoorpc.tools import v
 
 class TestFieldDate(LoginTestCase):
     def test_field_date_read(self):
-        self.assertIsInstance(self.user.login_date, datetime.date)
+        if v(self.odoo.version)[0] >= 19:
+            rate = self.odoo.env.ref("base.rateUSD")
+            self.assertIsInstance(rate.name, datetime.date)
+        else:
+            self.assertIsInstance(self.user.login_date, datetime.date)
 
     def test_field_date_write(self):
         if v(self.odoo.version)[0] < 18:

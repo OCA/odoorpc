@@ -36,7 +36,7 @@ class TestFieldReference(LoginTestCase):
             self.assertIsInstance(subscription.doc_source, Model)
             self.assertEqual(subscription.doc_source._name, "res.partner")
             self.assertEqual(subscription.doc_source.id, 1)
-        # 11.0
+        # >= 11.0
         else:
             Menu = self.odoo.env["ir.ui.menu"]
             fields_list = list(Menu.fields_get([]))

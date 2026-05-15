@@ -9,7 +9,8 @@ class TestFieldInteger(LoginTestCase):
 
     def test_field_integer_write(self):
         cron_obj = self.odoo.env["ir.cron"]
-        cron = cron_obj.browse(cron_obj.with_context(active_test=False).search([])[0])
+        cron_ids = cron_obj.with_context(active_test=False).search([])[0]
+        cron = cron_obj.browse(cron_ids)
         backup = cron.priority
         # False
         cron.priority = False

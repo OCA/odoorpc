@@ -77,7 +77,10 @@ class TestDB(BaseTestCase):
 
     def test_db_drop_wrong_database(self):
         res = self.odoo.db.drop(self.env["super_pwd"], "wrong_database")
-        self.assertFalse(res)
+        if v(self.odoo.version)[0] >= 19:
+            self.assertTrue(res)
+        else:
+            self.assertFalse(res)
 
     def test_db_drop_wrong_password(self):
         date = datetime.strftime(datetime.today(), "%Y%m%d_%Hh%Mm%S")

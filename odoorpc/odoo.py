@@ -4,10 +4,13 @@
 """This module contains the ``ODOO`` class which is the entry point to manage
 an `Odoo` server.
 """
+
 from odoorpc import error, rpc, session, tools
 from odoorpc.db import DB
+from odoorpc.doc import ModelDoc
 from odoorpc.env import Environment
 from odoorpc.report import Report
+from odoorpc.rpc import HTTPError
 from odoorpc.rpc.jsonrpclib import Secret
 
 
@@ -89,8 +92,11 @@ class ODOO(object):
         self._env = None
         self._login = None
         self._password = None
+        self._api_key = None
+        self._headers = {}
         self._db = DB(self)
         self._report = Report(self)
+        self._doc = None
         # Instanciate the server connector
         try:
             self._connector = rpc.PROTOCOLS[protocol](
@@ -198,8 +204,24 @@ class ODOO(object):
         self._check_logged_user()
         return self._env
 
-    def json(self, url, params):
+    @property
+    def json2_ready(self):
+        """Check if the current RPC connection is JSON-2 ready.
+
+        JSON-2 (`/json/2` endpoint) has been introduced with Odoo 19.0 and aims
+        to replace the deprecated JSON connection (`/jsonrpc` endpoint). JSON-2
+        is enabled in OdooRPC when the login was done with an API key.
+
+        It helps to adapt RPC queries, especially if keyword parameters
+        have to be used instead of positional ones).
+
+        :return: `True` if the connection is JSON-2 ready.
+        """
+        return bool(self._connector.proxy_json2 and self._api_key)
+
+    def json(self, url, params=None):
         """Low level method to execute JSON queries.
+
         It basically performs a request and raises an
         :class:`odoorpc.error.RPCError` exception if the response contains
         an error.
@@ -269,6 +291,12 @@ class ODOO(object):
         :raise: `urllib.error.HTTPError` (if `params` is not a dictionary)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if params is None:
+            params = {}
+        # Odoo >= 19.0 with API key
+        if self.json2_ready:
+            return self._connector.proxy_json2(url, params, headers=self._headers)
+        # Odoo <= 22
         data = self._connector.proxy_json(url, params)
         if data.get("error"):
             raise error.RPCError(data["error"]["data"]["message"], data["error"])
@@ -314,17 +342,38 @@ class ODOO(object):
     # able to parse decorated methods.
     def _check_logged_user(self):
         """Check if a user is logged. Otherwise, an error is raised."""
-        if not self._env or not self._password or not self._login:
+        if not self._env:
             raise error.InternalError("Login required")
 
-    def login(self, db, login="admin", password="admin"):
-        """Log in as the given `user` with the password `passwd` on the
-        database `db`.
+    def login(self, db=None, login="admin", password="admin", api_key=None):
+        """Log in to the Odoo instance.
+
+        Two authentication mechanisms are available based on the Odoo server version.
+
+        Before Odoo 22.0:
+            Authentication can be done with usual `login` and `password` keywords
+            on a given `db`.
+
+        Starting from Odoo 19.0:
+            Use of `login` and `password` are deprecated, and the `api_key` keyword
+            should be used instead. As soon as `api_key` is set, `login` and `password`
+            will be ignored. `db` will be automatically detected based on
+            `host` provided to :class:`odoorpc.ODOO` if possible, otherwise you
+            will have to provide it.
+
+        More information here: https://www.odoo.com/documentation/19.0/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc
 
         .. doctest::
             :options: +SKIP
 
-            >>> odoo.login('db_name', 'admin', 'admin')
+            >>> odoo.login('db_name', login='admin', password='admin') # Odoo < 22.0
+            >>> odoo.env.user.name
+            'Administrator'
+
+        .. doctest::
+            :options: +SKIP
+
+            >>> odoo.login('db_name', api_key="01abcdef...") # Odoo >= 19.0
             >>> odoo.env.user.name
             'Administrator'
 
@@ -339,25 +388,48 @@ class ODOO(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         password = Secret(password)
-        # Get the user's ID and generate the corresponding user record
-        if tools.v(self.version)[0] >= 10:
-            data = self.json(
-                "/jsonrpc",
-                params={
-                    "service": "common",
-                    "method": "login",
-                    "args": [db, login, password],
-                },
-            )
-            uid = data["result"]
+        api_key = Secret(api_key or "")
+        uid = context = None
+
+        # TODO: once login & password authentication is removed from Odoo, raise
+        # an exception here to inform users
+        # if tools.v(self.version)[0] >= 22:
+        #     raise ValueError("'api_key' parameter is mandatory with Odoo >= 22.0")
+
+        # Starting from Odoo 19.0, if an 'api_key' is provided the auth is done
+        # through HTTP headers
+        if api_key and tools.v(self.version)[0] >= 19:
+            self._headers["Content-Type"] = "application/json"
+            self._headers["Authorization"] = f"bearer {api_key}"
+            self._api_key = api_key
+            if not db:
+                db = self._host.split(".")[0]
+            if db:
+                self._headers["X-Odoo-Database"] = db
+            context = self.json("/json/2/res.users/context_get")
+            uid = context["uid"]
         else:
-            # Needed to get 'report' service working on Odoo < 10.0
-            data = self.json(
-                "/web/session/authenticate",
-                {"db": db, "login": login, "password": password},
-            )
-            uid = data["result"]["uid"]
-        if uid:
+            if not db:
+                raise ValueError("'db' parameter has to be set.")
+            # Get the user's ID and generate the corresponding user record
+            if tools.v(self.version)[0] >= 10:
+                data = self.json(
+                    "/jsonrpc",
+                    params={
+                        "service": "common",
+                        "method": "login",
+                        "args": [db, login, password],
+                    },
+                )
+                uid = data["result"]
+            else:
+                # Needed to get 'report' service working on Odoo < 10.0
+                data = self.json(
+                    "/web/session/authenticate",
+                    {"db": db, "login": login, "password": password},
+                )
+                uid = data["result"]["uid"]
+        if uid and not context:
             if tools.v(self.version)[0] >= 10:
                 args_to_send = [db, uid, password, "res.users", "context_get"]
                 context = self.json(
@@ -371,11 +443,13 @@ class ODOO(object):
                 context["uid"] = uid
             else:
                 context = data["result"]["user_context"]
-            self._env = Environment(self, db, uid, context=context)
-            self._login = login
-            self._password = password
-        else:
-            raise error.RPCError("Wrong login ID or password")
+        if not uid:
+            raise error.RPCError("Wrong login ID, password or API key.")
+        self._env = Environment(self, db, uid, context=context)
+        self._login = login
+        self._password = password
+        if self.json2_ready:
+            self._doc = ModelDoc(self)
 
     def logout(self):
         """Log out the user.
@@ -402,6 +476,8 @@ class ODOO(object):
         self._env = None
         self._login = None
         self._password = None
+        self._api_key = None
+        self._headers = {}
         return True
 
     def close(self):
@@ -427,6 +503,7 @@ class ODOO(object):
 
     def execute(self, model, method, *args):
         """Execute the `method` of `model`.
+
         `*args` parameters varies according to the `method` used.
 
         .. doctest::
@@ -460,6 +537,20 @@ class ODOO(object):
         """
         self._check_logged_user()
         # Execute the query
+        if self.json2_ready:
+            kwargs = {}
+            # Transform 'args' into 'kwargs' to still be compatible with JSON-2
+            if args:
+                kwargs.update(
+                    self._doc.transform_method_args_to_kwargs(model, method, args)
+                )
+            try:
+                return self.json(
+                    "/json/2/{model}/{method}".format(model=model, method=method),
+                    kwargs,
+                )
+            except HTTPError as exc:
+                raise error.RPCError(str(exc))
         args_to_send = [
             self.env.db,
             self.env.uid,
@@ -476,6 +567,7 @@ class ODOO(object):
 
     def execute_kw(self, model, method, args=None, kwargs=None):
         """Execute the `method` of `model`.
+
         `args` is a list of parameters (in the right order),
         and `kwargs` a dictionary (named parameters). Both varies according
         to the `method` used.
@@ -510,9 +602,22 @@ class ODOO(object):
         :raise: `urllib.error.URLError` (connection error)
         """
         self._check_logged_user()
-        # Execute the query
         args = args or []
         kwargs = kwargs or {}
+        # Execute the query
+        if self.json2_ready:
+            # Transform 'args' into 'kwargs' to still be compatible with JSON-2
+            if args:
+                kwargs.update(
+                    self._doc.transform_method_args_to_kwargs(model, method, args)
+                )
+            try:
+                return self.json(
+                    "/json/2/{model}/{method}".format(model=model, method=method),
+                    kwargs,
+                )
+            except HTTPError as exc:
+                raise error.RPCError(str(exc))
         args_to_send = [
             self.env.db,
             self.env.uid,

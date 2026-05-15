@@ -179,10 +179,11 @@ class Environment(object):
             model, id_ = self._odoo.execute(
                 "ir.model.data", "xmlid_to_res_model_res_id", xml_id, True
             )
-        module, name = xml_id.split(".", 1)
-        model, id_ = self._odoo.execute(
-            "ir.model.data", "check_object_reference", module, name, True
-        )
+        else:
+            module, name = xml_id.split(".", 1)
+            model, id_ = self._odoo.execute(
+                "ir.model.data", "check_object_reference", module, name, True
+            )
         return self[model].browse(id_)
 
     @property
@@ -323,4 +324,6 @@ class Environment(object):
                 Field = fields.generate_field(field_name, field_data)
                 attrs["_columns"][field_name] = Field
                 attrs[field_name] = Field
+        if self._odoo.json2_ready:
+            self._odoo._doc.fetch(model)
         return type(cls_name, (Model,), attrs)

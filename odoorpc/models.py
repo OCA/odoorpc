@@ -56,12 +56,13 @@ class MetaModel(type):
             """Return the result of the RPC request."""
             if cls._odoo.config["auto_context"] and "context" not in kwargs:
                 kwargs["context"] = cls.env.context
-            result = cls._odoo.execute_kw(cls._name, method, args, kwargs)
-            return result
+            return cls._odoo.execute_kw(cls._name, method, args, kwargs)
 
         return rpc_method
 
     def __repr__(cls):
+        if not hasattr(cls, "_name"):
+            return super().__repr__()
         return "Model(%r)" % (cls._name)
 
     @property

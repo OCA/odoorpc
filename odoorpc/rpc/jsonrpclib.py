@@ -12,6 +12,7 @@ import sys
 if sys.version_info[0] < 3:
     from cookielib import CookieJar
     from urllib2 import HTTPCookieProcessor, Request, build_opener
+    from urllib import urlencode
 
     def encode_data(data):
         return data
@@ -35,6 +36,7 @@ else:
     import io
     from http.cookiejar import CookieJar
     from urllib.request import HTTPCookieProcessor, Request, build_opener
+    from urllib.parse import urlencode
 
     def encode_data(data):
         try:
@@ -156,6 +158,31 @@ class ProxyJSON(Proxy):
         return result
 
 
+class ProxyJSON2(Proxy):
+    """The :class:`ProxyJSON2` class provides a dynamic access
+    to all JSON-2 methods.
+    """
+
+    def __call__(self, url, data=None, headers=None):
+        if data is None:
+            data = {}
+        if url.startswith("/"):
+            url = url[1:]
+        full_url = self._get_full_url(url)
+        log_data = get_json_log_data(data)
+        logger.debug(LOG_JSON_SEND_MSG, {"url": full_url, "data": log_data})
+        data_json = json.dumps(data)
+        request = Request(url=full_url, data=encode_data(data_json), headers=headers)
+        request.add_header("Content-Type", "application/json")
+        response = self._opener.open(request, timeout=self._timeout)
+        result = json.load(decode_data(response))
+        logger.debug(
+            LOG_JSON_RECV_MSG,
+            {"url": full_url, "data": log_data, "result": result},
+        )
+        return result
+
+
 class ProxyHTTP(Proxy):
     """The :class:`ProxyHTTP` class provides a dynamic access
     to all HTTP methods.
@@ -171,7 +198,12 @@ class ProxyHTTP(Proxy):
         )
         kwargs = {"url": full_url}
         if data:
-            kwargs["data"] = encode_data(data)
+            if isinstance(data, str):
+                kwargs["data"] = data.encode()
+            elif isinstance(data, bytes):
+                kwargs["data"] = data
+            else:
+                kwargs["data"] = encode_data(urlencode(data))
         request = Request(**kwargs)
         if headers:
             for hkey in headers:

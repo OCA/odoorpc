@@ -22,7 +22,6 @@ class TestTimeout(LoginTestCase):
         self.odoo.env["ir.attachment"].create(self.attachment_values)
 
     def test_reduced_timeout(self):
-        # partner_model = self.odoo.env["res.partner"]
         attachment_model = self.odoo.env["ir.attachment"]
         # Set the timeout
         self.odoo.config["timeout"] = 0.1

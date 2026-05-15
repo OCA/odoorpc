@@ -44,8 +44,19 @@ if the code is not in a good health.
 Run tests
 ---------
 
-Unit tests depend on the standard module `unittest` (Python 2.7 and 3.x) and
-on a running Odoo instance.
+Unit tests depend on the standard module `unittest` and on a running Odoo instance.
+
+It is recommended to launch the Odoo instance with the relevant Docker compose
+file located in `.ci/` directory::
+
+    $ docker compose -f ".ci/odoo-19.yml" up -d
+
+Reason: as the new JSON-2 API (available from Odoo 19.0) relies on API keys for
+authentication, tests suite need the custom module `.ci/extra-addons/odoorpc_json2_api_key`
+which adds a public HTTP controller to generate such API key for OdooRPC to then
+run the tests against Odoo. These Docker compose files are already pre-configured
+with this extra required module.
+
 To run all unit tests from the project directory, run the following command::
 
     $ python -m unittest discover -v
@@ -63,17 +74,16 @@ available::
     $ export ORPC_TEST_DB=odoorpc_test
     $ export ORPC_TEST_USER=admin
     $ export ORPC_TEST_PWD=admin
-    $ export ORPC_TEST_VERSION=12.0
+    $ export ORPC_TEST_VERSION=19.0
     $ export ORPC_TEST_SUPER_PWD=admin
     $ python -m unittest discover -v
 
 The database ``odoorpc_test`` will be created if it does not exist.
 
-If you have `Docker` installed, an handy script will help you to run the tests
-on a dockerized Odoo instance::
+An handy script will help you to run the tests (require `docker compose`)::
 
     $ ./run_tests_docker.sh
 
 The same environment variables described above apply::
 
-    $ ORPC_TEST_VERSION=11.0 ./run_tests_docker.sh
+    $ ORPC_TEST_VERSION=19.0 ./run_tests_docker.sh

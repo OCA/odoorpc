@@ -7,6 +7,7 @@ import io
 import sys
 
 from odoorpc import error
+from odoorpc.rpc import HTTPError
 from odoorpc.tools import v
 from odoorpc.rpc.jsonrpclib import Secret, Bloat
 
@@ -16,12 +17,29 @@ if sys.version_info[0] < 3:
     def encode2bytes(data):
         return data
 
+    import requests
+
 
 # Python >= 3
 else:
+    import xml.etree.ElementTree as ET
+
+    import requests
 
     def encode2bytes(data):
         return bytes(data, "ascii")
+
+
+def raise_for_status(response):
+    if response.status_code < 200 or response.status_code > 299:
+        raise HTTPError("%s - %s " % (response.status_code, response.reason))
+    # In case of error, Odoo returns it as an HTML page with HTTP 200
+    if "text/html" in response.headers["Content-Type"]:
+        clean_body = response.text.replace("&", "&amp;")
+        html = ET.fromstring(clean_body)
+        div_error = html.findall(".//div[@class='alert alert-danger']")
+        if div_error:
+            raise error.RPCError(div_error[0].text)
 
 
 class DB(object):
@@ -44,7 +62,9 @@ class DB(object):
         self._odoo = odoo
 
     def dump(self, password, db, format_="zip"):
-        """Backup the `db` database. Returns the dump as a binary ZIP file
+        """Backup the `db` database.
+
+        Returns the dump as a binary ZIP file
         containing the SQL dump file alongside the filestore directory (if any).
 
         >>> dump = odoo.db.dump('super_admin_passwd', 'prod') # doctest: +SKIP
@@ -111,6 +131,20 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/backup"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "name": db,
+                    "backup_format": format_,
+                },
+            )
+            raise_for_status(response)
+            return io.BytesIO(response.content)
         args = [Secret(password), db]
         if v(self._odoo.version)[0] >= 9:
             args.append(format_)
@@ -124,7 +158,7 @@ class DB(object):
         return io.BytesIO(content)
 
     def change_password(self, password, new_password):
-        """Change the administrator password by `new_password`.
+        """Change the administrator `password` by `new_password`.
 
         >>> odoo.db.change_password('super_admin_passwd', 'new_admin_passwd') # doctest: +SKIP
 
@@ -146,6 +180,18 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/change_password"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "master_pwd_new": Secret(new_password),
+                },
+            )
+            return raise_for_status(response)
         self._odoo.json(
             "/jsonrpc",
             {
@@ -155,8 +201,19 @@ class DB(object):
             },
         )
 
-    def create(self, password, db, demo=False, lang="en_US", admin_password="admin"):
-        """Request the server to create a new database named `db`
+    def create(
+        self,
+        password,
+        db,
+        demo=False,
+        lang="en_US",
+        admin_login="admin",
+        admin_password="admin",
+        phone="",
+    ):
+        """Create a new database.
+
+        Request the server to create a new database named `db`
         which will have `admin_password` as administrator password and
         localized with the `lang` parameter.
         You have to set the flag `demo` to `True` in order to insert
@@ -184,6 +241,23 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/create"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "name": db,
+                    "demo": demo,
+                    "lang": lang,
+                    "login": Secret(admin_login),
+                    "password": Secret(admin_password),
+                    "phone": phone,
+                },
+            )
+            return raise_for_status(response)
         self._odoo.json(
             "/jsonrpc",
             {
@@ -194,8 +268,7 @@ class DB(object):
         )
 
     def drop(self, password, db):
-        """Drop the `db` database. Returns `True` if the database was removed,
-        `False` otherwise (database did not exist):
+        """Drop the `db` database.
 
         >>> odoo.db.drop('super_admin_passwd', 'test') # doctest: +SKIP
         True
@@ -217,6 +290,19 @@ class DB(object):
         if self._odoo._env and self._odoo._env.db == db:
             # Remove the existing session to avoid HTTP session error
             self._odoo.logout()
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/drop"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "name": db,
+                },
+            )
+            raise_for_status(response)
+            return True
         data = self._odoo.json(
             "/jsonrpc",
             {"service": "db", "method": "drop", "args": [Secret(password), db]},
@@ -224,8 +310,10 @@ class DB(object):
         return data["result"]
 
     def duplicate(self, password, db, new_db, neutralize_database=False):
-        """Duplicate `db` as `new_db`. If `neutralize_database` is set to `True`,
-        the duplicated database will be neutralized (available from Odoo 16+).
+        """Duplicate `db` as `new_db`.
+
+        If `neutralize_database` is set to `True`, the duplicated database will
+        be neutralized (available from Odoo 16+).
 
         >>> odoo.db.duplicate('super_admin_passwd', 'prod', 'test') # doctest: +SKIP
 
@@ -245,6 +333,20 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/duplicate"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "name": db,
+                    "new_name": new_db,
+                    "neutralize_database": neutralize_database,
+                },
+            )
+            return raise_for_status(response)
         args = [Secret(password), db, new_db]
         # neutralize_database parameter is only available from Odoo 16+
         if neutralize_database and v(self._odoo.version)[0] >= 16:
@@ -279,8 +381,9 @@ class DB(object):
         )
         return data.get("result", [])
 
-    def restore(self, password, db, dump, copy=False):
+    def restore(self, password, db, dump, copy=False, neutralize_database=False):
         """Restore the `dump` database into the new `db` database.
+
         The `dump` file object can be obtained with the
         :func:`dump <DB.dump>` method.
         If `copy` is set to `True`, the restored database will have a new UUID.
@@ -313,6 +416,21 @@ class DB(object):
         """
         if dump.closed:
             raise error.InternalError("Dump file closed")
+        if v(self._odoo.version)[0] >= 19:
+            url = "/web/database/restore"
+            full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            response = requests.request(
+                method="POST",
+                url=full_url,
+                data={
+                    "master_pwd": Secret(password),
+                    "name": db,
+                    "copy": copy,
+                    "neutralize_database": neutralize_database,
+                },
+                files={"backup_file": ("dump", dump)},
+            )
+            return raise_for_status(response)
         b64_data = base64.standard_b64encode(dump.read()).decode()
         self._odoo.json(
             "/jsonrpc",
