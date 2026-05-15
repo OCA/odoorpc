@@ -37,9 +37,9 @@ class BaseTestCase(unittest.TestCase):
             port=cls.env["port"],
             version=cls.env["version"],
         )
-        if v(cls.odoo.version)[0] >= 19:
+        if v(cls.odoo.version)[0] >= 15:
             # NOTE: cannot use for test purpose default 'admin' password (lowercase)
-            # with Odoo 19.0+ and /web/database/ HTTP controllers as they accept
+            # with Odoo 15.0+ and /web/database/ HTTP controllers as they accept
             # by default the default password.
             cls.env["super_pwd"] = "Admin"
         # Create the database
