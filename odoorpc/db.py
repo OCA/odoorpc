@@ -7,7 +7,6 @@ import io
 import sys
 
 from odoorpc import error
-from odoorpc.rpc import HTTPError
 from odoorpc.tools import v
 from odoorpc.rpc.jsonrpclib import Secret, Bloat
 
@@ -22,7 +21,7 @@ if sys.version_info[0] < 3:
 
 # Python >= 3
 else:
-    import xml.etree.ElementTree as ET
+    from html.parser import HTMLParser
 
     import requests
 
@@ -32,14 +31,25 @@ else:
 
 def raise_for_status(response):
     if response.status_code < 200 or response.status_code > 299:
-        raise HTTPError("%s - %s " % (response.status_code, response.reason))
+        raise error.RPCError("%s - %s " % (response.status_code, response.reason))
     # In case of error, Odoo returns it as an HTML page with HTTP 200
     if "text/html" in response.headers["Content-Type"]:
-        clean_body = response.text.replace("&", "&amp;")
-        html = ET.fromstring(clean_body)
-        div_error = html.findall(".//div[@class='alert alert-danger']")
-        if div_error:
-            raise error.RPCError(div_error[0].text)
+        parser = AlertHTMLParser()
+        parser.feed(response.text)
+
+
+class AlertHTMLParser(HTMLParser):
+    # NOTE HTMLParser is more tolerant regarding invalid markups
+    # than xml.etree.ElementTree.
+    def handle_starttag(self, tag, attrs):
+        attrs_ = dict(attrs)
+        self.alert_detected = tag == "div" and "alert alert-danger" in attrs_.get(
+            "class"
+        )
+
+    def handle_data(self, data):
+        if hasattr(self, "alert_detected") and self.alert_detected and data.strip():
+            raise error.RPCError(data)
 
 
 class DB(object):
@@ -131,7 +141,7 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/backup"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
             response = requests.request(
@@ -180,7 +190,7 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied)
         :raise: `urllib.error.URLError` (connection error)
         """
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/change_password"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
             response = requests.request(
@@ -241,7 +251,7 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied)
         :raise: `urllib.error.URLError` (connection error)
         """
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/create"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
             response = requests.request(
@@ -290,7 +300,7 @@ class DB(object):
         if self._odoo._env and self._odoo._env.db == db:
             # Remove the existing session to avoid HTTP session error
             self._odoo.logout()
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/drop"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
             response = requests.request(
@@ -333,18 +343,20 @@ class DB(object):
         :raise: :class:`odoorpc.error.RPCError` (access denied / wrong database)
         :raise: `urllib.error.URLError` (connection error)
         """
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/duplicate"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            data = {
+                "master_pwd": Secret(password),
+                "name": db,
+                "new_name": new_db,
+            }
+            if v(self._odoo.version)[0] >= 16:
+                data["neutralize_database"] = neutralize_database
             response = requests.request(
                 method="POST",
                 url=full_url,
-                data={
-                    "master_pwd": Secret(password),
-                    "name": db,
-                    "new_name": new_db,
-                    "neutralize_database": neutralize_database,
-                },
+                data=data,
             )
             return raise_for_status(response)
         args = [Secret(password), db, new_db]
@@ -387,6 +399,8 @@ class DB(object):
         The `dump` file object can be obtained with the
         :func:`dump <DB.dump>` method.
         If `copy` is set to `True`, the restored database will have a new UUID.
+        If `neutralize_database` is set to `True`, the duplicated database will
+        be neutralized (available from Odoo 16+).
 
         >>> odoo.db.restore('super_admin_passwd', 'test', dump_file) # doctest: +SKIP
 
@@ -416,18 +430,20 @@ class DB(object):
         """
         if dump.closed:
             raise error.InternalError("Dump file closed")
-        if v(self._odoo.version)[0] >= 19:
+        if v(self._odoo.version)[0] >= 15:
             url = "/web/database/restore"
             full_url = self._odoo._connector._proxy_http._get_full_url(url)
+            data = {
+                "master_pwd": Secret(password),
+                "name": db,
+                "copy": copy,
+            }
+            if v(self._odoo.version)[0] >= 16:
+                data["neutralize_database"] = neutralize_database
             response = requests.request(
                 method="POST",
                 url=full_url,
-                data={
-                    "master_pwd": Secret(password),
-                    "name": db,
-                    "copy": copy,
-                    "neutralize_database": neutralize_database,
-                },
+                data=data,
                 files={"backup_file": ("dump", dump)},
             )
             return raise_for_status(response)
