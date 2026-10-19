@@ -1,6 +1,9 @@
 Unreleased
 ==========
 
+- FIX: ``odoo.report.download`` works again with Odoo >= 14.0 (through the HTTP
+  controller, requires to be logged in with a password)
+
 0.10.0
 ======
 

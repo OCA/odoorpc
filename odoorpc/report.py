@@ -6,6 +6,8 @@ to generate/download them.
 """
 import base64
 import io
+import json
+from urllib.parse import quote, urlencode
 
 from odoorpc.tools import get_encodings, v
 
@@ -53,7 +55,11 @@ class Report(object):
     def download(self, name, ids, datas=None, context=None):
         """Download a report from the server and return it as a remote file.
 
-        Warning: this feature is not supported for Odoo >= 14 (CSRF token required).
+        Since Odoo 14.0 the report is retrieved through the HTTP controller
+        (``/report/<type>/<name>/<ids>``), which requires a web session. It is
+        opened with the login and the password used by
+        :func:`odoorpc.ODOO.login`, so it does not work when logged in with
+        an API key only.
 
         For instance, to download the "Quotation / Order" report of sale orders
         identified by the IDs ``[2, 3]``:
@@ -123,13 +129,8 @@ class Report(object):
             IrReport = self._odoo.env["ir.actions.report"]
             report = IrReport.browse(report_id)
             if v(self._odoo.version)[0] >= 14:
-                # Need a CSRF token to print reports on Odoo >= 14
-                raise NotImplementedError
-                # response = report.with_context(context)._render(
-                #     ids, data=datas
-                # )
-            else:
-                response = report.with_context(context).render(ids, data=datas)
+                return self._download_http(report, ids, datas, context)
+            response = report.with_context(context).render(ids, data=datas)
             content = response[0]
             # On the server the result is a bytes string,
             # but the RPC layer of Odoo returns it as a unicode string,
@@ -162,6 +163,36 @@ class Report(object):
             result = encode2bytes(data["result"]["result"])
             content = base64.standard_b64decode(result)
             return io.BytesIO(content)
+
+    def _download_http(self, report, ids, datas, context):
+        """Download a report through the HTTP controller (Odoo >= 14.0)."""
+        odoo = self._odoo
+        if not odoo._password:
+            raise NotImplementedError(
+                "Downloading a report on Odoo >= 14.0 requires to be logged in "
+                "with a password (a web session is needed)."
+            )
+        # The web session set in the cookies is used by the HTTP controller
+        odoo.json(
+            "/web/session/authenticate",
+            {"db": odoo.env.db, "login": odoo._login, "password": odoo._password},
+        )
+        report_type = report.report_type.split("-")[-1]  # qweb-pdf -> pdf
+        if isinstance(ids, int):
+            ids = [ids]
+        url = "/report/%s/%s/%s" % (
+            report_type,
+            quote(report.report_name),
+            ",".join(str(id_) for id_ in ids),
+        )
+        params = {}
+        if datas:
+            params["options"] = json.dumps(datas)
+        if context:
+            params["context"] = json.dumps(context)
+        if params:
+            url += "?" + urlencode(params)
+        return io.BytesIO(odoo.http(url).read())
 
     def list(self):
         """List available reports from the server.
